@@ -3,7 +3,7 @@
 #
 
 # rules:
-#  - name: Safe Zone
+#  - name: Safe Zone Above Sea Level
 #    what: DISALLOW_SPAWN
 #    when:
 #      spawnGroup: [MONSTER]
@@ -58,7 +58,7 @@
 #
 # worldName
 #     List of world names, e.g., 'My World'.  True if mob is spawning in a listed world.  Useful if you need
-#     to the mob filtering to specific worlds.
+#     to limit mob filtering to specific worlds.
 #
 # dimensionId
 #     List of dimension identifiers, e.g., 'minecraft:overworld'.  True if mob is spawning in a listed dimension.

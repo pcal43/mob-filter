@@ -151,6 +151,8 @@ abstract class MFRules {
         boolean isMatch(SpawnRequest spawn);
     }
 
+    // TODO seems like we could optimize by completely dropping rules with a worldName check that won't match
+    // the current running world
     record WorldNameCheck(StringSet worldNames) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
