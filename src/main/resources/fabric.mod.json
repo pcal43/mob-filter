@@ -20,7 +20,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "mobfilter.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.11.3",
