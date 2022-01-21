@@ -3,6 +3,12 @@
 #
 
 # rules:
+
+# - name: Always allow ocelots. Minecraft thinks they are MONSTERS.
+#   what: ALLOW_SPAWN
+#   when:
+#     entityId: ['minecraft:ocelot']
+#
 #  - name: Safe Zone Above Sea Level
 #    what: DISALLOW_SPAWN
 #    when:
