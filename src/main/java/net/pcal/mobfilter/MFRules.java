@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.gen.StructureAccessor;
@@ -131,7 +132,7 @@ abstract class MFRules {
          * Return the id of the biome that the spawn is happening in.
          */
         public String getBiomeId() {
-            final Biome biome = this.serverWorld().getBiome(this.blockPos());
+            final Biome biome = this.serverWorld().getBiome(this.blockPos()).value();
             return String.valueOf(BuiltinRegistries.BIOME.getId(biome)); // FIXME is this right?
         }
 
