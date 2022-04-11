@@ -83,15 +83,13 @@ public class MFService {
     /**
      * Write a default configuration file if none exists.
      */
-    public void createDefaultConfig() {
-        //
-        // write out default config file if none exists
-        //
+    public void ensureConfigExists() {
         if (!configFile.exists()) {
             try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.yaml")) {
                 if (in == null) {
                     throw new IllegalStateException("unable to load default-mobfilter.yaml");
                 }
+                configFilePath.getParent().toFile().mkdirs();
                 java.nio.file.Files.copy(in, configFilePath);
                 logger.info("[MobFilter] wrote default mobfilter.yaml");
             } catch (Exception e) {
@@ -106,7 +104,7 @@ public class MFService {
      */
     public void loadConfig() {
         this.ruleList = null;
-        createDefaultConfig();
+        ensureConfigExists();
         try {
             setLogLevel(Level.INFO);
             //
