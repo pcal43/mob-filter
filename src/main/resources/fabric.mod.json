@@ -10,7 +10,7 @@
     "sources": "https://github.com/pcal43/mob-filter"
   },
   "license": "Apache-2.0",
-  "icon": "mobfilter-icon.png",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
