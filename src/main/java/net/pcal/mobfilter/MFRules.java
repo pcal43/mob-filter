@@ -125,7 +125,7 @@ abstract class MFRules {
         public String getDimensionId() {
             // FIXME how do you get the Identifier for a DimensionType?  Don't understand action 'effects' is
             // but it seems to work.  May break custom dimensions.
-            return this.serverWorld.getDimension().getEffects().toString();
+            return this.serverWorld.getDimensionKey().toString();
         }
 
         /**
