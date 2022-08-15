@@ -8,6 +8,8 @@ MobFilter is Minecraft mod that allows you to limit spawning of mobs in your wor
 
 MobFilter uses the Fabric modloader and runs only on the server.
 
+I will not be doing a Forge version of MobFilter.
+
 ## Usage
 
 MobFilter uses a flexible, rule-based filtering system that you configure.  When Minecraft wants to spawn
