@@ -1,6 +1,8 @@
 plugins {
 	id 'fabric-loom' version '0.12-SNAPSHOT'
 	id 'maven-publish'
+	id "com.modrinth.minotaur" version "2.+"
+	id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -75,19 +77,42 @@ jar {
 	//}
 }
 
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
+
+// https://github.com/modrinth/minotaur
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = "${project.modrinth_projectId}"
+	versionNumber = project.mod_version
+	versionType = "release"
+	uploadFile = remapJar
+	changelog = "<p><a href='https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}'>https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}</a></p>"
+	gameVersions = ["${project.minecraft_version}"]
+	loaders = ["fabric"]
+	dependencies {
+		required.project "fabric-api"
+	}
+}
+
+
+curseforge {
+	apiKey = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
+
+	project {
+		id = "${project.curseforge_projectId}"
+		releaseType = "release"
+		changelog = "https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}"
+		changelogType = "markdown"
+		mod_version = project.mod_version
+		addGameVersion ((String) project.minecraft_version)
+		addGameVersion "Fabric"
+		mainArtifact(remapJar)
+
+		afterEvaluate {
+			uploadTask.dependsOn("remapJar")
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+	options {
+		forgeGradleIntegration = false
 	}
 }
