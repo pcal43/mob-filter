@@ -2,12 +2,11 @@ package net.pcal.mobfilter;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.gen.StructureAccessor;
@@ -16,7 +15,11 @@ import net.minecraft.world.level.ServerWorldProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.MFRules.FilterRuleAction.ALLOW_SPAWN;
@@ -101,7 +104,7 @@ abstract class MFRules {
          * Return the entity id of the mob that is going to spawn.
          */
         public String getEntityId() {
-            return String.valueOf(Registry.ENTITY_TYPE.getId(this.spawnEntry.type)); // FIXME is this right?
+            return String.valueOf(Registries.ENTITY_TYPE.getId(this.spawnEntry.type)); // FIXME is this right?
         }
 
         /**
@@ -130,9 +133,9 @@ abstract class MFRules {
          * Return the id of the biome that the spawn is happening in.
          */
         public String getBiomeId() {
-            final RegistryEntry<Biome> entry = this.serverWorld().getBiome(this.blockPos());
-            final Optional<RegistryKey<Biome>> key = entry.getKey();
-            return key.isPresent() ? String.valueOf(key.get().getValue()) : "ERROR:null RegistryKey";
+            final Biome biome = serverWorld.getBiome(this.blockPos()).value();
+            // FIXME? I'm not entirely sure this is correct
+            return String.valueOf(serverWorld.getRegistryManager().get(RegistryKeys.BIOME).getId(biome));
         }
 
         /**
@@ -140,7 +143,7 @@ abstract class MFRules {
          */
         public String getBlockId() {
             final BlockEntity be = serverWorld.getBlockEntity(this.blockPos); // FIXME do we need to check at y+1?
-            return String.valueOf(Registry.BLOCK_ENTITY_TYPE.getId(be.getType()));
+            return String.valueOf(Registries.BLOCK_ENTITY_TYPE.getId(be.getType()));
         }
     }
 
