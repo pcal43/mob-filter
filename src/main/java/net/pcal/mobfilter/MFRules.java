@@ -1,5 +1,7 @@
 package net.pcal.mobfilter;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
@@ -142,8 +144,9 @@ abstract class MFRules {
          * Return the id of the block that the spawn is happening on.
          */
         public String getBlockId() {
-            final BlockEntity be = serverWorld.getBlockEntity(this.blockPos); // FIXME do we need to check at y+1?
-            return String.valueOf(Registries.BLOCK_ENTITY_TYPE.getId(be.getType()));
+            final BlockState bs = serverWorld.getBlockState(this.blockPos); // FIXME do we need to check at y+1?
+            final Block block = bs.getBlock();
+            return String.valueOf(Registries.BLOCK.getId(block));
         }
     }
 
