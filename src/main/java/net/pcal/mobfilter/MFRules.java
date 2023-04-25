@@ -144,7 +144,7 @@ abstract class MFRules {
          * Return the id of the block that the spawn is happening on.
          */
         public String getBlockId() {
-            final BlockState bs = serverWorld.getBlockState(this.blockPos); // FIXME do we need to check at y+1?
+            final BlockState bs = serverWorld.getBlockState(this.blockPos.down());
             final Block block = bs.getBlock();
             return String.valueOf(Registries.BLOCK.getId(block));
         }
