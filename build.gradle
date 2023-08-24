@@ -33,11 +33,11 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	implementation "org.yaml:snakeyaml:1.33"
-	include "org.yaml:snakeyaml:1.33"
+	implementation "org.yaml:snakeyaml:${snakeyaml_version}"
+	include "org.yaml:snakeyaml:${snakeyaml_version}"
 
-	testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+	testImplementation "org.junit.jupiter:junit-jupiter-api:${junit_version}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junit_version}"
 }
 
 test {
