@@ -13,6 +13,7 @@ test:
 	./gradlew test
 
 
+
 .PHONY: release
 release:
 ifndef SKIP_CHECKS
@@ -23,8 +24,8 @@ ifndef SKIP_CHECKS
 	fi
 
 	@currentBranch=$$(git rev-parse --abbrev-ref HEAD) ;\
-	if [ "$${currentBranch}" != "main" ]; then \
-		echo "Releases must be performed on main"; false; \
+	if [ "$${currentBranch}" != "1.19" ]; then \
+		echo "Releases must be performed on branch 1.19"; false; \
 	fi
 endif
 # todo port this into the makefile.  i think
