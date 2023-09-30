@@ -1,9 +1,14 @@
 #
-# SAMPLE CONFIGURATION - uncomment and edit
+# SAMPLE CONFIGURATION - uncomment (remove the #'s) and edit
 #
+# This is a YAML file: https://yaml.org/spec/1.2.2/
+#
+# If you're having problems with it, copy/pasting it into an online yaml
+# parser like this one can you identify problems:
+#   https://yaml-online-parser.appspot.com/
+
 
 # rules:
-
 #  - name: Always allow ocelots. Minecraft thinks they are MONSTERS.
 #    what: ALLOW_SPAWN
 #    when:

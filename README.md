@@ -1,6 +1,7 @@
 # MobFilter
 
-MobFilter is Minecraft mod that allows you to limit spawning of mobs in your world.  You can use it to 
+MobFilter is a Minecraft mod that allows you to limit spawning of mobs in your world.  
+You can use it to
 * Create safe zones in your world where mobs aren't allowed to spawn.
 * Completely prevent particular mobs from ever spawning
 * Limit mob spawning to specific biomes, times, or light levels
@@ -26,7 +27,7 @@ Rules can test for several conditions, including:
 * Time of Day
 * Light Level
 
-The [default mobfilter configuration file](https://github.com/pcal43/mob-filter/blob/main/src/main/resources/default-mobfilter.yaml) 
+The [default mobfilter configuration file](https://github.com/pcal43/mob-filter/blob/main/src/main/resources/default-mobfilter.yaml)
 provides more detail on setting up rules.
 
 
@@ -46,6 +47,7 @@ rules:
 ```
 
 #### Prevent creepers from ever spawning and also prevent squid from spawning in rivers
+
 ```
 rules:
   - name: No Creepers Ever
