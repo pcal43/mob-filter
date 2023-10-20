@@ -127,7 +127,7 @@ abstract class MFRules {
          * Return the id of the dimension that the spawn is happening in.
          */
         public String getDimensionId() {
-            return this.serverWorld.getDimensionKey().getValue().toString();
+            return this.serverWorld.getRegistryKey().getValue().toString();
         }
 
         /**
