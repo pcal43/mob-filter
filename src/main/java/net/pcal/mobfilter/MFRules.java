@@ -2,6 +2,7 @@ package net.pcal.mobfilter;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
@@ -9,9 +10,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.SpawnSettings;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.level.ServerWorldProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,18 +92,15 @@ abstract class MFRules {
      */
     record SpawnRequest(ServerWorld serverWorld,
                         SpawnGroup spawnGroup,
-                        StructureAccessor structureAccessor,
-                        ChunkGenerator chunkGenerator,
-                        SpawnSettings.SpawnEntry spawnEntry,
+                        EntityType<?> entityType,
                         BlockPos blockPos,
-                        double squaredDistance,
                         Logger logger) {
 
         /**
          * Return the entity id of the mob that is going to spawn.
          */
         public String getEntityId() {
-            return String.valueOf(Registries.ENTITY_TYPE.getId(this.spawnEntry.type)); // FIXME is this right?
+            return String.valueOf(Registries.ENTITY_TYPE.getId(entityType)); // FIXME is this right?
         }
 
         /**
@@ -244,7 +239,7 @@ abstract class MFRules {
     }
 
     /**
-     * An immutable set of strings with membership testing.  This gets used a lot and may be
+     * An immutable set of strings with membership testing.  These gets used a lot and may be
      * in need of optimization.
      */
     @SuppressWarnings("ClassCanBeRecord")
