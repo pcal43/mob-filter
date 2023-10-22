@@ -2,13 +2,14 @@ package net.pcal.mobfilter;
 
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.ServerWorldAccess;
+import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.SpawnSettings;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -64,13 +65,10 @@ public class MFService {
      */
     public boolean isSpawnAllowed(ServerWorld sw,
                                   SpawnGroup sg,
-                                  StructureAccessor sa,
-                                  ChunkGenerator cg,
-                                  SpawnSettings.SpawnEntry se,
-                                  BlockPos.Mutable pos,
-                                  double sd) {
+                                  EntityType<?> et,
+                                  BlockPos.Mutable pos) {
         if (this.ruleList == null) return true;
-        final MFRules.SpawnRequest req = new SpawnRequest(sw, sg, sa, cg, se, pos, sd, this.logger);
+        final MFRules.SpawnRequest req = new SpawnRequest(sw, sg, et, pos, this.logger);
         final boolean allowSpawn = ruleList.isSpawnAllowed(req);
         if (allowSpawn) {
             logger.trace(() -> "[MobFilter] ALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
@@ -78,6 +76,28 @@ public class MFService {
             logger.debug(() -> "[MobFilter] DISALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
         }
         return allowSpawn;
+    }
+    public boolean isSpawnAllowed(ServerWorld sw,
+                                  SpawnGroup sg,
+                                  SpawnSettings.SpawnEntry se,
+                                  BlockPos.Mutable pos) {
+        return isSpawnAllowed(sw, sg, se.type, pos);
+    }
+    public boolean isSpawnAllowed(WorldView world, BlockPos pos, EntityType<?> entityType) {
+        ServerWorld serverWorld;
+        // I went through and looked at all the usages of the mixin that calls this and the methods that call this always use ServerWorldAccess or ServerWorld
+        if (world instanceof ServerWorldAccess) {
+            serverWorld = ((ServerWorldAccess) world).toServerWorld();
+        } else if (world instanceof  ServerWorld) {
+            serverWorld = ((ServerWorld) world);
+        } else {
+            // We shouldn't ever get here but I put it here just in case
+            this.logger.warn("Failed to check the rules for an {} entity. Couldn't find a valid cast for {}", entityType.getName().getString(), world.getClass().getName());
+            return true;
+        }
+        SpawnGroup spawnGroup = entityType.getSpawnGroup();
+
+        return isSpawnAllowed(serverWorld, spawnGroup, entityType, pos.mutableCopy());
     }
 
     /**
