@@ -26,7 +26,20 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.MFRules.*;
+import static net.pcal.mobfilter.MFRules.BiomeCheck;
+import static net.pcal.mobfilter.MFRules.BlockIdCheck;
+import static net.pcal.mobfilter.MFRules.BlockPosCheck;
+import static net.pcal.mobfilter.MFRules.DimensionCheck;
+import static net.pcal.mobfilter.MFRules.EntityIdCheck;
+import static net.pcal.mobfilter.MFRules.FilterCheck;
+import static net.pcal.mobfilter.MFRules.FilterRule;
+import static net.pcal.mobfilter.MFRules.FilterRuleList;
+import static net.pcal.mobfilter.MFRules.LightLevelCheck;
+import static net.pcal.mobfilter.MFRules.SpawnGroupCheck;
+import static net.pcal.mobfilter.MFRules.SpawnRequest;
+import static net.pcal.mobfilter.MFRules.StringSet;
+import static net.pcal.mobfilter.MFRules.TimeOfDayCheck;
+import static net.pcal.mobfilter.MFRules.WorldNameCheck;
 
 
 /**
@@ -61,43 +74,29 @@ public class MFService {
     // Public methods
 
     /**
-     * Called by the mixin to evaluate the rules to see if a mob spawn should be allowed.
+     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
      */
-    public boolean isSpawnAllowed(ServerWorld sw,
-                                  SpawnGroup sg,
-                                  EntityType<?> et,
-                                  BlockPos.Mutable pos) {
+    public boolean isRandomSpawnAllowed(ServerWorld sw,
+                                        SpawnGroup sg,
+                                        SpawnSettings.SpawnEntry se,
+                                        BlockPos.Mutable pos) {
         if (this.ruleList == null) return true;
-        final MFRules.SpawnRequest req = new SpawnRequest(sw, sg, et, pos, this.logger);
-        final boolean allowSpawn = ruleList.isSpawnAllowed(req);
-        if (allowSpawn) {
-            logger.trace(() -> "[MobFilter] ALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
-        } else {
-            logger.debug(() -> "[MobFilter] DISALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
-        }
-        return allowSpawn;
+        return isSpawnAllowed(new SpawnRequest(sw, sg, se.type, pos, this.logger));
     }
-    public boolean isSpawnAllowed(ServerWorld sw,
-                                  SpawnGroup sg,
-                                  SpawnSettings.SpawnEntry se,
-                                  BlockPos.Mutable pos) {
-        return isSpawnAllowed(sw, sg, se.type, pos);
-    }
-    public boolean isSpawnAllowed(WorldView world, BlockPos pos, EntityType<?> entityType) {
-        ServerWorld serverWorld;
-        // I went through and looked at all the usages of the mixin that calls this and the methods that call this always use ServerWorldAccess or ServerWorld
-        if (world instanceof ServerWorldAccess) {
-            serverWorld = ((ServerWorldAccess) world).toServerWorld();
-        } else if (world instanceof  ServerWorld) {
-            serverWorld = ((ServerWorld) world);
+
+    /**
+     * Called by the mixin to evaluate the rules to see if a spawn should be allowed during worldgen.
+     */
+    public boolean isWorldgenSpawnAllowed(WorldView wv, BlockPos pos, EntityType<?> et) {
+        if (this.ruleList == null) return true;
+        final ServerWorld sw;
+        if (wv instanceof ServerWorldAccess) {
+            sw = ((ServerWorldAccess) wv).toServerWorld();
         } else {
-            // We shouldn't ever get here but I put it here just in case
-            this.logger.warn("Failed to check the rules for an {} entity. Couldn't find a valid cast for {}", entityType.getName().getString(), world.getClass().getName());
+            this.logger.warn("Unable to cast to ServerWorldAccess: {}", wv.getClass().getName());
             return true;
         }
-        SpawnGroup spawnGroup = entityType.getSpawnGroup();
-
-        return isSpawnAllowed(serverWorld, spawnGroup, entityType, pos.mutableCopy());
+        return isSpawnAllowed(new SpawnRequest(sw, et.getSpawnGroup(), et, pos, this.logger));
     }
 
     /**
@@ -162,6 +161,19 @@ public class MFService {
 
     // ===================================================================================
     // Private
+
+    /**
+     * Check our rules to see if the given SpawnRequest is allowed to happen.
+     */
+    private boolean isSpawnAllowed(final SpawnRequest req) {
+        final boolean allowSpawn = (ruleList == null || ruleList.isSpawnAllowed(req));
+        if (allowSpawn) {
+            logger.trace(() -> "[MobFilter] ALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+        } else {
+            logger.debug(() -> "[MobFilter] DISALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+        }
+        return allowSpawn;
+    }
 
     /**
      * Manually adjust our logger's level.  Because changing the log4j config is a PITA.
