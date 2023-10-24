@@ -21,30 +21,37 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SpawnHelper.class)
 public abstract class MFMixin {
 
+    /**
+     * Seems to be called when checking for a ranom spawn.
+     */
     @Inject(method = "canSpawn(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/SpawnGroup;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/world/biome/SpawnSettings$SpawnEntry;Lnet/minecraft/util/math/BlockPos$Mutable;D)Z", at = @At("RETURN"), cancellable = true)
-    private static void canSpawn_inject(ServerWorld sw,
-                                        SpawnGroup sg,
-                                        StructureAccessor sa,
-                                        ChunkGenerator cg,
-                                        SpawnSettings.SpawnEntry se,
-                                        BlockPos.Mutable pos,
-                                        double sd,
-                                        CallbackInfoReturnable<Boolean> returnable) {
-        if (returnable.getReturnValue() == true) { // if minecraft code decided it canSpawn...
+    private static void mf_canSpawn(ServerWorld sw,
+                                    SpawnGroup sg,
+                                    StructureAccessor sa,
+                                    ChunkGenerator cg,
+                                    SpawnSettings.SpawnEntry se,
+                                    BlockPos.Mutable pos,
+                                    double sd,
+                                    CallbackInfoReturnable<Boolean> ret) {
+        if (ret.getReturnValue() == true) { // if minecraft code decided it canSpawn...
             // ...call our service to decide if we want to veto the spawn
-            final boolean isSpawnAllowed = MFService.getInstance().isSpawnAllowed(sw, sg, se, pos);
+            final boolean isSpawnAllowed = MFService.getInstance().isRandomSpawnAllowed(sw, sg, se, pos);
             // and change the return value if so
-            if (!isSpawnAllowed) returnable.setReturnValue(false);
+            if (!isSpawnAllowed) ret.setReturnValue(false);
         }
     }
 
+    /**
+     * Seems to be called when checking for a spawn during worldgen.
+     */
     @Inject(method = "canSpawn(Lnet/minecraft/entity/SpawnRestriction$Location;Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/EntityType;)Z", at = @At("RETURN"), cancellable = true)
-    private static void noSpawnIfDisabled(SpawnRestriction.Location location, WorldView world, BlockPos pos, @Nullable EntityType<?> entityType, CallbackInfoReturnable<Boolean> returnable) {
-        if (returnable.getReturnValue() == true) {
-            final boolean isSpawnAllowed = MFService.getInstance().isSpawnAllowed(world, pos, entityType);
-
-            if (!isSpawnAllowed) returnable.setReturnValue(false);
+    private static void mf_canSpawn(SpawnRestriction.Location loc,
+                                    WorldView world, BlockPos pos,
+                                    @Nullable EntityType<?> et,
+                                    CallbackInfoReturnable<Boolean> ret) {
+        if (ret.getReturnValue() == true) {
+            final boolean isSpawnAllowed = MFService.getInstance().isWorldgenSpawnAllowed(world, pos, et);
+            if (!isSpawnAllowed) ret.setReturnValue(false);
         }
     }
-
 }
