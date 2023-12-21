@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import static net.minecraft.entity.SpawnGroup.MONSTER;
+import net.minecraft.world.entity.MobCategory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MFConfigTest {
@@ -17,6 +17,6 @@ public class MFConfigTest {
         }
         assertEquals("TRACE", config.logLevel);
         assertEquals(2, config.rules.length);
-        assertEquals(MONSTER, config.rules[1].when.spawnGroup[0]);
+        assertEquals(MobCategory.MONSTER, config.rules[1].when.spawnGroup[0]);
     }
 }

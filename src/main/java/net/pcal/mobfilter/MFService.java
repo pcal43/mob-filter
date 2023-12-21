@@ -2,15 +2,29 @@ package net.pcal.mobfilter;
 
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.biome.SpawnSettings;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
+import net.pcal.mobfilter.MFRules.BiomeCheck;
+import net.pcal.mobfilter.MFRules.BlockIdCheck;
+import net.pcal.mobfilter.MFRules.BlockPosCheck;
+import net.pcal.mobfilter.MFRules.DimensionCheck;
+import net.pcal.mobfilter.MFRules.EntityIdCheck;
+import net.pcal.mobfilter.MFRules.FilterCheck;
+import net.pcal.mobfilter.MFRules.FilterRule;
+import net.pcal.mobfilter.MFRules.FilterRuleList;
+import net.pcal.mobfilter.MFRules.LightLevelCheck;
+import net.pcal.mobfilter.MFRules.SpawnGroupCheck;
+import net.pcal.mobfilter.MFRules.SpawnRequest;
+import net.pcal.mobfilter.MFRules.StringSet;
+import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
+import net.pcal.mobfilter.MFRules.WorldNameCheck;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,10 +90,10 @@ public class MFService {
     /**
      * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
      */
-    public boolean isRandomSpawnAllowed(ServerWorld sw,
-                                        SpawnGroup sg,
-                                        SpawnSettings.SpawnEntry se,
-                                        BlockPos.Mutable pos) {
+    public boolean isRandomSpawnAllowed(ServerLevel sw,
+                                        MobCategory sg,
+                                        MobSpawnSettings.SpawnerData se,
+                                        BlockPos.MutableBlockPos pos) {
         if (this.ruleList == null) return true;
         return isSpawnAllowed(new SpawnRequest(sw, sg, se.type, pos, this.logger));
     }
@@ -87,16 +101,16 @@ public class MFService {
     /**
      * Called by the mixin to evaluate the rules to see if a spawn should be allowed during worldgen.
      */
-    public boolean isWorldgenSpawnAllowed(WorldView wv, BlockPos pos, EntityType<?> et) {
+    public boolean isWorldgenSpawnAllowed(LevelReader wv, BlockPos pos, EntityType<?> et) {
         if (this.ruleList == null) return true;
-        final ServerWorld sw;
-        if (wv instanceof ServerWorldAccess) {
-            sw = ((ServerWorldAccess) wv).toServerWorld();
+        final ServerLevel sw;
+        if (wv instanceof ServerLevelAccessor) {
+            sw = ((ServerLevelAccessor) wv).getLevel();
         } else {
             this.logger.warn("Unable to cast to ServerWorldAccess: {}", wv.getClass().getName());
             return true;
         }
-        return isSpawnAllowed(new SpawnRequest(sw, et.getSpawnGroup(), et, pos, this.logger));
+        return isSpawnAllowed(new SpawnRequest(sw, et.getCategory(), et, pos, this.logger));
     }
 
     /**
@@ -202,7 +216,7 @@ public class MFService {
                 throw new IllegalArgumentException("'when' must be specified on " + ruleName);
             }
             if (when.spawnGroup != null && when.spawnGroup.length > 0) {
-                final EnumSet<SpawnGroup> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
+                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
                 checks.add(new SpawnGroupCheck(enumSet));
             }
             if (when.entityId != null) checks.add(new EntityIdCheck(StringSet.of(when.entityId)));
