@@ -1,16 +1,5 @@
 package net.pcal.mobfilter;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.level.ServerWorldProperties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +8,17 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ServerLevelData;
 
 import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.MFRules.FilterRuleAction.ALLOW_SPAWN;
@@ -90,8 +90,8 @@ abstract class MFRules {
     /**
      * Encapsualtes the parameters in a minecraft call to 'canSpawn'.
      */
-    record SpawnRequest(ServerWorld serverWorld,
-                        SpawnGroup spawnGroup,
+    record SpawnRequest(ServerLevel serverWorld,
+                        MobCategory spawnGroup,
                         EntityType<?> entityType,
                         BlockPos blockPos,
                         Logger logger) {
@@ -100,19 +100,19 @@ abstract class MFRules {
          * Return the entity id of the mob that is going to spawn.
          */
         public String getEntityId() {
-            return String.valueOf(Registries.ENTITY_TYPE.getId(entityType)); // FIXME is this right?
+            return String.valueOf(BuiltInRegistries.ENTITY_TYPE.getKey(entityType)); // FIXME is this right?
         }
 
         /**
          * Return the name of the world that the spawn is happening in.
          */
         public String getWorldName() {
-            final ServerWorldProperties swp;
+            final ServerLevelData swp;
             try {
-                swp = (ServerWorldProperties) this.serverWorld.getLevelProperties();
+                swp = (ServerLevelData) this.serverWorld.getLevelData();
             } catch (ClassCastException cce) {
                 LOGGER.warn("[MobFilter] serverWorld.getLevelProperties() is unexpected class: " +
-                        this.serverWorld.getLevelProperties().getClass().getName());
+                        this.serverWorld.getLevelData().getClass().getName());
                 return null;
             }
             return swp.getLevelName();
@@ -122,7 +122,7 @@ abstract class MFRules {
          * Return the id of the dimension that the spawn is happening in.
          */
         public String getDimensionId() {
-            return this.serverWorld.getRegistryKey().getValue().toString();
+            return this.serverWorld.dimension().location().toString();
         }
 
         /**
@@ -131,16 +131,16 @@ abstract class MFRules {
         public String getBiomeId() {
             final Biome biome = serverWorld.getBiome(this.blockPos()).value();
             // FIXME? I'm not entirely sure this is correct
-            return String.valueOf(serverWorld.getRegistryManager().get(RegistryKeys.BIOME).getId(biome));
+            return String.valueOf(serverWorld.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome));
         }
 
         /**
          * Return the id of the block that the spawn is happening on.
          */
         public String getBlockId() {
-            final BlockState bs = serverWorld.getBlockState(this.blockPos.down());
+            final BlockState bs = serverWorld.getBlockState(this.blockPos.below());
             final Block block = bs.getBlock();
-            return String.valueOf(Registries.BLOCK.getId(block));
+            return String.valueOf(BuiltInRegistries.BLOCK.getKey(block));
         }
     }
 
@@ -179,7 +179,7 @@ abstract class MFRules {
             return isMatch;
         }
     }
-    record SpawnGroupCheck(EnumSet<SpawnGroup> groups) implements FilterCheck {
+    record SpawnGroupCheck(EnumSet<MobCategory> groups) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
             boolean isMatch = this.groups.contains(req.spawnGroup);
@@ -209,7 +209,7 @@ abstract class MFRules {
     record BlockPosCheck(Direction.Axis axis, int min, int max) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            int val = req.blockPos.getComponentAlongAxis(this.axis);
+            int val = req.blockPos.get(this.axis);
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     BlockPosCheck " + axis + " " + min + " <= " + val + " <= " + max+ " "+isMatch);
             return isMatch;
@@ -220,7 +220,7 @@ abstract class MFRules {
     record LightLevelCheck(int min, int max) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            int val = req.serverWorld().getLightLevel(req.blockPos);
+            int val = req.serverWorld().getMaxLocalRawBrightness(req.blockPos);
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     LightLevelCheck " + min + " <= " + val + " <= " + max+ " " +isMatch);
             return isMatch;
@@ -231,7 +231,7 @@ abstract class MFRules {
     record TimeOfDayCheck(long min, long max) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            long val = req.serverWorld.getTimeOfDay();
+            long val = req.serverWorld.getDayTime();
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     TimeOfDayCheck " + min + " <= " + val + " <= " + max+" "+isMatch);
             return isMatch;
