@@ -231,7 +231,8 @@ abstract class MFRules {
     record TimeOfDayCheck(long min, long max) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            long val = req.serverWorld.getDayTime();
+            final long TICKS_PER_DAY = 24000;
+            long val = req.serverWorld.getDayTime() % TICKS_PER_DAY; // apparently getDayTime() is same as getWorldTime()?
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     TimeOfDayCheck " + min + " <= " + val + " <= " + max+" "+isMatch);
             return isMatch;
