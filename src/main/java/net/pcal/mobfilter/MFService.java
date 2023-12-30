@@ -154,6 +154,11 @@ public class MFService {
             this.ruleList = buildRules(config);
             if (this.ruleList == null) {
                 this.logger.warn("[MobFilter] No rules configured in " + configFile.getAbsolutePath());
+            } else {
+                this.logger.info("[MobFilter] "+ruleList.getSize()+" rule(s) loaded:");
+                 for (FilterRule rule : this.ruleList.getRules()) {
+                     this.logger.info("- "+rule.toString());
+                }
             }
             //
             // adjust logging to configured level
@@ -166,7 +171,7 @@ public class MFService {
                     setLogLevel(configuredLevel);
                 }
             }
-            logger.info("[MobFilter] " + ruleList.getSize() + " rule(s) loaded.  Log level is " + logger.getLevel());
+            logger.info("[MobFilter] Log level is " + logger.getLevel());
         } catch (Exception e) {
             logger.catching(Level.ERROR, e);
             logger.error("[MobFilter] Failed to load configuration from " + configFile.getAbsolutePath());
