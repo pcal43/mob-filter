@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +54,9 @@ abstract class MFRules {
             return this.rules.size();
         }
 
+        List<FilterRule> getRules() {
+            return Collections.unmodifiableList(rules);
+        }
     }
 
 
