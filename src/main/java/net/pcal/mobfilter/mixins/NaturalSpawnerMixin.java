@@ -41,11 +41,31 @@ public abstract class NaturalSpawnerMixin {
         }
     }
 
+    private static void isValidPositionForMob(net.minecraft.server.level.ServerLevel world,
+                                                 net.minecraft.world.entity.Mob mob,
+                                                 double d,
+                                                 CallbackInfoReturnable<Boolean> ret) {
+        if (ret.getReturnValue() == true) {
+            final EntityType et = mob.getType();
+            final BlockPos pos = mob.getPosition(d);
+            final boolean isSpawnAllowed = MFService.getInstance().isWorldgenSpawnAllowed(world, pos, et);
+            if (!isSpawnAllowed) ret.setReturnValue(false);
+        }
+    }
+
+    public static boolean isValidEmptySpawnBlock(net.minecraft.world.level.BlockGetter blockGetter, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.material.FluidState fluidState, net.minecraft.world.entity.EntityType<?> entityType) {
+
+        /* compiled code */
+    }
+    private boolean canSpawn(net.minecraft.world.entity.EntityType<?> entityType, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.chunk.ChunkAccess chunkAccess) {
+        entityType.get
+    }
+
     /**
      * Seems to be called when checking for a spawn during worldgen.
      */
     @Inject(method = "isSpawnPositionOk(Lnet/minecraft/world/entity/SpawnPlacements$Type;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Z", at = @At("RETURN"), cancellable = true)
-    private static void mf_isSpawnPositionOk(SpawnPlacementType loc,
+    private static void mf_isSpawnPositionOk(SpawnPlacementType ignored,
                                              LevelReader world,
                                              BlockPos pos,
                                              @Nullable EntityType<?> et,
