@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.SpawnPlacementType;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.StructureManager;
@@ -45,7 +45,7 @@ public abstract class NaturalSpawnerMixin {
      * Seems to be called when checking for a spawn during worldgen.
      */
     @Inject(method = "isSpawnPositionOk(Lnet/minecraft/world/entity/SpawnPlacements$Type;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Z", at = @At("RETURN"), cancellable = true)
-    private static void mf_isSpawnPositionOk(SpawnPlacements.Type loc,
+    private static void mf_isSpawnPositionOk(SpawnPlacementType loc,
                                              LevelReader world,
                                              BlockPos pos,
                                              @Nullable EntityType<?> et,
