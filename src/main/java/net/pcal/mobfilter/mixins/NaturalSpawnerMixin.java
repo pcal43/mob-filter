@@ -61,6 +61,8 @@ public abstract class NaturalSpawnerMixin {
         entityType.get
     }
 
+    isValidPositionForMob
+
     /**
      * Seems to be called when checking for a spawn during worldgen.
      */
