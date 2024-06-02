@@ -6,6 +6,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.pcal.mobfilter.MFService;
@@ -25,10 +27,12 @@ import java.util.function.Consumer;
 @Mixin(EntityType.class)
 public abstract class EntityTypeMixin {
 
-
     @Nullable
     @Inject(method = "spawn", at = @At("HEAD"), cancellable = true)
-    public void mf_spawn(ServerLevel serverLevel, BlockPos blockPos, MobSpawnType mobSpawnType) {
+    public void mf_spawn(ServerLevel serverLevel, BlockPos blockPos, MobSpawnType mobSpawnType,  CallbackInfoReturnable cir) {
+        if ((Object)this instanceof Mob mob) {
+            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mob.getType(), blockPos, mobSpawnType)) cir.cancel();
+        }
     }
 
     @Nullable
@@ -39,9 +43,9 @@ public abstract class EntityTypeMixin {
                          MobSpawnType mobSpawnType,
                          boolean bl,
                          boolean bl2,
-                         CallbackInfoReturnable ci) {
+                         CallbackInfoReturnable cir) {
         if ((Object)this instanceof Mob mob) {
-            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mob.getType(), mob.blockPosition(), mobSpawnType)) ci.cancel();
+            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mob.getType(), mob.blockPosition(), mobSpawnType)) cir.cancel();
         }
     }
 }

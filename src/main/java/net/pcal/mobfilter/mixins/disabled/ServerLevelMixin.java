@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.mixins;
+package net.pcal.mobfilter.mixins.disabled;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
