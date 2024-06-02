@@ -7,9 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
@@ -40,20 +37,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.MFRules.BiomeCheck;
-import static net.pcal.mobfilter.MFRules.BlockIdCheck;
-import static net.pcal.mobfilter.MFRules.BlockPosCheck;
-import static net.pcal.mobfilter.MFRules.DimensionCheck;
-import static net.pcal.mobfilter.MFRules.EntityIdCheck;
-import static net.pcal.mobfilter.MFRules.FilterCheck;
-import static net.pcal.mobfilter.MFRules.FilterRule;
-import static net.pcal.mobfilter.MFRules.FilterRuleList;
-import static net.pcal.mobfilter.MFRules.LightLevelCheck;
-import static net.pcal.mobfilter.MFRules.SpawnGroupCheck;
-import static net.pcal.mobfilter.MFRules.SpawnRequest;
-import static net.pcal.mobfilter.MFRules.StringSet;
-import static net.pcal.mobfilter.MFRules.TimeOfDayCheck;
-import static net.pcal.mobfilter.MFRules.WorldNameCheck;
 
 
 /**
@@ -90,27 +73,12 @@ public class MFService {
     /**
      * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
      */
-    public boolean isRandomSpawnAllowed(ServerLevel sw,
-                                        MobCategory sg,
-                                        MobSpawnSettings.SpawnerData se,
-                                        BlockPos.MutableBlockPos pos) {
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isSpawnAllowed(ServerLevel serverLevel,
+                                  EntityType<?> entityType,
+                                  BlockPos pos) {
         if (this.ruleList == null) return true;
-        return isSpawnAllowed(new SpawnRequest(sw, sg, se.type, pos, this.logger));
-    }
-
-    /**
-     * Called by the mixin to evaluate the rules to see if a spawn should be allowed during worldgen.
-     */
-    public boolean isWorldgenSpawnAllowed(LevelReader wv, BlockPos pos, EntityType<?> et) {
-        if (this.ruleList == null) return true;
-        final ServerLevel sw;
-        if (wv instanceof ServerLevelAccessor) {
-            sw = ((ServerLevelAccessor) wv).getLevel();
-        } else {
-            this.logger.warn("Unable to cast to ServerWorldAccess: {}", wv.getClass().getName());
-            return true;
-        }
-        return isSpawnAllowed(new SpawnRequest(sw, et.getCategory(), et, pos, this.logger));
+        return isSpawnAllowed(new SpawnRequest(serverLevel, entityType.getCategory(), entityType, pos, this.logger));
     }
 
     /**

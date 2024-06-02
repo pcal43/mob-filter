@@ -2,9 +2,9 @@
   "required": true,
   "minVersion": "0.8",
   "package": "net.pcal.mobfilter.mixins",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "NaturalSpawnerMixin"
+    "SpawnPlacementsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
