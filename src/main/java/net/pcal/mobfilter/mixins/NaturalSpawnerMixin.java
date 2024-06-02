@@ -4,14 +4,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacementType;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.pcal.mobfilter.MFService;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -53,26 +50,20 @@ public abstract class NaturalSpawnerMixin {
         }
     }
 
-    public static boolean isValidEmptySpawnBlock(net.minecraft.world.level.BlockGetter blockGetter, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.block.state.BlockState blockState, net.minecraft.world.level.material.FluidState fluidState, net.minecraft.world.entity.EntityType<?> entityType) {
-
-        /* compiled code */
-    }
-    private boolean canSpawn(net.minecraft.world.entity.EntityType<?> entityType, net.minecraft.core.BlockPos blockPos, net.minecraft.world.level.chunk.ChunkAccess chunkAccess) {
-        entityType.get
-    }
-
-    isValidPositionForMob
 
     /**
      * Seems to be called when checking for a spawn during worldgen.
      */
-    @Inject(method = "isSpawnPositionOk(Lnet/minecraft/world/entity/SpawnPlacements$Type;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Z", at = @At("RETURN"), cancellable = true)
-    private static void mf_isSpawnPositionOk(SpawnPlacementType ignored,
-                                             LevelReader world,
-                                             BlockPos pos,
-                                             @Nullable EntityType<?> et,
-                                             CallbackInfoReturnable<Boolean> ret) {
+    @Inject(method = "canSpawnMobAt", at = @At("RETURN"), cancellable = true)
+    private static void mf_canSpawnMobAt(ServerLevel world,
+                                         StructureManager structureManager,
+                                         ChunkGenerator chunkGenerator,
+                                         MobCategory mobCategory,
+                                         MobSpawnSettings.SpawnerData spawnerData,
+                                         BlockPos pos,
+                                         CallbackInfoReturnable<Boolean> ret) {
         if (ret.getReturnValue() == true) {
+            final EntityType et = spawnerData.type;
             final boolean isSpawnAllowed = MFService.getInstance().isWorldgenSpawnAllowed(world, pos, et);
             if (!isSpawnAllowed) ret.setReturnValue(false);
         }
