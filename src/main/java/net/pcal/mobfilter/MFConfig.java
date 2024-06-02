@@ -1,6 +1,7 @@
 package net.pcal.mobfilter;
 
 
+import net.minecraft.world.entity.MobSpawnType;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -36,6 +37,7 @@ public class MFConfig {
         public String[] dimensionId;
         public String[] entityId;
         public String[] biomeId;
+        public MobSpawnType[] spawnType;
         public MobCategory[] spawnGroup;
         public String[] blockX;
         public String[] blockY;

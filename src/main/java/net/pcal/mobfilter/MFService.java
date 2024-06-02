@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
@@ -19,6 +20,7 @@ import net.pcal.mobfilter.MFRules.FilterRuleList;
 import net.pcal.mobfilter.MFRules.LightLevelCheck;
 import net.pcal.mobfilter.MFRules.SpawnGroupCheck;
 import net.pcal.mobfilter.MFRules.SpawnRequest;
+import net.pcal.mobfilter.MFRules.SpawnTypeCheck;
 import net.pcal.mobfilter.MFRules.StringSet;
 import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
 import net.pcal.mobfilter.MFRules.WorldNameCheck;
@@ -76,9 +78,21 @@ public class MFService {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isSpawnAllowed(ServerLevel serverLevel,
                                   EntityType<?> entityType,
-                                  BlockPos pos) {
+                                  BlockPos pos,
+                                  MobSpawnType spawnType) {
         if (this.ruleList == null) return true;
-        return isSpawnAllowed(new SpawnRequest(serverLevel, entityType.getCategory(), entityType, pos, this.logger));
+        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
+    }
+
+    /**
+     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isFreshEntityAllowed(ServerLevel serverLevel,
+                                        EntityType<?> entityType,
+                                        BlockPos pos) {
+        if (this.ruleList == null) return true;
+        return isSpawnAllowed(new SpawnRequest(serverLevel, null, entityType.getCategory(), entityType, pos, this.logger));
     }
 
     /**
@@ -155,9 +169,9 @@ public class MFService {
     private boolean isSpawnAllowed(final SpawnRequest req) {
         final boolean allowSpawn = (ruleList == null || ruleList.isSpawnAllowed(req));
         if (allowSpawn) {
-            logger.trace(() -> "[MobFilter] ALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+            logger.info(() -> "[MobFilter] ALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
         } else {
-            logger.debug(() -> "[MobFilter] DISALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+            logger.info(() -> "[MobFilter] DISALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
         }
         return allowSpawn;
     }
@@ -187,6 +201,10 @@ public class MFService {
             final MFConfig.When when = configRule.when;
             if (when == null) {
                 throw new IllegalArgumentException("'when' must be specified on " + ruleName);
+            }
+            if (when.spawnType != null && when.spawnType.length > 0) {
+                final EnumSet<MobSpawnType> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
+                checks.add(new SpawnTypeCheck(enumSet));
             }
             if (when.spawnGroup != null && when.spawnGroup.length > 0) {
                 final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));

@@ -7,6 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -95,6 +96,7 @@ abstract class MFRules {
      * Encapsualtes the parameters in a minecraft call to 'canSpawn'.
      */
     record SpawnRequest(ServerLevel serverWorld,
+                        MobSpawnType spawnType,
                         MobCategory spawnGroup,
                         EntityType<?> entityType,
                         BlockPos blockPos,
@@ -183,11 +185,21 @@ abstract class MFRules {
             return isMatch;
         }
     }
+
+    record SpawnTypeCheck(EnumSet<MobSpawnType> types) implements FilterCheck {
+        @Override
+        public boolean isMatch(SpawnRequest req) {
+            boolean isMatch = this.types.contains(req.spawnType);
+            req.logger().trace(() -> "[MobFilter]     SpawnTypeCheck: " + this.types + " " + req.spawnType + " " + isMatch + " " + isMatch);
+            return isMatch;
+        }
+    }
+
     record SpawnGroupCheck(EnumSet<MobCategory> groups) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
             boolean isMatch = this.groups.contains(req.spawnGroup);
-            req.logger().trace(() -> "[MobFilter]     SpawnGroupCheck: " + this.groups + " " + req.spawnGroup + " " + this.groups.contains(req.spawnGroup) + " " + isMatch);
+            req.logger().trace(() -> "[MobFilter]     SpawnGroupCheck: " + this.groups + " " + req.spawnGroup + " " + isMatch + " " + isMatch);
             return isMatch;
         }
     }
@@ -219,7 +231,6 @@ abstract class MFRules {
             return isMatch;
         }
     }
-
 
     record LightLevelCheck(int min, int max) implements FilterCheck {
         @Override
