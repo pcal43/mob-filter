@@ -1,7 +1,5 @@
-package net.pcal.mobfilter.mixins;
+package net.pcal.mobfilter.mixins.disabled;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -15,6 +13,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * DISABLED.  This is hopefully redundant (we try to catch spawn events earlier in the other mx with earlier checks)
+ * and may have unanticipated side effects, so disabled in mixins.json.  Leaving it here as a note.
+ */
 @SuppressWarnings("ALL")
 @Mixin(PathfinderMob.class)
 public abstract class PathfinderMobMixin {

@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.mixins;
+package net.pcal.mobfilter.mixins.disabled;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;

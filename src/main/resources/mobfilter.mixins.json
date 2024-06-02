@@ -4,10 +4,9 @@
   "package": "net.pcal.mobfilter.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "MobMixin",
-    "PathfinderMobMixin",
+    "SpawnPlacementsMixin",
     "EntityTypeMixin",
-    "SpawnPlacementsMixin"
+    "StructureTemplateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

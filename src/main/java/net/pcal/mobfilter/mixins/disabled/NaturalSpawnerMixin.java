@@ -16,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.function.Consumer;
 
 /**
- *
+ * DISABLED.  This is hopefully redundant (we try to catch spawn events earlier in the other mx with earlier checks)
+ * and may have unanticipated side effects, so disabled in mixins.json.  Leaving it here as a note.
  */
 @SuppressWarnings("ALL")
 @Mixin(NaturalSpawner.class)

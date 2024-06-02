@@ -17,24 +17,24 @@ public abstract class EntityTypeMixin {
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(net.minecraft.server.level.ServerLevel serverLevel,
-                         net.minecraft.core.BlockPos blockPos,
-                         net.minecraft.world.entity.MobSpawnType mobSpawnType,
+                          net.minecraft.core.BlockPos blockPos,
+                          net.minecraft.world.entity.MobSpawnType mobSpawnType,
                           CallbackInfoReturnable<net.minecraft.world.entity.Entity> cir) {
-            if (!MFService.getInstance().isSpawnAllowed2(serverLevel, (EntityType<? extends Mob>)(Object)this, blockPos, mobSpawnType)) {
-                cir.setReturnValue(null);
-                cir.cancel();
-            }
+        if (!MFService.getInstance().isSpawnAllowed2(serverLevel, (EntityType<? extends Mob>) (Object) this, blockPos, mobSpawnType)) {
+            cir.setReturnValue(null);
+            cir.cancel();
+        }
     }
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(net.minecraft.server.level.ServerLevel serverLevel,
-                         java.util.function.Consumer<?> consumer,
-                         net.minecraft.core.BlockPos blockPos,
-                         net.minecraft.world.entity.MobSpawnType mobSpawnType,
-                         boolean bl,
-                         boolean bl2,
-                         CallbackInfoReturnable<net.minecraft.world.entity.Entity> cir) {
-        if (!MFService.getInstance().isSpawnAllowed3(serverLevel, (EntityType<? extends Mob>)(Object)this, blockPos, mobSpawnType)) {
+                          java.util.function.Consumer<?> ignored0,
+                          net.minecraft.core.BlockPos blockPos,
+                          net.minecraft.world.entity.MobSpawnType mobSpawnType,
+                          boolean ignored1,
+                          boolean ignored2,
+                          CallbackInfoReturnable<net.minecraft.world.entity.Entity> cir) {
+        if (!MFService.getInstance().isSpawnAllowed3(serverLevel, (EntityType<? extends Mob>) (Object) this, blockPos, mobSpawnType)) {
             cir.setReturnValue(null);
             cir.cancel();
         }
