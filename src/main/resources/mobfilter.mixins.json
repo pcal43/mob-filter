@@ -6,7 +6,8 @@
   "mixins": [
     "MobMixin",
     "PathfinderMobMixin",
-    "EntityTypeMixin"
+    "EntityTypeMixin",
+    "SpawnPlacementsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

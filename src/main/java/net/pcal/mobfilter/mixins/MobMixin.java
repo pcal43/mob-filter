@@ -36,7 +36,7 @@ public abstract class MobMixin {
     private void mf_checkSpawnRules(LevelAccessor levelAccessor, MobSpawnType mobSpawnType, CallbackInfoReturnable ci) {
         final Mob mob = (Mob) (Object) this;
         if (levelAccessor instanceof ServerLevelAccessor sla) {
-            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), mob.getType(), mob.blockPosition(), mobSpawnType)) ci.cancel();
+            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), (EntityType<? extends Mob>)mob.getType(), mob.blockPosition(), mobSpawnType)) ci.cancel();
         } else {
             LogManager.getLogger(MFService.class).debug("Unexpected LevelAccessor: " + levelAccessor.getClass());
         }

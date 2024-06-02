@@ -2,6 +2,8 @@ package net.pcal.mobfilter.mixins.disabled;
 
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.pcal.mobfilter.MFService;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +25,7 @@ public abstract class WorldGenRegionMixin {
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable ci) {
         if (!MFService.getInstance().isSpawnAllowed(
                 ((WorldGenRegion)(Object)this).getLevel(),
-                entity.getType(),
+                (EntityType<Mob>)entity.getType(),
                 entity.blockPosition(),
                 MobSpawnType.CHUNK_GENERATION)) { // they aren't techwe can reasonably classify these
             ci.cancel();

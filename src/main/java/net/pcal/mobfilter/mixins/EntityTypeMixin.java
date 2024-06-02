@@ -20,12 +20,10 @@ public abstract class EntityTypeMixin {
                          net.minecraft.core.BlockPos blockPos,
                          net.minecraft.world.entity.MobSpawnType mobSpawnType,
                           CallbackInfoReturnable<net.minecraft.world.entity.Entity> cir) {
-        if ((Object)this instanceof Mob mob) {
-            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mob.getType(), blockPos, mobSpawnType)) {
+            if (!MFService.getInstance().isSpawnAllowed2(serverLevel, (EntityType<? extends Mob>)(Object)this, blockPos, mobSpawnType)) {
                 cir.setReturnValue(null);
                 cir.cancel();
             }
-        }
     }
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
@@ -36,11 +34,9 @@ public abstract class EntityTypeMixin {
                          boolean bl,
                          boolean bl2,
                          CallbackInfoReturnable<net.minecraft.world.entity.Entity> cir) {
-        if ((Object)this instanceof Mob mob) {
-            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mob.getType(), mob.blockPosition(), mobSpawnType)) {
-                cir.setReturnValue(null);
-                cir.cancel();
-            }
+        if (!MFService.getInstance().isSpawnAllowed3(serverLevel, (EntityType<? extends Mob>)(Object)this, blockPos, mobSpawnType)) {
+            cir.setReturnValue(null);
+            cir.cancel();
         }
     }
 }

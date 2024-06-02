@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
@@ -77,12 +78,42 @@ public class MFService {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isSpawnAllowed(ServerLevel serverLevel,
-                                  EntityType<?> entityType,
+                                  EntityType<? extends Mob> entityType,
                                   BlockPos pos,
                                   MobSpawnType spawnType) {
         if (this.ruleList == null) return true;
         return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
     }
+    /**
+     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isSpawnAllowed2(ServerLevel serverLevel,
+                                  EntityType<? extends Mob> entityType,
+                                  BlockPos pos,
+                                  MobSpawnType spawnType) {
+        if (this.ruleList == null) return true;
+        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
+    }
+    /**
+     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isSpawnAllowed3(ServerLevel serverLevel,
+                                   EntityType<?> entityType,
+                                   BlockPos pos,
+                                   MobSpawnType spawnType) {
+        if (this.ruleList == null) return true;
+        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
+    }
+    public boolean isSpawnAllowed4(ServerLevel serverLevel,
+                                   EntityType<?> entityType,
+                                   BlockPos pos,
+                                   MobSpawnType spawnType) {
+        if (this.ruleList == null) return true;
+        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
+    }
+
 
     /**
      * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
@@ -169,9 +200,9 @@ public class MFService {
     private boolean isSpawnAllowed(final SpawnRequest req) {
         final boolean allowSpawn = (ruleList == null || ruleList.isSpawnAllowed(req));
         if (allowSpawn) {
-            logger.info(() -> "[MobFilter] ALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+            logger.debug(() -> "[MobFilter] ALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
         } else {
-            logger.info(() -> "[MobFilter] DISALLOW " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+            logger.debug(() -> "[MobFilter] DISALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
         }
         return allowSpawn;
     }
