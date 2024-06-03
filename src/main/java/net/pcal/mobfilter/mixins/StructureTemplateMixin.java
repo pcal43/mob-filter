@@ -21,7 +21,6 @@ import static net.pcal.mobfilter.MFMixinBodies.StructureTemplateMixin_method_179
 @Mixin(StructureTemplate.class)
 public abstract class StructureTemplateMixin {
 
-
     /**
      * This targets the lambda passed to createEntityIgnoreException() in placeEntities().
      */
