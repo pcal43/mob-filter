@@ -1,13 +1,13 @@
 package net.pcal.mobfilter;
 
 
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.InputStream;
-import net.minecraft.world.entity.MobCategory;
 
 /**
  * Object model for the config file.

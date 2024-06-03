@@ -5,16 +5,10 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.phys.Vec3;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
@@ -35,8 +29,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +38,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -76,6 +67,7 @@ public class MFService {
 
     private final Logger logger = LogManager.getLogger(MFService.class);
     private FilterRuleList ruleList;
+    private Level logLevel = Level.INFO;
     final Path configFilePath = Paths.get("config", "mobfilter.yaml");
     final File configFile = configFilePath.toFile();
 
@@ -92,10 +84,12 @@ public class MFService {
         if (this.ruleList == null) return true;
         final SpawnRequest req = new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger);
         final boolean allowSpawn = ruleList.isSpawnAllowed(req);
-        if (allowSpawn) {
-            logger.debug(() -> "[MobFilter] ALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
-        } else {
-            logger.debug(() -> "[MobFilter] DISALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+        if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
+            if (allowSpawn) {
+                logger.debug(() -> "[MobFilter] ALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+            } else {
+                logger.debug(() -> "[MobFilter] DISALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+            }
         }
         return allowSpawn;
     }
@@ -173,6 +167,7 @@ public class MFService {
      */
     private void setLogLevel(Level logLevel) {
         Configurator.setLevel(MFService.class.getName(), logLevel);
+        this.logLevel = logLevel;
     }
 
     /**
