@@ -6,7 +6,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.pcal.mobfilter.MFService;
+import net.pcal.mobfilter.MFMixinBodies;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,6 +26,6 @@ public abstract class SpawnPlacementsMixin {
                                            BlockPos blockPos,
                                            RandomSource ignored,
                                            CallbackInfoReturnable cir) {
-        MFService.MixinBodies.SpawnPlacementsMixin_checkSpawnRules(entityType, sla, mobSpawnType, blockPos, ignored, cir);
+        MFMixinBodies.SpawnPlacementsMixin_checkSpawnRules(entityType, sla, mobSpawnType, blockPos, ignored, cir);
     }
 }

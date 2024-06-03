@@ -6,7 +6,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.pcal.mobfilter.MFService;
+import net.pcal.mobfilter.MFMixinBodies;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,7 +26,7 @@ public abstract class EntityTypeMixin {
                           BlockPos blockPos,
                           MobSpawnType mobSpawnType,
                           CallbackInfoReturnable<Entity> cir) {
-        MFService.MixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, blockPos, mobSpawnType, cir);
+        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, blockPos, mobSpawnType, cir);
     }
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
@@ -37,7 +37,7 @@ public abstract class EntityTypeMixin {
                           boolean ignored1,
                           boolean ignored2,
                           CallbackInfoReturnable<Entity> cir) {
-        MFService.MixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, ignored0, blockPos, mobSpawnType, ignored1, ignored2, cir);
+        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, ignored0, blockPos, mobSpawnType, ignored1, ignored2, cir);
     }
 }
 

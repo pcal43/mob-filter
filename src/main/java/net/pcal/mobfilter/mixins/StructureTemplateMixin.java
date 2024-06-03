@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static net.pcal.mobfilter.MFService.MixinBodies.StructureTemplateMixin_method_17917;
+import static net.pcal.mobfilter.MFMixinBodies.StructureTemplateMixin_method_17917;
 
 /**
  * This intercepts spawns during structure generation.
