@@ -54,8 +54,9 @@
 # It may contain any of the following keys:
 #
 # spawnGroup
-#     List of net.minecraft.entity.SpawnGroup values, such as MONSTER or CREATURE.  The condition is true when
-#     the mob to be spawned is in one of the listed groups.
+#     List of net.minecraft.entity.MobCategory values.  The condition is true when# the mob to be spawned is in one of
+#     the listed categories.  Valid values include MONSTER, CREATURE, AMBIENT, AXOLOTLS, UNDERGROUND_WATER_CREATURE,
+#	  WATER_CREATURE, WATER_AMBIENT and MISC.
 #
 # entityId
 #     List of entity ids, e.g. 'minecraft:zombie'.  The condition is true when the id of the mob to be spawned is
@@ -86,9 +87,13 @@
 # timeOfDay
 #     Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within the range.
 #
-
-
-
+# spawnType
+#    A list of net.minecraft.entity.MobSpawnType values.  The condition is true when the mob is being spawned due
+#    to one of the listed reasons.  Valid values include NATURAL, CHUNK_GENERATION, SPAWNER, STRUCTURE, BREEDING,
+#	 MOB_SUMMONED, JOCKEY,EVENT, CONVERSION, REINFORCEMENT, TRIGGERED, BUCKET, SPAWN_EGG, COMMAND, DISPENSER,
+#	 PATROL, and TRIAL_SPAWNER.
+#
+#
 #
 # NOTES
 #
