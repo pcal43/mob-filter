@@ -1,10 +1,10 @@
 package net.pcal.mobfilter;
 
+import net.minecraft.world.entity.MobCategory;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
-import net.minecraft.world.entity.MobCategory;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MFConfigTest {
