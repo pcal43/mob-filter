@@ -1,6 +1,7 @@
 package net.pcal.mobfilter;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -21,17 +22,6 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings("unchecked")
 public class MFMixinBodies {
-
-    public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self,
-                                             ServerLevel serverLevel,
-                                             BlockPos blockPos,
-                                             MobSpawnType mobSpawnType,
-                                             CallbackInfoReturnable<Entity> cir) {
-        if (!MFService.getInstance().isSpawnAllowed(serverLevel, mobSpawnType, self, blockPos)) {
-            cir.setReturnValue(null);
-            cir.cancel();
-        }
-    }
 
     public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self, ServerLevel serverLevel,
                                              Consumer<?> ignored0,
@@ -62,6 +52,7 @@ public class MFMixinBodies {
                                                            Vec3 ignored2,
                                                            boolean ignored3,
                                                            ServerLevelAccessor sla,
+                                                           CompoundTag ignored4,
                                                            Entity entity,
                                                            CallbackInfo ci
     ) {
