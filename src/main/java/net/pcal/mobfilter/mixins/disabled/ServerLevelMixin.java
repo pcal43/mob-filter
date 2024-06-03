@@ -19,11 +19,5 @@ public abstract class ServerLevelMixin {
 
     @Inject(method = "addFreshEntity", at = @At("HEAD"), cancellable = true)
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable ci) {
-        if (!MFService.getInstance().isFreshEntityAllowed(
-                ((ServerLevel)(Object)this),
-                entity.getType(),
-                entity.blockPosition())) {
-            ci.cancel();
-        }
     }
 }

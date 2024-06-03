@@ -25,9 +25,9 @@ public abstract class WorldGenRegionMixin {
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable ci) {
         if (!MFService.getInstance().isSpawnAllowed(
                 ((WorldGenRegion)(Object)this).getLevel(),
-                (EntityType<Mob>)entity.getType(),
-                entity.blockPosition(),
-                MobSpawnType.CHUNK_GENERATION)) { // they aren't techwe can reasonably classify these
+                MobSpawnType.CHUNK_GENERATION, (EntityType<Mob>)entity.getType(),
+                entity.blockPosition()
+        )) { // they aren't techwe can reasonably classify these
             ci.cancel();
         }
     }

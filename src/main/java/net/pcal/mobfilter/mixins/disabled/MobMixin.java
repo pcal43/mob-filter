@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Mob.class)
 public abstract class MobMixin {
 
-    @Inject(method = "checkMobSpawnRules", at = @At("HEAD"), cancellable = true)
+    //@Inject(method = "checkMobSpawnRules", at = @At("HEAD"), cancellable = true)
     private static void mf_checkMobSpawnRules(EntityType<? extends Mob> entityType,
                                               LevelAccessor levelAccessor,
                                               MobSpawnType mobSpawnType,
@@ -26,17 +26,17 @@ public abstract class MobMixin {
                                               RandomSource ignored,
                                               CallbackInfoReturnable ci) {
         if (levelAccessor instanceof ServerLevelAccessor sla) {
-            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), entityType, blockPos, mobSpawnType)) ci.cancel();
+            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), mobSpawnType, entityType, blockPos)) ci.cancel();
         } else {
             LogManager.getLogger(MFService.class).debug("Unexpected LevelAccessor: " + levelAccessor.getClass());
         }
     }
 
-    @Inject(method = "checkSpawnRules", at = @At("HEAD"), cancellable = true)
+    //@Inject(method = "checkSpawnRules", at = @At("HEAD"), cancellable = true)
     private void mf_checkSpawnRules(LevelAccessor levelAccessor, MobSpawnType mobSpawnType, CallbackInfoReturnable ci) {
         final Mob mob = (Mob) (Object) this;
         if (levelAccessor instanceof ServerLevelAccessor sla) {
-            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), (EntityType<? extends Mob>)mob.getType(), mob.blockPosition(), mobSpawnType)) ci.cancel();
+            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), mobSpawnType, (EntityType<? extends Mob>)mob.getType(), mob.blockPosition())) ci.cancel();
         } else {
             LogManager.getLogger(MFService.class).debug("Unexpected LevelAccessor: " + levelAccessor.getClass());
         }

@@ -5,10 +5,16 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.Vec3;
 import net.pcal.mobfilter.MFConfig.ConfigurationFile;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
@@ -29,6 +35,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -78,52 +87,10 @@ public class MFService {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isSpawnAllowed(ServerLevel serverLevel,
-                                  EntityType<? extends Mob> entityType,
-                                  BlockPos pos,
-                                  MobSpawnType spawnType) {
+                                  MobSpawnType spawnType, EntityType<? extends Mob> entityType,
+                                  BlockPos pos) {
         if (this.ruleList == null) return true;
         return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
-    }
-    /**
-     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSpawnAllowed2(ServerLevel serverLevel,
-                                  EntityType<? extends Mob> entityType,
-                                  BlockPos pos,
-                                  MobSpawnType spawnType) {
-        if (this.ruleList == null) return true;
-        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
-    }
-    /**
-     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSpawnAllowed3(ServerLevel serverLevel,
-                                   EntityType<?> entityType,
-                                   BlockPos pos,
-                                   MobSpawnType spawnType) {
-        if (this.ruleList == null) return true;
-        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
-    }
-    public boolean isSpawnAllowed4(ServerLevel serverLevel,
-                                   EntityType<?> entityType,
-                                   BlockPos pos,
-                                   MobSpawnType spawnType) {
-        if (this.ruleList == null) return true;
-        return isSpawnAllowed(new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, pos, this.logger));
-    }
-
-
-    /**
-     * Called by the mixins to evaluate the rules to see if a random mob spawn should be allowed.
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isFreshEntityAllowed(ServerLevel serverLevel,
-                                        EntityType<?> entityType,
-                                        BlockPos pos) {
-        if (this.ruleList == null) return true;
-        return isSpawnAllowed(new SpawnRequest(serverLevel, null, entityType.getCategory(), entityType, pos, this.logger));
     }
 
     /**
@@ -289,4 +256,61 @@ public class MFService {
         return out;
     }
 
+    /**
+     * Raw implementations of our mixin methods.  Putting them here just makes them more debuggable/reloadable.
+     */
+    @SuppressWarnings("unchecked")
+    public static class MixinBodies {
+
+        public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self,
+                                                 ServerLevel serverLevel,
+                                                 BlockPos blockPos,
+                                                 MobSpawnType mobSpawnType,
+                                                 CallbackInfoReturnable<Entity> cir) {
+            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mobSpawnType, self, blockPos)) {
+                cir.setReturnValue(null);
+                cir.cancel();
+            }
+        }
+
+        public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self, ServerLevel serverLevel,
+                                                  Consumer<?> ignored0,
+                                                  BlockPos blockPos,
+                                                  MobSpawnType mobSpawnType,
+                                                  boolean ignored1,
+                                                  boolean ignored2,
+                                                  CallbackInfoReturnable<Entity> cir) {
+            if (!MFService.getInstance().isSpawnAllowed(serverLevel, mobSpawnType, self, blockPos)) {
+                cir.setReturnValue(null);
+                cir.cancel();
+            }
+        }
+
+        public static void SpawnPlacementsMixin_checkSpawnRules(EntityType<?> entityType,
+                                                                ServerLevelAccessor sla,
+                                                                MobSpawnType mobSpawnType,
+                                                                BlockPos blockPos,
+                                                                RandomSource ignored,
+                                                                CallbackInfoReturnable<Boolean> cir) {
+            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), mobSpawnType, (EntityType<? extends Mob>) entityType, blockPos)) {
+                cir.setReturnValue(false);
+            }
+        }
+
+        public static void StructureTemplateMixin_method_17917(Rotation ignored0,
+                                                               Mirror ignored1,
+                                                               Vec3 ignored2,
+                                                               boolean ignored3,
+                                                               ServerLevelAccessor sla,
+                                                               Entity entity,
+                                                               CallbackInfo ci
+        ) {
+            if (entity instanceof Mob mob) {
+                final EntityType<? extends Mob> mobType = (EntityType<? extends Mob>) mob.getType();
+                if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), MobSpawnType.STRUCTURE, mobType, mob.blockPosition())) {
+                    ci.cancel();
+                }
+            }
+        }
+    }
 }

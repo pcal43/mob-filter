@@ -21,11 +21,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(PathfinderMob.class)
 public abstract class PathfinderMobMixin {
 
-    @Inject(method = "checkSpawnRules", at = @At("HEAD"), cancellable = true)
+    //@Inject(method = "checkSpawnRules", at = @At("HEAD"), cancellable = true)
     private void mf_checkSpawnRules(LevelAccessor levelAccessor, MobSpawnType mobSpawnType, CallbackInfoReturnable ci) {
         final Mob mob = (Mob) (Object) this;
         if (levelAccessor instanceof ServerLevelAccessor sla) {
-            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), (EntityType<? extends Mob>)mob.getType(), mob.blockPosition(), mobSpawnType)) ci.cancel();
+            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), mobSpawnType, (EntityType<? extends Mob>)mob.getType(), mob.blockPosition())) ci.cancel();
         } else {
             LogManager.getLogger(MFService.class).debug("Unexpected LevelAccessor: " + levelAccessor.getClass());
         }
