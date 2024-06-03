@@ -14,12 +14,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static net.pcal.mobfilter.MFService.MixinBodies.StructureTemplateMixin_method_17917;
 
 /**
- * This intercepts entity generation during structure generation.
+ * This intercepts spawns during structure generation.
  */
 @SuppressWarnings("ALL")
 @Mixin(StructureTemplate.class)
 public abstract class StructureTemplateMixin {
 
+    /**
+     * This targets the lambda passed to createEntityIgnoreException() in placeEntities().
+     */
     @Inject(method = "method_17917", at = @At("HEAD"), cancellable = true)
     private static void mf_method_17917(Rotation ignored0, Mirror ignored1, Vec3 ignored2, boolean ignored3,
                                         ServerLevelAccessor sla, Entity entity, CallbackInfo ci
