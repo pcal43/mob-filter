@@ -22,7 +22,6 @@ import net.pcal.mobfilter.MFRules.LightLevelCheck;
 import net.pcal.mobfilter.MFRules.SpawnGroupCheck;
 import net.pcal.mobfilter.MFRules.SpawnRequest;
 import net.pcal.mobfilter.MFRules.SpawnTypeCheck;
-import net.pcal.mobfilter.MFRules.StringSet;
 import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
 import net.pcal.mobfilter.MFRules.WorldNameCheck;
 import org.apache.logging.log4j.Level;
@@ -197,11 +196,11 @@ public class MFService {
                 final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
                 checks.add(new SpawnGroupCheck(enumSet));
             }
-            if (when.entityId != null) checks.add(new EntityIdCheck(StringSet.of(when.entityId)));
-            if (when.worldName != null) checks.add(new WorldNameCheck(StringSet.of(when.worldName)));
-            if (when.dimensionId != null) checks.add(new DimensionCheck(StringSet.of(when.dimensionId)));
-            if (when.biomeId != null) checks.add(new BiomeCheck(StringSet.of(when.biomeId)));
-            if (when.blockId != null) checks.add(new BlockIdCheck(StringSet.of(when.blockId)));
+            if (when.entityId != null) checks.add(new EntityIdCheck(IdMatcher.of(when.entityId)));
+            if (when.worldName != null) checks.add(new WorldNameCheck(Matcher.of(when.worldName)));
+            if (when.dimensionId != null) checks.add(new DimensionCheck(IdMatcher.of(when.dimensionId)));
+            if (when.biomeId != null) checks.add(new BiomeCheck(IdMatcher.of(when.biomeId)));
+            if (when.blockId != null) checks.add(new BlockIdCheck(IdMatcher.of(when.blockId)));
             if (when.blockX != null) {
                 int[] range = parseRange(when.blockX);
                 checks.add(new BlockPosCheck(Direction.Axis.X, range[0], range[1]));
