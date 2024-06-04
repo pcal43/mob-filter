@@ -96,7 +96,7 @@ abstract class MFRules {
      */
     record SpawnRequest(ServerLevel serverWorld,
                         MobSpawnType spawnType,
-                        MobCategory spawnGroup,
+                        MobCategory category,
                         EntityType<?> entityType,
                         BlockPos blockPos,
                         Logger logger) {
@@ -194,11 +194,11 @@ abstract class MFRules {
         }
     }
 
-    record SpawnGroupCheck(EnumSet<MobCategory> groups) implements FilterCheck {
+    record CategoryCheck(EnumSet<MobCategory> groups) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.groups.contains(req.spawnGroup);
-            req.logger().trace(() -> "[MobFilter]     SpawnGroupCheck: " + this.groups + " " + req.spawnGroup + " " + isMatch + " " + isMatch);
+            boolean isMatch = this.groups.contains(req.category);
+            req.logger().trace(() -> "[MobFilter]     CategoryCheck: " + this.groups + " " + req.category + " " + isMatch + " " + isMatch);
             return isMatch;
         }
     }
