@@ -6,7 +6,7 @@ rules:
     when:
       dimensionId: [ 'minecraft:the_nether' ]
 
-  - name: 'Maeve Safe Zone'
+  - name: 'Safe Zone'
     what: DISALLOW_SPAWN
     when:
       spawnGroup: [ MONSTER ]
