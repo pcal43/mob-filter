@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -16,10 +15,12 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.MFRules.FilterRuleAction.ALLOW_SPAWN;
@@ -104,8 +105,8 @@ abstract class MFRules {
         /**
          * Return the entity id of the mob that is going to spawn.
          */
-        public ResourceLocation getEntityId() {
-            return BuiltInRegistries.ENTITY_TYPE.getKey(entityType); // FIXME is this right?
+        public String getEntityId() {
+            return String.valueOf(BuiltInRegistries.ENTITY_TYPE.getKey(entityType)); // FIXME is this right?
         }
 
         /**
@@ -126,26 +127,26 @@ abstract class MFRules {
         /**
          * Return the id of the dimension that the spawn is happening in.
          */
-        public ResourceLocation getDimensionId() {
-            return this.serverWorld.dimension().location();
+        public String getDimensionId() {
+            return this.serverWorld.dimension().location().toString();
         }
 
         /**
          * Return the id of the biome that the spawn is happening in.
          */
-        public ResourceLocation getBiomeId() {
+        public String getBiomeId() {
             final Biome biome = serverWorld.getBiome(this.blockPos()).value();
             // FIXME? I'm not entirely sure this is correct
-            return serverWorld.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+            return String.valueOf(serverWorld.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome));
         }
 
         /**
          * Return the id of the block that the spawn is happening on.
          */
-        public ResourceLocation getBlockId() {
+        public String getBlockId() {
             final BlockState bs = serverWorld.getBlockState(this.blockPos.below());
             final Block block = bs.getBlock();
-            return BuiltInRegistries.BLOCK.getKey(block);
+            return String.valueOf(BuiltInRegistries.BLOCK.getKey(block));
         }
     }
 
@@ -158,29 +159,29 @@ abstract class MFRules {
 
     // TODO seems like we could optimize by completely dropping rules with a worldName check that won't match
     // the current running world
-    record WorldNameCheck(Matcher worldNames) implements FilterCheck {
+    record WorldNameCheck(StringSet worldNames) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = worldNames.isMatch(req.getWorldName());
+            boolean isMatch = worldNames.contains(req.getWorldName());
             req.logger().trace(() -> "[MobFilter]     WorldNameCheck: " + req.getWorldName() + " in " + worldNames + " " + isMatch);
             return isMatch;
         }
     }
 
-    record DimensionCheck(IdMatcher dimensionMatcher) implements FilterCheck {
+    record DimensionCheck(StringSet dimensionIds) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.dimensionMatcher.isMatch(req.getDimensionId());
-            req.logger().trace(() -> "[MobFilter]     DimensionCheck " + req.getDimensionId() + " in " + dimensionMatcher + " " + isMatch);
+            boolean isMatch = this.dimensionIds.contains(req.getDimensionId());
+            req.logger().trace(() -> "[MobFilter]     DimensionCheck " + req.getDimensionId() + " in " + dimensionIds + " " + isMatch);
             return isMatch;
         }
     }
 
-    record BiomeCheck(IdMatcher biomeMatcher) implements FilterCheck {
+    record BiomeCheck(StringSet biomeIds) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.biomeMatcher.isMatch(req.getBiomeId());
-            req.logger().trace(() -> "[MobFilter]     BiomeCheck " + req.getBiomeId() + " in " + biomeMatcher +" "+isMatch);
+            boolean isMatch = this.biomeIds.contains(req.getBiomeId());
+            req.logger().trace(() -> "[MobFilter]     BiomeCheck " + req.getBiomeId() + " in " + biomeIds+" "+isMatch);
             return isMatch;
         }
     }
@@ -203,20 +204,20 @@ abstract class MFRules {
         }
     }
 
-    record EntityIdCheck(IdMatcher entityMatcher) implements FilterCheck {
+    record EntityIdCheck(StringSet entityIds) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.entityMatcher.isMatch(req.getEntityId());
-            req.logger().trace(() -> "[MobFilter]     EntityNameCheck " + req.getEntityId() + " in " + entityMatcher +" "+isMatch);
+            boolean isMatch = this.entityIds.contains(req.getEntityId());
+            req.logger().trace(() -> "[MobFilter]     EntityNameCheck " + req.getEntityId() + " in " + entityIds+" "+isMatch);
             return isMatch;
         }
     }
 
-    record BlockIdCheck(IdMatcher blockMatcher) implements FilterCheck {
+    record BlockIdCheck(StringSet blockIds) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.blockMatcher.isMatch(req.getBlockId());
-            req.logger().trace(() -> "[MobFilter]     BlockIdCheck " + req.getEntityId() + " in " + blockMatcher +" "+isMatch);
+            boolean isMatch = this.blockIds.contains(req.getBlockId());
+            req.logger().trace(() -> "[MobFilter]     BlockIdCheck " + req.getEntityId() + " in " + blockIds+" "+isMatch);
             return isMatch;
         }
     }
@@ -234,9 +235,19 @@ abstract class MFRules {
     record LightLevelCheck(int min, int max) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            int val = req.serverWorld().getMaxLocalRawBrightness(req.blockPos);
+            int val = req.serverWorld.getMaxLocalRawBrightness(req.blockPos);
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     LightLevelCheck " + min + " <= " + val + " <= " + max+ " " +isMatch);
+            return isMatch;
+        }
+    }
+
+    record MoonPhaseCheck(int min, int max) implements FilterCheck {
+        @Override
+        public boolean isMatch(SpawnRequest req) {
+            int val = req.serverWorld.getMoonPhase();
+            boolean isMatch = min <= val && val <= max;
+            req.logger().trace(() -> "[MobFilter]     MoonPhaseCheck " + min + " <= " + val + " <= " + max+ " " +isMatch);
             return isMatch;
         }
     }
@@ -249,6 +260,32 @@ abstract class MFRules {
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     TimeOfDayCheck " + min + " <= " + val + " <= " + max+" "+isMatch);
             return isMatch;
+        }
+    }
+
+    /**
+     * An immutable set of strings with membership testing.  These gets used a lot and may be
+     * in need of optimization.
+     */
+    @SuppressWarnings("ClassCanBeRecord")
+    public static class StringSet {
+        private final String[] strings;
+
+        public static StringSet of(String[] strings) {
+            return new StringSet(strings);
+        }
+
+        private StringSet(String[] strings) {
+            this.strings = requireNonNull(strings);
+        }
+
+        public boolean contains(String value) {
+            for (String a : this.strings) if (Objects.equals(a, value)) return true;
+            return false;
+        }
+
+        public String toString() {
+            return Arrays.toString(this.strings);
         }
     }
 }
