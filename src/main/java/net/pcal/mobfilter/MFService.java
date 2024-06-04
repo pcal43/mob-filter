@@ -9,7 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
-import net.pcal.mobfilter.MFConfig.ConfigurationFile;
+import net.pcal.mobfilter.MFConfig.Configuration;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
 import net.pcal.mobfilter.MFRules.BlockPosCheck;
@@ -19,7 +19,7 @@ import net.pcal.mobfilter.MFRules.FilterCheck;
 import net.pcal.mobfilter.MFRules.FilterRule;
 import net.pcal.mobfilter.MFRules.FilterRuleList;
 import net.pcal.mobfilter.MFRules.LightLevelCheck;
-import net.pcal.mobfilter.MFRules.SpawnGroupCheck;
+import net.pcal.mobfilter.MFRules.CategoryCheck;
 import net.pcal.mobfilter.MFRules.SpawnRequest;
 import net.pcal.mobfilter.MFRules.SpawnTypeCheck;
 import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
@@ -32,7 +32,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -67,8 +66,8 @@ public class MFService {
     private final Logger logger = LogManager.getLogger(MFService.class);
     private FilterRuleList ruleList;
     private Level logLevel = Level.INFO;
-    final Path configFilePath = Paths.get("config", "mobfilter.yaml");
-    final File configFile = configFilePath.toFile();
+    final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
+    final File yamlConfigFile = Paths.get("config", "mobfilter.yaml").toFile();
 
     // ===================================================================================
     // Public methods
@@ -97,17 +96,17 @@ public class MFService {
      * Write a default configuration file if none exists.
      */
     public void ensureConfigExists() {
-        if (!configFile.exists()) {
-            try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.yaml")) {
+        if (!jsonConfigFile.exists()) {
+            try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.json5")) {
                 if (in == null) {
-                    throw new IllegalStateException("unable to load default-mobfilter.yaml");
+                    throw new IllegalStateException("unable to load default-mobfilter.json5");
                 }
-                configFilePath.getParent().toFile().mkdirs();
-                java.nio.file.Files.copy(in, configFilePath);
-                logger.info("[MobFilter] wrote default mobfilter.yaml");
+                jsonConfigFile.getParentFile().mkdirs();
+                java.nio.file.Files.copy(in, jsonConfigFile.toPath());
+                logger.info("[MobFilter] wrote default config file");
             } catch (Exception e) {
                 logger.catching(Level.ERROR, e);
-                logger.error("[MobFilter] Failed to write default configuration file to " + configFile.getAbsolutePath());
+                logger.error("[MobFilter] Failed to write default configuration file to " + jsonConfigFile.getAbsolutePath());
             }
         }
     }
@@ -123,17 +122,27 @@ public class MFService {
             //
             // load the config file and build the rules
             //
-            final ConfigurationFile config;
-            try (final InputStream in = new FileInputStream(configFile)) {
-                config = MFConfig.load(in);
+            final Configuration config;
+
+            if (yamlConfigFile.exists()) {
+                this.logger.info("[MobFilter] Loading config from " + yamlConfigFile);
+                logger.warn("mobfilter.yaml is deprecated.  Please migrate to mobfilter.json5.");
+                try (final InputStream in = new FileInputStream(yamlConfigFile)) {
+                    config = MFConfig.loadFromYaml(in);
+                }
+            } else {
+                this.logger.info("[MobFilter] Loading config from " + jsonConfigFile);
+                try (final InputStream in = new FileInputStream(jsonConfigFile)) {
+                    config = MFConfig.loadFromJson(in);
+                }
             }
             if (config == null) {
-                this.logger.warn("[MobFilter] Empty configuration at " + configFile.getAbsolutePath());
+                this.logger.warn("[MobFilter] Empty configuration");
                 return;
             }
             this.ruleList = buildRules(config);
             if (this.ruleList == null) {
-                this.logger.warn("[MobFilter] No rules configured in " + configFile.getAbsolutePath());
+                this.logger.warn("[MobFilter] No rules configured in ");
             } else {
                 this.logger.info("[MobFilter] "+ruleList.getSize()+" rule(s) loaded:");
                  for (FilterRule rule : this.ruleList.getRules()) {
@@ -146,7 +155,7 @@ public class MFService {
             if (config.logLevel != null) {
                 Level configuredLevel = Level.getLevel(config.logLevel);
                 if (configuredLevel == null) {
-                    logger.warn("[MobFilter] Invalid logLevel " + config.logLevel + " in mobfilter.yaml, using INFO");
+                    logger.warn("[MobFilter] Invalid configured logLevel " + config.logLevel + ", using INFO");
                 } else {
                     setLogLevel(configuredLevel);
                 }
@@ -154,7 +163,7 @@ public class MFService {
             logger.info("[MobFilter] Log level is " + logger.getLevel());
         } catch (Exception e) {
             logger.catching(Level.ERROR, e);
-            logger.error("[MobFilter] Failed to load configuration from " + configFile.getAbsolutePath());
+            logger.error("[MobFilter] Failed to load configuration");
         }
     }
 
@@ -173,12 +182,13 @@ public class MFService {
      * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
      * no rules.
      */
-    private static FilterRuleList buildRules(ConfigurationFile fromConfig) {
+    private static FilterRuleList buildRules(Configuration fromConfig) {
         requireNonNull(fromConfig);
         if (fromConfig.rules == null) return null;
         final ImmutableList.Builder<FilterRule> rulesBuilder = ImmutableList.builder();
         int i = 0;
         for (final MFConfig.Rule configRule : fromConfig.rules) {
+            if (configRule == null) continue; // common with json trailing comma in list
             final ImmutableList.Builder<FilterCheck> checks = ImmutableList.builder();
             final String ruleName = configRule.name != null ? configRule.name : "rule" + i;
             if (configRule.what == null) {
@@ -194,7 +204,11 @@ public class MFService {
             }
             if (when.spawnGroup != null && when.spawnGroup.length > 0) {
                 final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
-                checks.add(new SpawnGroupCheck(enumSet));
+                checks.add(new CategoryCheck(enumSet));
+            }
+            if (when.category != null && when.category.length > 0) {
+                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.category));
+                checks.add(new CategoryCheck(enumSet));
             }
             if (when.entityId != null) checks.add(new EntityIdCheck(IdMatcher.of(when.entityId)));
             if (when.worldName != null) checks.add(new WorldNameCheck(Matcher.of(when.worldName)));

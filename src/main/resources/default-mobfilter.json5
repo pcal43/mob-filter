@@ -1,0 +1,25 @@
+/**
+ * mobfilter.json5
+ *
+ * This file controls the spawn filtering rules for mob-filter.  For details, see the docs at:
+ *
+ *    https://github.com/pcal43/mob-filter/blob/main/CONFIG.md
+ */
+
+{
+  rules : [
+    {
+      name : 'No freshwater squid!',
+      what : 'DISALLOW_SPAWN',
+      when : {
+        entityId : [ 'minecraft:squid' ],
+        biomeId  : [ 'minecraft:river', 'minecraft:frozen_river' ]
+      }
+    }
+  ],
+
+  // If you're having trouble, change this to DEBUG or TRACE
+  // to output diagnostic information to debug.log.
+  logLevel: 'INFO'
+}
+
