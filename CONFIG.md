@@ -229,3 +229,26 @@ prevent specific mobs from spawning.
   ]
 }
 ```
+
+### Full Moon Zombie Party
+```
+{ 
+  rules : [
+    {
+      what : 'ALLOW_SPAWN',
+      when : {
+        entityId : [ 'minecraft:zombie' ]
+        moonPhase : [ 1 ]
+      }
+    },
+    {
+      name : 'disallow non-zombie monsters during full moon'
+      what : 'DISALLOW_SPAWN',
+      when : {
+        category : [ 'MONSTER' ],
+        moonPhase : [ 1 ]
+      }
+    }
+  ]
+}
+```
