@@ -1,6 +1,5 @@
 package net.pcal.mobfilter;
 
-
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,13 +12,14 @@ import net.pcal.mobfilter.MFConfig.Configuration;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
 import net.pcal.mobfilter.MFRules.BlockPosCheck;
+import net.pcal.mobfilter.MFRules.CategoryCheck;
 import net.pcal.mobfilter.MFRules.DimensionCheck;
 import net.pcal.mobfilter.MFRules.EntityIdCheck;
 import net.pcal.mobfilter.MFRules.FilterCheck;
 import net.pcal.mobfilter.MFRules.FilterRule;
 import net.pcal.mobfilter.MFRules.FilterRuleList;
 import net.pcal.mobfilter.MFRules.LightLevelCheck;
-import net.pcal.mobfilter.MFRules.CategoryCheck;
+import net.pcal.mobfilter.MFRules.MoonPhaseCheck;
 import net.pcal.mobfilter.MFRules.SpawnRequest;
 import net.pcal.mobfilter.MFRules.SpawnTypeCheck;
 import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
@@ -234,6 +234,9 @@ public class MFService {
             if (when.lightLevel != null) {
                 int[] range = parseRange(when.lightLevel);
                 checks.add(new LightLevelCheck(range[0], range[1]));
+            }
+            if (when.moonPhase != null) {
+                checks.add(new MoonPhaseCheck(Matcher.of(when.moonPhase)));
             }
             rulesBuilder.add(new FilterRule(ruleName, checks.build(), configRule.what));
             i++;
