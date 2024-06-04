@@ -68,6 +68,10 @@ You can match all blocks in a given namespace using `*`; for example `minecraft:
 #### `lightLevel`
 Two integers between 0 and 16.  True if mob is spawning in a lightLevel within the range.
 
+#### `moonPhase`
+List of integers between 1 and 8, inclusive, [indicating a phase of the moon](https://minecraft.fandom.com/wiki/Moon).
+True if mob is spawning when the moon is at a phase number that is in the list.
+
 #### `timeOfDay`
 Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within the range.
 

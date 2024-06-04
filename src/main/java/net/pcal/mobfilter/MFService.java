@@ -236,8 +236,7 @@ public class MFService {
                 checks.add(new LightLevelCheck(range[0], range[1]));
             }
             if (when.moonPhase != null) {
-                int[] range = parseRange(when.moonPhase);
-                checks.add(new MoonPhaseCheck(range[0], range[1]));
+                checks.add(new MoonPhaseCheck(Matcher.of(when.moonPhase)));
             }
             rulesBuilder.add(new FilterRule(ruleName, checks.build(), configRule.what));
             i++;

@@ -158,7 +158,7 @@ abstract class MFRules {
 
     // TODO seems like we could optimize by completely dropping rules with a worldName check that won't match
     // the current running world
-    record WorldNameCheck(Matcher worldNames) implements FilterCheck {
+    record WorldNameCheck(Matcher<String> worldNames) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
             boolean isMatch = worldNames.isMatch(req.getWorldName());
@@ -241,12 +241,12 @@ abstract class MFRules {
         }
     }
 
-    record MoonPhaseCheck(int min, int max) implements FilterCheck {
+    record MoonPhaseCheck(Matcher<Integer> matcher) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
             int val = req.serverWorld.getMoonPhase();
-            boolean isMatch = min <= val && val <= max;
-            req.logger().trace(() -> "[MobFilter]     MoonPhaseCheck " + min + " <= " + val + " <= " + max+ " " +isMatch);
+            boolean isMatch = matcher.isMatch(val);
+            req.logger().trace(() -> "[MobFilter]     MoonPhaseCheck " + matcher + " contains " + val + " " + isMatch);
             return isMatch;
         }
     }
