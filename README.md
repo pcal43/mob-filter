@@ -26,39 +26,7 @@ Rules can test for several conditions, including:
 * Time of Day
 * Light Level
 
-The [default mobfilter configuration file](https://github.com/pcal43/mob-filter/blob/main/src/main/resources/default-mobfilter.yaml) 
-provides more detail on setting up rules.
-
-
-## Examples
-
-#### Prevent hostile mobs from spawning above sea level in a specific part of the world
-
-```
-rules:
-  - name: Safe Zone
-    what: DISALLOW_SPAWN
-    when:
-      spawnGroup : [MONSTER]
-      blockX     : [-128, 234]
-      blockY     : [63, MAX]
-      blockZ     : [-321, 512]
-```
-
-#### Prevent creepers from ever spawning and also prevent squid from spawning in rivers
-```
-rules:
-  - name: No Creepers Ever
-    what: DISALLOW_SPAWN
-    when:
-      entityId : [minecraft:creeper]
-
-  - name: No Freshwater Squid
-    what: DISALLOW_SPAWN
-    when:
-      entityId  : [minecraft:squid]
-      biomeId   : [minecraft:river, minecraft:frozen_river]
-```
+See [CONFIG.md](CONFIG.md) for more information about setting up rules.
 
 
 ## Legal
