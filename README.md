@@ -28,7 +28,7 @@ Rules can test for several conditions, including:
 * Light Level
 * Phase of moon
 
-See [CONFIG.md](CONFIG.md) for more information aboutsetting up rules.
+See [CONFIG.md](CONFIG.md) for more information about setting up rules.
 
 
 ## Legal
