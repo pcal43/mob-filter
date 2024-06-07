@@ -23,6 +23,17 @@ import java.util.function.Consumer;
 @SuppressWarnings("unchecked")
 public class MFMixinBodies {
 
+    public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self,
+                                             ServerLevel serverLevel,
+                                             BlockPos blockPos,
+                                             MobSpawnType mobSpawnType,
+                                             CallbackInfoReturnable<Entity> cir) {
+        if (!MFService.getInstance().isSpawnAllowed(serverLevel, mobSpawnType, self, blockPos)) {
+            cir.setReturnValue(null);
+            cir.cancel();
+        }
+    }
+
     public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self, ServerLevel serverLevel,
                                              Consumer<?> ignored0,
                                              BlockPos blockPos,
@@ -52,7 +63,6 @@ public class MFMixinBodies {
                                                            Vec3 ignored2,
                                                            boolean ignored3,
                                                            ServerLevelAccessor sla,
-                                                           CompoundTag ignored4,
                                                            Entity entity,
                                                            CallbackInfo ci
     ) {

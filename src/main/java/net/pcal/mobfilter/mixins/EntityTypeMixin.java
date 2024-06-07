@@ -22,9 +22,16 @@ import java.util.function.Consumer;
 @Mixin(EntityType.class)
 public abstract class EntityTypeMixin {
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/nbt/CompoundTag;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(ServerLevel serverLevel,
-                          CompoundTag ignored9,
+                          BlockPos blockPos,
+                          MobSpawnType mobSpawnType,
+                          CallbackInfoReturnable<Entity> cir) {
+        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, blockPos, mobSpawnType, cir);
+    }
+
+    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
+    private void mf_spawn(ServerLevel serverLevel,
                           Consumer<?> ignored0,
                           BlockPos blockPos,
                           MobSpawnType mobSpawnType,
