@@ -17,8 +17,8 @@ if [ -z "${CURSEFORGE_TOKEN:-}" ]; then
 fi
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "${CURRENT_BRANCH}" != 'main' ]; then
-  echo "Releases must be performed on main.  Currently on '${CURRENT_BRANCH}'"
+if [ "${CURRENT_BRANCH}" != 'backports/1.20.1' ]; then
+  echo "Releases must be performed on backports/1.20.1.  Currently on '${CURRENT_BRANCH}'"
   exit 1
 fi
 

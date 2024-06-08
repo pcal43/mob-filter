@@ -23,8 +23,8 @@ ifndef SKIP_CHECKS
 	fi
 
 	@currentBranch=$$(git rev-parse --abbrev-ref HEAD) ;\
-	if [ "$${currentBranch}" != "main" ]; then \
-		echo "Releases must be performed on main"; false; \
+	if [ "$${currentBranch}" != "backports/1.20.1" ]; then \
+		echo "Releases must be performed on backports/1.20.1"; false; \
 	fi
 endif
 # todo port this into the makefile.  i think
