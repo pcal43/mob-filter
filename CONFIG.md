@@ -211,7 +211,7 @@ prevent specific mobs from spawning.
 }
 ```
 
-### Monster-Free Zone
+### Safe Zone
 ```
 { 
   rules : [
@@ -220,7 +220,6 @@ prevent specific mobs from spawning.
       when : {
         category : [ 'MONSTER' ],
         dimensionId : [ 'minecraft:overworld' ],
-        worldName : [ 'My World', 'My Other World' ],
         blockX: [ -128, 234 ],
         blockY : [ 63, 'MAX' ],
         blockZ : [ -321, 512 ]
