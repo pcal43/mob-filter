@@ -25,7 +25,7 @@ public class IdMatcherTest {
     }
 
     private static ResourceLocation r(String val) {
-        return new ResourceLocation(val);
+        return ResourceLocation.parse(val);
     }
 
 

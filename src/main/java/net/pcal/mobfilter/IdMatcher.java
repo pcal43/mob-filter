@@ -25,7 +25,7 @@ interface IdMatcher {
             if (pattern.endsWith(":*")) {
                 namespaces.add(pattern.substring(0, pattern.length() - 2));
             } else if (pattern.contains(":")) {
-                ids.add(new ResourceLocation(pattern));
+                ids.add(ResourceLocation.parse(pattern));
             } else {
                 throw new IllegalArgumentException("Invalid id pattern: " + pattern);
             }
