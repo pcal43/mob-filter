@@ -7,19 +7,18 @@
  */
 
 {
-  rules : [
-    {
-      name : 'No freshwater squid!',
-      what : 'DISALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:squid' ],
-        biomeId  : [ 'minecraft:river', 'minecraft:frozen_river' ]
+  "rules" : [
+      {
+          "name" : "No freshwater squid!",
+          "what" : "DISALLOW_SPAWN",
+          "when" : {
+              "entityId" : [ "minecraft:squid" ],
+              "biomeId"  : [ "minecraft:river", "minecraft:frozen_river" ]
+          }
       }
-    }
   ],
 
-  // If you're having trouble, change this to DEBUG or TRACE
+  // If you"re having trouble, change this to DEBUG or TRACE
   // to output diagnostic information to debug.log.
-  logLevel: 'INFO'
+  "logLevel" : "INFO"
 }
-
