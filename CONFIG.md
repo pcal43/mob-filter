@@ -102,21 +102,22 @@ Filter rules are processed in order and processing stops as soon as a matching r
 put blanket exclusions at the top of your rules list like this:
 ```
 {
-  rules: [
-    {
-       name: 'If we're in the nether, allow the spawn and ignore later rules.',
-       what: 'ALLOW_SPAWN',
-       when: {
-         dimensionId: ['minecraft:nether']
-       }
-    },
-    {
-      name: '...but everywhere else, disallow all spawns above sea level',
-      what: 'DISALLOW_SPAWN',
-      when: {
-         blockY: ['MIN', '62']
-      }
-    }
+    "rules" : [
+        {
+            "name" : "If we're in the nether, allow the spawn and ignore later rules.",
+            "what" : "ALLOW_SPAWN",
+            "when" : {
+                "dimensionId" : ["minecraft:nether"]
+            }
+        },
+        {
+            "name" : "...but everywhere else, disallow all spawns above sea level",
+            "what" : "DISALLOW_SPAWN",
+            "when" : {
+                "blockY" : ["MIN", 62]
+            }
+        }
+    ]
 }
 ```
 
@@ -149,29 +150,29 @@ prevent specific mobs from spawning.
 ### Disable Creepers
 ```
 {
-  rules : [
-    {
-      what : 'DISALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:creeper' ]
-      }
-    }
-  ]
+    "rules" : [
+        {
+            "what" : "DISALLOW_SPAWN",
+            "when" : {
+                "entityId" : [ "minecraft:creeper" ]
+            }
+        }
+    ]
 }
 ```
 
 ### Disable All Vanilla Mobs
 ```
 {
-  rules : [
-    {
-      name : 'No Vanilla',
-      what : 'DISALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:*' ]
-      }
-    }
-  ]
+    "rules" : [
+        {
+            "name" : "No Vanilla",
+            "what" : "DISALLOW_SPAWN",
+            "when" : {
+                "entityId" : [ "minecraft:*" ]
+            }
+        }
+    ]
 }
 ```
 
@@ -179,75 +180,75 @@ prevent specific mobs from spawning.
 
 ```
 {
-  rules : [
-    {
-      name : 'Allow cows...',
-      what : 'ALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:cow' ]
-      }
-    },
-    {
-      name : '...and nothing else',
-      what : 'DISALLOW_SPAWN',
-      when : {}
-    }
-  ]
+    "rules" : [
+        {
+            "name" : "Allow cows...",
+            "what" : "ALLOW_SPAWN",
+            "when" : {
+                "entityId" : [ "minecraft:cow" ]
+            }
+         },
+        {
+            "name" : "...and nothing else",
+            "what" : "DISALLOW_SPAWN",
+            "when" : {}
+        }
+    ]
 }
 ```
 
 ### No Freshwater Squid
 ```
 {
-  rules : [
-    {
-      what : 'DISALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:squid' ],
-        biomeId  : [ 'minecraft:river', 'minecraft:frozen_river' ]
-      }
-    }
-  ]
+    "rules" : [
+        {
+            "what" : "DISALLOW_SPAWN",
+            "when" : {
+                "entityId" : [ "minecraft:squid" ],
+                "biomeId" : [ "minecraft:river", "minecraft:frozen_river" ]
+            }
+       }
+    ]
 }
 ```
 
 ### Safe Zone
 ```
 { 
-  rules : [
-    {
-      what : 'DISALLOW_SPAWN',
-      when : {
-        category : [ 'MONSTER' ],
-        dimensionId : [ 'minecraft:overworld' ],
-        blockX: [ -128, 234 ],
-        blockY : [ 63, 'MAX' ],
-        blockZ : [ -321, 512 ]
-      }
-    }
-  ]
+    "rules" : [
+        {
+            "what" : "DISALLOW_SPAWN",
+            "when" : {
+                "category" : [ "MONSTER" ],
+                "dimensionId" : [ "minecraft:overworld" ],
+                "blockX" : [ -128, 234 ],
+                "blockY" : [ 63, "MAX" ],
+                "blockZ" : [ -321, 512 ]
+            }
+        }
+    ]
 }
 ```
 
 ### Full Moon Zombie Party
 ```
 { 
-  rules : [
-    {
-      what : 'ALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:zombie' ]
-        moonPhase : [ 1 ]
-      }
-    },
-    {
-      name : 'disallow non-zombie monsters during full moon'
-      what : 'DISALLOW_SPAWN',
-      when : {
-        category : [ 'MONSTER' ],
-        moonPhase : [ 1 ]
-      }
-    }
-  ]
+    "rules" : [
+        {
+            "what" : "ALLOW_SPAWN",
+            "when" : {
+                "entityId" : [ "minecraft:zombie" ],
+                "moonPhase" : [ 1 ]
+            }
+        },
+        {
+            "name" : "disallow non-zombie monsters during full moon",
+            "what" : "DISALLOW_SPAWN",
+            "when" : {
+                "category" : [ "MONSTER" ],
+                "moonPhase" : [ 1 ]
+            }
+        }
+    ]
 }
 ```
