@@ -2,9 +2,10 @@ package net.pcal.mobfilter;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
 
 @SuppressWarnings("unused")
 public class MFInitializer implements ModInitializer {
@@ -13,13 +14,12 @@ public class MFInitializer implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        MFService.getInstance().ensureConfigExists();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
+                MFService.getInstance().ensureConfigExists();
                 MFService.getInstance().loadConfig();
-            } catch (Exception | NoClassDefFoundError e) {
-                LOGGER.catching(Level.ERROR, e);
-                LOGGER.error("[MobFilter] failed to initialize");
+            } catch (IOException ioe) {
+                throw new RuntimeException("Failed to load configuration.  See log for details.", ioe);
             }
         });
     }

@@ -31,6 +31,7 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -95,7 +96,7 @@ public class MFService {
     /**
      * Write a default configuration file if none exists.
      */
-    public void ensureConfigExists() {
+    public void ensureConfigExists() throws IOException {
         if (!jsonConfigFile.exists()) {
             try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.json5")) {
                 if (in == null) {
@@ -104,17 +105,18 @@ public class MFService {
                 jsonConfigFile.getParentFile().mkdirs();
                 java.nio.file.Files.copy(in, jsonConfigFile.toPath());
                 logger.info("[MobFilter] wrote default config file");
-            } catch (Exception e) {
-                logger.catching(Level.ERROR, e);
+            } catch (IOException ioe) {
+                logger.catching(Level.ERROR, ioe);
                 logger.error("[MobFilter] Failed to write default configuration file to " + jsonConfigFile.getAbsolutePath());
+                throw ioe;
             }
         }
     }
 
     /**
-     * Re/loads mobfilter.yaml and initializes a new FiluterRuleList.
+     * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
      */
-    public void loadConfig() {
+    public void loadConfig() throws IOException {
         this.ruleList = null;
         ensureConfigExists();
         try {
@@ -161,9 +163,10 @@ public class MFService {
                 }
             }
             logger.info("[MobFilter] Log level is " + logger.getLevel());
-        } catch (Exception e) {
-            logger.catching(Level.ERROR, e);
+        } catch (IOException ioe) {
+            logger.catching(Level.ERROR, ioe);
             logger.error("[MobFilter] Failed to load configuration");
+            throw ioe;
         }
     }
 
