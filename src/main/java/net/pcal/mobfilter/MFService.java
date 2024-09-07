@@ -103,7 +103,7 @@ public class MFService {
                 }
                 jsonConfigFile.getParentFile().mkdirs();
                 java.nio.file.Files.copy(in, jsonConfigFile.toPath());
-                logger.info("[MobFilter] wrote default config file");
+                logger.info("[MobFilter] Wrote default config file to " + jsonConfigFile.getAbsolutePath());
             } catch (Exception e) {
                 logger.catching(Level.ERROR, e);
                 logger.error("[MobFilter] Failed to write default configuration file to " + jsonConfigFile.getAbsolutePath());
