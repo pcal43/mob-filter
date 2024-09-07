@@ -23,5 +23,5 @@
 
   // If you"re having trouble, change this to DEBUG or TRACE
   // to output diagnostic information to debug.log.
-  "logLevel" : "TRACE"
+  "logLevel" : "INFO"
 }
