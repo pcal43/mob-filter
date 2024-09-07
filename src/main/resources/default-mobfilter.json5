@@ -1,10 +1,13 @@
-/**
- * mobfilter.json5
- *
- * This file controls the spawn filtering rules for mob-filter.  For details, see the docs at:
- *
- *    https://github.com/pcal43/mob-filter/blob/main/CONFIG.md
- */
+//
+// mobfilter.json5
+//
+// This file controls the spawn filtering rules for mob-filter.  For details, see the docs at:
+//
+// https://github.com/pcal43/mob-filter/blob/main/CONFIG.md
+//
+// Note that this file isn't parsed with a true json5 parser; it's just preprocessed to strip
+// lines starting with '//'
+//
 
 {
   "rules" : [
@@ -20,5 +23,5 @@
 
   // If you"re having trouble, change this to DEBUG or TRACE
   // to output diagnostic information to debug.log.
-  "logLevel" : "INFO"
+  "logLevel" : "TRACE"
 }

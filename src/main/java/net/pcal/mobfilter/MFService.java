@@ -127,11 +127,11 @@ public class MFService {
             if (yamlConfigFile.exists()) {
                 this.logger.info("[MobFilter] Loading config from " + yamlConfigFile);
                 logger.warn("mobfilter.yaml is deprecated.  Please migrate to mobfilter.json5.");
-                try (final InputStream in = new FileInputStream(yamlConfigFile)) {
+                try (final InputStream in = new FileInputStream(yamlConfigFile.getAbsolutePath())) {
                     config = MFConfig.loadFromYaml(in);
                 }
             } else {
-                this.logger.info("[MobFilter] Loading config from " + jsonConfigFile);
+                this.logger.info("[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
                 try (final InputStream in = new FileInputStream(jsonConfigFile)) {
                     config = MFConfig.loadFromJson(in);
                 }
