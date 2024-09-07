@@ -2,6 +2,8 @@ package net.pcal.mobfilter;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.MobSpawnType;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -26,7 +28,7 @@ public class MFConfig {
 
     static Configuration loadFromJson(final InputStream in) throws IOException {
         final String rawJson = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        final Gson gson = new Gson();
+        final Gson gson = new GsonBuilder().setLenient().create();  
         return gson.fromJson(rawJson, Configuration.class);
     }
 

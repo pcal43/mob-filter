@@ -103,7 +103,7 @@ public class MFService {
                 }
                 jsonConfigFile.getParentFile().mkdirs();
                 java.nio.file.Files.copy(in, jsonConfigFile.toPath());
-                logger.info("[MobFilter] wrote default config file");
+                logger.info("[MobFilter] Wrote default config file to " + jsonConfigFile.getAbsolutePath());
             } catch (Exception e) {
                 logger.catching(Level.ERROR, e);
                 logger.error("[MobFilter] Failed to write default configuration file to " + jsonConfigFile.getAbsolutePath());
@@ -127,11 +127,11 @@ public class MFService {
             if (yamlConfigFile.exists()) {
                 this.logger.info("[MobFilter] Loading config from " + yamlConfigFile);
                 logger.warn("mobfilter.yaml is deprecated.  Please migrate to mobfilter.json5.");
-                try (final InputStream in = new FileInputStream(yamlConfigFile)) {
+                try (final InputStream in = new FileInputStream(yamlConfigFile.getAbsolutePath())) {
                     config = MFConfig.loadFromYaml(in);
                 }
             } else {
-                this.logger.info("[MobFilter] Loading config from " + jsonConfigFile);
+                this.logger.info("[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
                 try (final InputStream in = new FileInputStream(jsonConfigFile)) {
                     config = MFConfig.loadFromJson(in);
                 }
