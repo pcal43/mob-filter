@@ -34,7 +34,9 @@ in the list.
 #### `category`
 
 List of net.minecraft.entity.MobCategory values.  The condition is true when# the mob to be spawned is in one of
-the listed categories.   *In version 0.8.0+1.20.4 and older, this key was called `spawnType`.*
+the listed categories.  
+
+*In version 0.8.0+1.20.4 and older, this key was called `spawnType`.*
 
 As of Minecraft 1.20.4, valid values are:
 - `MONSTER`
@@ -78,7 +80,9 @@ Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within
 
 #### `spawnReason`
 A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
-to one of the listed reasons.   *In version 0.11.2+1.21.1 and older, this key was called `spawnType`.*
+to one of the listed reasons.
+
+*In version 0.11.2+1.21.1 and older, this key was called `spawnType`.*
 
 As of Minecraft 1.21.3, valid values are:
 - `NATURAL`
