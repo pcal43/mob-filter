@@ -75,25 +75,30 @@ True if mob is spawning when the moon is at a phase number that is in the list.
 #### `timeOfDay`
 Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within the range.
 
-#### `spawnType`
-A list of net.minecraft.entity.MobSpawnType values.  The condition is true when the mob is being spawned due
-to one of the listed reasons.  As of Minecraft 1.20.6, valid are:
+#### `spawnReason`
+A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
+to one of the listed reasons.  As of Minecraft 1.21.3, valid are:
 - `NATURAL`
 - `CHUNK_GENERATION`
 - `SPAWNER`
 - `STRUCTURE`
 - `BREEDING`
 - `MOB_SUMMONED`
-- `JOCKEY,EVENT`
+- `JOCKEY`
+- `EVENT`
 - `CONVERSION`
 - `REINFORCEMENT`
 - `TRIGGERED`
 - `BUCKET`
-- `SPAWN_EGG`
+- `SPAWN_ITEM_USE`
 - `COMMAND`
 - `DISPENSER`
 - `PATROL`
 - `TRIAL_SPAWNER`
+- `LOAD`
+- `DIMENSION_TRAVEL`
+
+Note that mob-filter may be unable to filter spawns in some of these cases.
 
 
 ## Order Matters

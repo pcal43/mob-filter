@@ -16,7 +16,6 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -69,7 +68,7 @@ abstract class MFRules {
      * One rule to be evaluated in the filter chain.
      */
     record FilterRule(String ruleName,
-                      Collection<FilterCheck> checks,
+                      List<FilterCheck> checks,
                       FilterRuleAction action) {
 
         FilterRule {
@@ -194,11 +193,11 @@ abstract class MFRules {
         }
     }
 
-    record CategoryCheck(EnumSet<MobCategory> groups) implements FilterCheck {
+    record CategoryCheck(EnumSet<MobCategory> categories) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.groups.contains(req.category);
-            req.logger().trace(() -> "[MobFilter]     CategoryCheck: " + this.groups + " " + req.category + " " + isMatch + " " + isMatch);
+            boolean isMatch = this.categories.contains(req.category);
+            req.logger().trace(() -> "[MobFilter]     CategoryCheck: " + this.categories + " " + req.category + " " + isMatch + " " + isMatch);
             return isMatch;
         }
     }

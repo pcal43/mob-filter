@@ -189,7 +189,7 @@ public class MFService {
      * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
      * no rules.
      */
-    private static FilterRuleList buildRules(Configuration fromConfig) {
+    static FilterRuleList buildRules(Configuration fromConfig) {
         requireNonNull(fromConfig);
         if (fromConfig.rules == null) return null;
         final ImmutableList.Builder<FilterRule> rulesBuilder = ImmutableList.builder();
@@ -205,16 +205,20 @@ public class MFService {
             if (when == null) {
                 throw new IllegalArgumentException("'when' must be specified on " + ruleName);
             }
-            if (when.spawnType != null && when.spawnType.length > 0) {
+            if (when.spawnReason != null && when.spawnReason.length > 0) {
+                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnReason));
+                checks.add(new SpawnReasonCheck(enumSet));
+            } else if (when.spawnType != null && when.spawnType.length > 0) {
+                // legacy support for old name 'spawnType'
                 final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
                 checks.add(new SpawnReasonCheck(enumSet));
             }
-            if (when.spawnGroup != null && when.spawnGroup.length > 0) {
-                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
-                checks.add(new CategoryCheck(enumSet));
-            }
             if (when.category != null && when.category.length > 0) {
                 final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.category));
+                checks.add(new CategoryCheck(enumSet));
+            } else if (when.spawnGroup != null && when.spawnGroup.length > 0) {
+                // legacy support for old name 'spawnGroup'
+                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
                 checks.add(new CategoryCheck(enumSet));
             }
             if (when.entityId != null) checks.add(new EntityIdCheck(IdMatcher.of(when.entityId)));
