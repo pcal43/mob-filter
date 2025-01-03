@@ -3,7 +3,6 @@ package net.pcal.mobfilter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import org.yaml.snakeyaml.LoaderOptions;
