@@ -6,9 +6,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -95,7 +95,7 @@ abstract class MFRules {
      * Encapsualtes the parameters in a minecraft call to 'canSpawn'.
      */
     record SpawnRequest(ServerLevel serverWorld,
-                        MobSpawnType spawnType,
+                        EntitySpawnReason spawnReason,
                         MobCategory category,
                         EntityType<?> entityType,
                         BlockPos blockPos,
@@ -136,7 +136,7 @@ abstract class MFRules {
         public ResourceLocation getBiomeId() {
             final Biome biome = serverWorld.getBiome(this.blockPos()).value();
             // FIXME? I'm not entirely sure this is correct
-            return serverWorld.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
+            return serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome);
         }
 
         /**
@@ -185,11 +185,11 @@ abstract class MFRules {
         }
     }
 
-    record SpawnTypeCheck(EnumSet<MobSpawnType> types) implements FilterCheck {
+    record SpawnReasonCheck(EnumSet<EntitySpawnReason> reasons) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            boolean isMatch = this.types.contains(req.spawnType);
-            req.logger().trace(() -> "[MobFilter]     SpawnTypeCheck: " + this.types + " " + req.spawnType + " " + isMatch + " " + isMatch);
+            boolean isMatch = this.reasons.contains(req.spawnReason);
+            req.logger().trace(() -> "[MobFilter]     SpawnReasonCheck: " + this.reasons + " " + req.spawnReason + " " + isMatch + " " + isMatch);
             return isMatch;
         }
     }

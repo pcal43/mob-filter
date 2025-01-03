@@ -1,13 +1,12 @@
 package net.pcal.mobfilter;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -26,22 +25,23 @@ public class MFMixinBodies {
     public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self,
                                              ServerLevel serverLevel,
                                              BlockPos blockPos,
-                                             MobSpawnType mobSpawnType,
+                                             EntitySpawnReason spawnReason,
                                              CallbackInfoReturnable<Entity> cir) {
-        if (!MFService.getInstance().isSpawnAllowed(serverLevel, mobSpawnType, self, blockPos)) {
+        if (!MFService.getInstance().isSpawnAllowed(serverLevel, spawnReason, self, blockPos)) {
             cir.setReturnValue(null);
             cir.cancel();
         }
     }
 
-    public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self, ServerLevel serverLevel,
+    public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self,
+                                             ServerLevel serverLevel,
                                              Consumer<?> ignored0,
                                              BlockPos blockPos,
-                                             MobSpawnType mobSpawnType,
+                                             EntitySpawnReason spawnReason,
                                              boolean ignored1,
                                              boolean ignored2,
                                              CallbackInfoReturnable<Entity> cir) {
-        if (!MFService.getInstance().isSpawnAllowed(serverLevel, mobSpawnType, self, blockPos)) {
+        if (!MFService.getInstance().isSpawnAllowed(serverLevel, spawnReason, self, blockPos)) {
             cir.setReturnValue(null);
             cir.cancel();
         }
@@ -49,11 +49,11 @@ public class MFMixinBodies {
 
     public static void SpawnPlacementsMixin_checkSpawnRules(EntityType<?> entityType,
                                                             ServerLevelAccessor sla,
-                                                            MobSpawnType mobSpawnType,
+                                                            EntitySpawnReason spawnReason,
                                                             BlockPos blockPos,
                                                             RandomSource ignored,
                                                             CallbackInfoReturnable<Boolean> cir) {
-        if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), mobSpawnType, (EntityType<? extends Mob>) entityType, blockPos)) {
+        if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), spawnReason, (EntityType<? extends Mob>) entityType, blockPos)) {
             cir.setReturnValue(false);
         }
     }
@@ -68,7 +68,7 @@ public class MFMixinBodies {
     ) {
         if (entity instanceof Mob mob) {
             final EntityType<? extends Mob> mobType = (EntityType<? extends Mob>) mob.getType();
-            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), MobSpawnType.STRUCTURE, mobType, mob.blockPosition())) {
+            if (!MFService.getInstance().isSpawnAllowed(sla.getLevel(), EntitySpawnReason.STRUCTURE, mobType, mob.blockPosition())) {
                 ci.cancel();
             }
         }
