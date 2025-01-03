@@ -23,6 +23,12 @@
         "spawnGroup": [
           "MONSTER"
         ],
+        "spawnReason": [
+          "STRUCTURE"
+        ],
+        "spawnType": [
+          "JOCKEY"
+        ],
         "worldName": [
           "New World"
         ],

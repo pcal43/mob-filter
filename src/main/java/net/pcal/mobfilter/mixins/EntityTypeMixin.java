@@ -1,12 +1,11 @@
 package net.pcal.mobfilter.mixins;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.pcal.mobfilter.MFMixinBodies;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,23 +21,23 @@ import java.util.function.Consumer;
 @Mixin(EntityType.class)
 public abstract class EntityTypeMixin {
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;)Lnet/minecraft/world/entity/Entity;")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(ServerLevel serverLevel,
                           BlockPos blockPos,
-                          MobSpawnType mobSpawnType,
+                          EntitySpawnReason spawnReason,
                           CallbackInfoReturnable<Entity> cir) {
-        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, blockPos, mobSpawnType, cir);
+        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, blockPos, spawnReason, cir);
     }
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;ZZ)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(ServerLevel serverLevel,
                           Consumer<?> ignored0,
                           BlockPos blockPos,
-                          MobSpawnType mobSpawnType,
+                          EntitySpawnReason spawnReason,
                           boolean ignored1,
                           boolean ignored2,
                           CallbackInfoReturnable<Entity> cir) {
-        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, ignored0, blockPos, mobSpawnType, ignored1, ignored2, cir);
+        MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, ignored0, blockPos, spawnReason, ignored1, ignored2, cir);
     }
 }
 

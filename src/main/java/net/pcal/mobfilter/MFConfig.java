@@ -3,9 +3,8 @@ package net.pcal.mobfilter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.MobSpawnType;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -48,9 +47,7 @@ public class MFConfig {
         public String[] dimensionId;
         public String[] entityId;
         public String[] biomeId;
-        public MobSpawnType[] spawnType;
-        @Deprecated // use category instead
-        public MobCategory[] spawnGroup;
+        public EntitySpawnReason[] spawnReason;
         public MobCategory[] category;
         public String[] blockX;
         public String[] blockY;
@@ -59,5 +56,11 @@ public class MFConfig {
         public String[] timeOfDay;
         public String[] lightLevel;
         public Integer[] moonPhase;
+
+        // for backwards compatibility:
+        @Deprecated // use spawnReason instead
+        public EntitySpawnReason[] spawnType;
+        @Deprecated // use category instead
+        public MobCategory[] spawnGroup;
     }
 }
