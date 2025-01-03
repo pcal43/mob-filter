@@ -125,18 +125,9 @@ public class MFService {
             // load the config file and build the rules
             //
             final Configuration config;
-
-            if (yamlConfigFile.exists()) {
-                this.logger.info("[MobFilter] Loading config from " + yamlConfigFile);
-                logger.warn("mobfilter.yaml is deprecated.  Please migrate to mobfilter.json5.");
-                try (final InputStream in = new FileInputStream(yamlConfigFile.getAbsolutePath())) {
-                    config = MFConfig.loadFromYaml(in);
-                }
-            } else {
-                this.logger.info("[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
-                try (final InputStream in = new FileInputStream(jsonConfigFile)) {
-                    config = MFConfig.loadFromJson(in);
-                }
+            this.logger.info("[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
+            try (final InputStream in = new FileInputStream(jsonConfigFile)) {
+                config = MFConfig.loadFromJson(in);
             }
             if (config == null) {
                 this.logger.warn("[MobFilter] Empty configuration");
@@ -271,5 +262,4 @@ public class MFService {
         }
         return out;
     }
-
 }

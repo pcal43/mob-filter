@@ -5,9 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,12 +15,6 @@ import java.nio.charset.StandardCharsets;
  */
 @SuppressWarnings("ALL")
 public class MFConfig {
-
-    static Configuration loadFromYaml(final InputStream inputStream) {
-        final LoaderOptions lopt = new LoaderOptions();
-        Yaml yaml = new Yaml(new Constructor(Configuration.class, lopt));
-        return yaml.load(inputStream);
-    }
 
     static Configuration loadFromJson(final InputStream in) throws IOException {
         final String rawJson = new String(in.readAllBytes(), StandardCharsets.UTF_8);
