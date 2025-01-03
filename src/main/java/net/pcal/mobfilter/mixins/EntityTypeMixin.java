@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 @Mixin(EntityType.class)
 public abstract class EntityTypeMixin {
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;)Lnet/minecraft/world/entity/Entity;")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(ServerLevel serverLevel,
                           BlockPos blockPos,
                           EntitySpawnReason spawnReason,
@@ -29,7 +29,7 @@ public abstract class EntityTypeMixin {
         MFMixinBodies.EntityTypeMixin_spawn((EntityType<? extends Mob>) (Object) this, serverLevel, blockPos, spawnReason, cir);
     }
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "spawn(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;ZZ)Lnet/minecraft/world/entity/Entity;")
     private void mf_spawn(ServerLevel serverLevel,
                           Consumer<?> ignored0,
                           BlockPos blockPos,

@@ -25,8 +25,10 @@ public class MFConfigTest {
     }
 
 
+    @SuppressWarnings({"deprecation", "DataFlowIssue"})
     @Test
     public void testJson() throws Exception {
+        // kick tires on json parsing
         final Configuration config;
         try (final InputStream inputStream = getClass().getClassLoader().getResourceAsStream("test-config.json5")) {
             config = MFConfig.loadFromJson(inputStream);
@@ -37,6 +39,7 @@ public class MFConfigTest {
         assertEquals(EntitySpawnReason.STRUCTURE, config.rules[1].when.spawnReason[0]);
         assertEquals(EntitySpawnReason.JOCKEY, config.rules[1].when.spawnType[0]);
 
+        // kick tires on rule building
         List<MFRules.FilterRule> rules = MFService.buildRules(config).getRules();
         assertEquals(2, rules.size());
         // the checks declared using deprecated names get ignored
