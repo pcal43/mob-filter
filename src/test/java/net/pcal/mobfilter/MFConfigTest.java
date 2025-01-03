@@ -47,9 +47,5 @@ public class MFConfigTest {
         assertEquals(
                 EnumSet.of(MobCategory.MONSTER),
                 ((MFRules.CategoryCheck)rules.get(1).checks().get(1)).categories());
-
-
-
-
     }
 }
