@@ -34,7 +34,9 @@ in the list.
 #### `category`
 
 List of net.minecraft.entity.MobCategory values.  The condition is true when# the mob to be spawned is in one of
-the listed categories.  As of Minecraft 1.20.4, valid values are:
+the listed categories.   *In version 0.8.0+1.20.4 and older, this key was called `spawnType`.*
+
+As of Minecraft 1.20.4, valid values are:
 - `MONSTER`
 - `CREATURE`
 - `AMBIENT`
@@ -60,7 +62,6 @@ You can match all dimensions in a given namespace using `*`; for example `minecr
 List of biome identifiers, e.g., 'minecraft:ocean'.  True if mob is spawning in a listed biome.
 You can match all biomes in a given namespace using `*`; for example `minecraft:*` will match all vanilla biomes.
 
-
 #### `blockId`
 List of block identifiers, e.g., 'minecraft:cobblestone'.  True if mob is spawning on a listed block type.
 You can match all blocks in a given namespace using `*`; for example `minecraft:*` will match all vanilla blocks.
@@ -77,7 +78,9 @@ Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within
 
 #### `spawnReason`
 A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
-to one of the listed reasons.  As of Minecraft 1.21.3, valid are:
+to one of the listed reasons.   *In version 0.11.2+1.21.1 and older, this key was called `spawnType`.*
+
+As of Minecraft 1.21.3, valid values are:
 - `NATURAL`
 - `CHUNK_GENERATION`
 - `SPAWNER`
