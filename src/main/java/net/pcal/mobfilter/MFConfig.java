@@ -33,7 +33,7 @@ public class MFConfig {
             public void skipValue()  {
                 // GSon calls this to silently ignore json keys that don't bind to anything.  People then get
                 // confused about why their configuration isn't fully working.  So here we just fail loudly instead.
-                // We don't throw IOException because GSon tries to handle that in ways that obscure the error.
+                // Note we don't throw IOException because GSon tries to handle that in a waysthat obscures the message.
                 throw new RuntimeException("Unexpected configuration names at: "+this.getPath());
             }
         }
@@ -72,5 +72,4 @@ public class MFConfig {
         @Deprecated // use category instead
         public MobCategory[] spawnGroup;
     }
-
 }
