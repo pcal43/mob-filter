@@ -66,6 +66,7 @@ public class MFService {
     private final Logger logger = LogManager.getLogger(MFService.class);
     private FilterRuleList ruleList;
     private Level logLevel = Level.INFO;
+    private String configError = null;
     final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
     final File yamlConfigFile = Paths.get("config", "mobfilter.yaml").toFile();
 
@@ -115,6 +116,7 @@ public class MFService {
      * Re/loads mobfilter.yaml and initializes a new FiluterRuleList.
      */
     public void loadConfig() {
+        this.configError = null;
         this.ruleList = null;
         ensureConfigExists();
         try {
@@ -162,9 +164,14 @@ public class MFService {
             }
             logger.info("[MobFilter] Log level is " + logger.getLevel());
         } catch (Exception e) {
+            this.configError = e.getMessage();
             logger.catching(Level.ERROR, e);
             logger.error("[MobFilter] Failed to load configuration");
         }
+    }
+
+    String getConfigError() {
+        return configError;
     }
 
     // ===================================================================================
