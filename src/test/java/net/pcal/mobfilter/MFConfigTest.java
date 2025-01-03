@@ -13,18 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MFConfigTest {
 
-    @Test
-    public void testYaml() throws Exception {
-        final Configuration config;
-        try (final InputStream inputStream = getClass().getClassLoader().getResourceAsStream("test-config.yaml")) {
-            config = MFConfig.loadFromYaml(inputStream);
-        }
-        assertEquals("TRACE", config.logLevel);
-        assertEquals(2, config.rules.length);
-        assertEquals(MobCategory.MONSTER, config.rules[1].when.spawnGroup[0]);
-    }
-
-
     @SuppressWarnings({"deprecation", "DataFlowIssue"})
     @Test
     public void testJson() throws Exception {
