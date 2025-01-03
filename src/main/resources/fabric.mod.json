@@ -15,6 +15,9 @@
   "entrypoints": {
     "main": [
       "net.pcal.mobfilter.MFInitializer"
+    ],
+    "client": [
+      "net.pcal.mobfilter.MFClientInitializer"
     ]
   },
   "mixins": [
