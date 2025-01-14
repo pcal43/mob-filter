@@ -64,6 +64,7 @@ public class MFConfig {
         public String[] blockId;
         public String[] timeOfDay;
         public String[] lightLevel;
+        public String[] skylightLevel;
         public Integer[] moonPhase;
 
         // for backwards compatibility:
