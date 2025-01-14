@@ -72,7 +72,7 @@ You can match all blocks in a given namespace using `*`; for example `minecraft:
 Two integers between 0 and 16.  True if mob is spawning in a lightLevel within the range.
 
 #### `moonPhase`
-List of integers between 1 (Full Moon) and 8, inclusive, [indicating a phase of the moon](https://minecraft.fandom.com/wiki/Moon).
+List of integers between 1 (Full Moon) and 8, inclusive, [indicating a phase of the moon](https://minecraft.wiki/w/Moon#Phases).
 True if mob is spawning when the moon is at a phase number that is in the list.
 
 #### `timeOfDay`
