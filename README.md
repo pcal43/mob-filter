@@ -86,6 +86,24 @@ See [CONFIG.md](https://github.com/pcal43/mob-filter/blob/main/CONFIG.md) for mo
 }
 ```
 
+### Peaceful Surface
+*This stops monsters from spawning on the surface - anywhere exposed to the sky.*
+```
+{
+  rules : [
+    {
+      name : 'Peaceful surface',
+      what : 'DISALLOW_SPAWN',
+      when : {
+        category : [ 'MONSTER' ],
+        dimensionId : [ 'minecraft:overworld' ],
+        skylightLevel : [ 1, 15 ],
+        spawnReason : [ 'NATURAL' ]
+      }
+    }
+  ]
+}
+```
 
 ## Why This Mod?
 
