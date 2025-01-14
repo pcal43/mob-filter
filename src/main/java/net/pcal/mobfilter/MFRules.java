@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -236,6 +237,16 @@ abstract class MFRules {
             int val = req.serverWorld.getMaxLocalRawBrightness(req.blockPos);
             boolean isMatch = min <= val && val <= max;
             req.logger().trace(() -> "[MobFilter]     LightLevelCheck " + min + " <= " + val + " <= " + max+ " " +isMatch);
+            return isMatch;
+        }
+    }
+
+    record SkylightLevelCheck(int min, int max) implements FilterCheck {
+        @Override
+        public boolean isMatch(SpawnRequest req) {
+            int val = req.serverWorld.getBrightness(LightLayer.SKY, req.blockPos);
+            boolean isMatch = min <= val && val <= max;
+            req.logger().trace(() -> "[MobFilter]     SkylightLevelCheck " + min + " <= " + val + " <= " + max+ " " +isMatch);
             return isMatch;
         }
     }
