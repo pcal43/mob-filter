@@ -68,6 +68,11 @@ You can match all blocks in a given namespace using `*`; for example `minecraft:
 #### `lightLevel`
 Two integers between 0 and 16.  True if mob is spawning in a lightLevel within the range.
 
+#### `skylightLevel`
+Two integers 0 and 15, inclusive.  True if a mob is spawning on a block whose
+[Sky Light level](https://minecraft.wiki/w/Light#Sky_light) is within the range.
+Rule only exists for Minecraft versions 1.20.1 and above.
+
 #### `moonPhase`
 List of integers between 1 (Full Moon) and 8, inclusive, [indicating a phase of the moon](https://minecraft.fandom.com/wiki/Moon).
 True if mob is spawning when the moon is at a phase number that is in the list.
@@ -246,6 +251,25 @@ prevent specific mobs from spawning.
       when : {
         category : [ 'MONSTER' ],
         moonPhase : [ 1 ]
+      }
+    }
+  ]
+}
+```
+
+### Peaceful Surface
+*This stops monsters from spawning on the surface - anywhere exposed to the sky.*
+```
+{
+  rules : [
+    {
+      name : 'Peaceful surface',
+      what : 'DISALLOW_SPAWN',
+      when : {
+        category : [ 'MONSTER' ],
+        dimensionId : [ 'minecraft:overworld' ],
+        skylightLevel : [ 1, 15 ],
+        spawnReason : [ 'NATURAL' ]
       }
     }
   ]
