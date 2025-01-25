@@ -72,7 +72,7 @@ You can match all blocks in a given namespace using `*`; for example `minecraft:
 Two integers between 0 and 16.  True if mob is spawning in a lightLevel within the range.
 
 #### `skylightLevel`
-Two integers 0 and 15, inclusive.  True if a mob is spawning on a block whose 
+*Only availble in versions `0.14.3+1.21.4` and later.*  Two integers 0 and 15, inclusive.  True if a mob is spawning on a block whose 
 [Sky Light level](https://minecraft.wiki/w/Light#Sky_light) is within the range.
 
 #### `moonPhase`
@@ -83,10 +83,10 @@ True if mob is spawning when the moon is at a phase number that is in the list.
 Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within the range.
 
 #### `spawnReason`
-A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
+*In version `0.11.2+1.21.1` and older, this key was called `spawnType`.* A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
 to one of the listed reasons.
 
-*In version 0.11.2+1.21.1 and older, this key was called `spawnType`.*
+
 
 As of Minecraft 1.21.3, valid values are:
 - `NATURAL`
