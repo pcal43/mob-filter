@@ -40,6 +40,7 @@ git push
 
 #
 # Do github release
+#  Note: --target because stupid: https://github.com/cli/cli/issues/3880
 #
-gh release create --generate-notes --title "${RELEASE_VERSION}" --notes "release ${RELEASE_VERSION}" ${RELEASE_VERSION} build/libs/*
+gh release create --target $(git branch --show-current) --generate-notes --title "${RELEASE_VERSION}" --notes "release ${RELEASE_VERSION}" ${RELEASE_VERSION} build/libs/*
 
