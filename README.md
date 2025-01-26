@@ -109,7 +109,7 @@ See [CONFIG.md](https://github.com/pcal43/mob-filter/blob/main/CONFIG.md) for mo
 
 I wrote this mod because I wanted to be able to be able to play survival minecraft with my daughter, and that meant
 we had to have a mob-free area around our base. There are numerous other mods out there that manage mob spawning but
-n one of them did quite what I needed them to do.
+none of them did quite what I needed them to do.
 
 
 ## Legal
