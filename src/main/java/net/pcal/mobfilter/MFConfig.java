@@ -63,7 +63,7 @@ public class MFConfig {
     }
 
     /**
-     * By default, gson invalid enum values in the json file silently get bound as null.
+     * By default, invalid enum values in the json file silently get bound by gson as null.
      * Which ends up causing pain and confusion later.  This adapter fails loudly and
      * clearly instead.
      */
