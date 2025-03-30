@@ -44,7 +44,7 @@ public class MFConfig {
                 // GSon calls this to silently ignore json keys that don't bind to anything.  People then get
                 // confused about why their configuration isn't fully working.  So here we just fail loudly instead.
                 // Note we don't throw IOException because GSon tries to handle that in a waysthat obscures the message.
-                throw new RuntimeException("Unexpected configuration names in config/mobfilter.json5 at: "+this.toString());
+                throw new RuntimeException("Unexpected configuration names at: "+this.toString());
             }
 
             /**
@@ -86,7 +86,7 @@ public class MFConfig {
                     if (Arrays.stream(enumClass.getEnumConstants())
                             .noneMatch(e -> ((Enum<?>) e).name().equals(value))) {
                         final StringBuilder msg = new StringBuilder();
-                        msg.append("Invalid "+enumClass.getSimpleName()+" value '"+value+"' in config/mobfilter.json5 at " + in.toString());
+                        msg.append("Invalid "+enumClass.getSimpleName()+" value '"+value+"' at " + in.toString());
                         msg.append(".  Valid values are: ");
                         boolean isFirst = true;
                         for (T val : enumClass.getEnumConstants()) {
