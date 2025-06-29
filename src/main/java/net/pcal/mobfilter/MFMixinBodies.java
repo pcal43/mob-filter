@@ -11,6 +11,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -21,6 +22,20 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings("unchecked")
 public class MFMixinBodies {
+
+    public static void EntityTypeMixin_create(EntityType<? extends Mob> self,
+                                               ServerLevel serverLevel,
+                                               @Nullable Consumer<Entity> ignored0,
+                                               BlockPos blockPos,
+                                               EntitySpawnReason spawnReason,
+                                               boolean ignored1,
+                                               boolean ignored2,
+                                               CallbackInfoReturnable<Entity> cir) {
+        if (!MFService.getInstance().isSpawnAllowed(serverLevel, spawnReason, self, blockPos)) {
+            cir.setReturnValue(null);
+            cir.cancel();
+        }
+    }
 
     public static void EntityTypeMixin_spawn(EntityType<? extends Mob> self,
                                              ServerLevel serverLevel,
@@ -73,4 +88,5 @@ public class MFMixinBodies {
             }
         }
     }
+
 }

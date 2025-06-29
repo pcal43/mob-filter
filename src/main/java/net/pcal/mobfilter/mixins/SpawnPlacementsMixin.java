@@ -26,6 +26,6 @@ public abstract class SpawnPlacementsMixin {
                                            BlockPos blockPos,
                                            RandomSource ignored,
                                            CallbackInfoReturnable cir) {
-        MFMixinBodies.SpawnPlacementsMixin_checkSpawnRules(entityType, sla, spawnReason, blockPos, ignored, cir);
+        //MFMixinBodies.SpawnPlacementsMixin_checkSpawnRules(entityType, sla, spawnReason, blockPos, ignored, cir);
     }
 }

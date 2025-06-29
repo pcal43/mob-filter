@@ -6,7 +6,8 @@
   "mixins": [
     "EntityTypeMixin",
     "SpawnPlacementsMixin",
-    "StructureTemplateMixin"
+    "StructureTemplateMixin",
+    "NaturalSpawnerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
