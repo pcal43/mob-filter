@@ -249,6 +249,9 @@ public class MFService {
             if (when.weather != null) {
                 checks.add(new WeatherCheck(Matcher.of(when.weather)));
             }
+            if (when.random != null) {
+                checks.add(new RandomCheck(when.random));
+            }
             rulesBuilder.add(new FilterRule(ruleName, checks.build(), configRule.what));
             i++;
         }

@@ -304,6 +304,13 @@ abstract class MFRules {
             return isMatch;
         }
     }
+
+    record RandomCheck(double odds) implements FilterCheck {
+        @Override
+        public boolean isMatch(SpawnRequest req) {
+            return Math.random() < odds;
+        }
+    }
 }
 
 
