@@ -63,7 +63,8 @@
         lightLevel: [ 5, 10 ],
         skylightLevel: [ 10, 20 ],
         moonPhase: [ 3, 4, 5],
-        weather: [ 'RAIN', 'THUNDER']
+        weather: [ 'RAIN', 'THUNDER'],
+        random: .45
       }
     }
   ]
