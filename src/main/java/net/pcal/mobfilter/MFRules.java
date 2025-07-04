@@ -195,6 +195,10 @@ abstract class MFRules {
     record SpawnReasonCheck(EnumSet<EntitySpawnReason> reasons) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
+            if (req.spawnReason == null) {
+                req.logger().debug(() -> "[MobFilter]     SpawnReasonCheck: reason could not be determined for "+req.entityType+ ", assuming match");
+                return true;
+            }
             boolean isMatch = this.reasons.contains(req.spawnReason);
             req.logger().trace(() -> "[MobFilter]     SpawnReasonCheck: " + this.reasons + " " + req.spawnReason + " " + isMatch + " " + isMatch);
             return isMatch;
