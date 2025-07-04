@@ -167,6 +167,13 @@ abstract class MFRules {
         }
     }
 
+    public enum WeatherType {
+        CLEAR,
+        RAIN,
+        THUNDER,
+        SNOW
+    }
+
     record DimensionCheck(IdMatcher dimensionMatcher) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
@@ -258,6 +265,32 @@ abstract class MFRules {
             boolean isMatch = matcher.isMatch(val);
             req.logger().trace(() -> "[MobFilter]     MoonPhaseCheck " + matcher + " contains " + val + " " + isMatch);
             return isMatch;
+        }
+    }
+
+    record WeatherCheck(Matcher<WeatherType> matcher) implements FilterCheck {
+        @Override
+        public boolean isMatch(SpawnRequest req) {
+            final WeatherType weather = getWeatherType(req);
+            boolean isMatch = matcher.isMatch(weather);
+            req.logger().trace(() -> "[MobFilter]     WeatherCheck " + matcher + " at " + req.blockPos + ": " + isMatch);
+            return isMatch;
+        }
+
+        public static WeatherType getWeatherType(SpawnRequest req) {
+            if (req.serverWorld.isThundering()) {
+                return WeatherType.THUNDER;
+            }
+            if (req.serverWorld.isRainingAt(req.blockPos)) {
+                // Check for snow
+                final Biome biome = req.serverWorld.getBiome(req.blockPos).value();
+                if (biome.hasPrecipitation() && biome.coldEnoughToSnow(req.blockPos, req.blockPos.getY())) {
+                    return WeatherType.SNOW;
+                }
+                return WeatherType.RAIN;
+            }
+
+            return WeatherType.CLEAR;
         }
     }
 

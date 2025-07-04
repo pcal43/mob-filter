@@ -1,11 +1,40 @@
 # Configuring Mob-Filter
 
-To use mob filter, you create a list of rules that can 'veto' the spawning of a mobs in the game
-based on specific conditions.  Rules are configured in `mobfilter.json5` in your minecraft `config` 
-folder.
+To ensure you're looking at the right version of the docs,
+please choose the version of the mod you are running:
 
-*To see example configurations that you can copy-paste, skip ahead to the [Examples](#examples) section.*
+* [`0.16.0+1.21.6`](../0.16.0+1.21.6/CONFIG.md)
+* [`0.15.0+1.21.5`](../0.15.0+1.21.5/CONFIG.md)
+* [`0.14.4+1.21.4`](../0.14.4+1.21.4/CONFIG.md)
+* [`0.14.3+1.21.4`](../0.14.3+1.21.4/CONFIG.md)
+* [`0.14.2+1.21.4`](../0.14.2+1.21.4/CONFIG.md)
+* [`0.14.1+1.21.4`](../0.14.1+1.21.4/CONFIG.md)
+* [`0.14.0+1.21.4`](../0.14.0+1.21.4/CONFIG.md)
+* [`0.13.0+1.21.3`](../0.13.0+1.21.3/CONFIG.md)
+* [`0.11.2+1.21.1`](../0.11.2+1.21.1/CONFIG.md)
+* [`0.11.1+1.21.1`](../0.11.1+1.21.1/CONFIG.md)
+* [`0.11.0+1.21.1`](../0.11.0+1.21.1/CONFIG.md)
+* [`0.10.0+1.21`](../0.10.0+1.21/CONFIG.md)
+* [`0.9.0+1.20.6`](../0.9.0+1.20.6/CONFIG.md)
 
+<<<<<<< HEAD
+* [`0.8.0+1.20.4`](../0.8.0+1.20.4/README.md)
+* [`0.7.2+1.20.4`](../0.7.2+1.20.4/README.md)
+* [`0.7.1+1.20.4`](../0.7.1+1.20.4/README.md)
+* [`0.7.0+1.20.4`](../0.7.0+1.20.4/README.md)
+* [`0.6.0+1.20.2`](../0.6.0+1.20.2/README.md)
+* [`0.5.1+1.20.2`](../0.5.1+1.20.2/README.md)
+* [`0.5.0+1.20.2`](../0.5.0+1.20.2/README.md)
+* [`0.4.3+1.20.1`](../0.4.3+1.20.1/README.md)
+* [`0.4.2+1.20.1`](../0.4.2+1.20.1/README.md)
+* [`0.4.1+1.20.1`](../0.4.1+1.20.1/README.md)
+* [`0.4.0+1.20.1`](../0.4.0+1.20.1/README.md)
+* [`0.3.0+1.20.0`](../0.3.0+1.20.0/README.md)
+* [`0.2.2+1.19.4`](../0.2.2+1.19.4/README.md)
+* [`0.2.1+1.19.4`](../0.2.1+1.19.4/README.md)
+* [`0.2.0+1.19.4`](../0.2.0+1.19.4/README.md)
+* [`0.1.0+1.19.3`](../0.1.0+1.19.3/README.md)
+=======
 ## Declaring Rules
 
 The top-level 'rules' configuration element contains a list of filtering rules that are checked to see whether
@@ -268,3 +297,4 @@ prevent specific mobs from spawning.
     ]
 }
 ```
+>>>>>>> d68d426 (checkpoint)
