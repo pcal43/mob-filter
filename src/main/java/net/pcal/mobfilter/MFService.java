@@ -76,6 +76,9 @@ public class MFService {
     // ===================================================================================
     // Public methods
 
+    /**
+     * Called during entity creation so that we can remember the spawnReason for future use.
+     */
     public void notifyEntityCreate(net.minecraft.world.level.Level level, final EntitySpawnReason reason, final Entity entity) {
         if (level.isClientSide()) return;
         if (!(entity instanceof Mob)) return;
@@ -89,6 +92,10 @@ public class MFService {
         this.spawnReason.set(reason);
     }
 
+    /**
+     * Called just as entities are being added to the world to determine whether they should
+     * be allowed.
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isSpawnAllowed(final ServerLevel serverLevel, final Entity entity) {
         if (this.ruleList == null) return true;
