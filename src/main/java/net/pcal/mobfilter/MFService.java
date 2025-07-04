@@ -206,8 +206,7 @@ public class MFService {
         final ImmutableList.Builder<FilterRule> rulesBuilder = ImmutableList.builder();
         int i = 0;
         for (final MFConfig.Rule configRule : fromConfig.rules) {
-            if (configRule == null)
-                continue; // common with json trailing comma in list
+            if (configRule == null) continue; // common with json trailing comma in list
             final ImmutableList.Builder<FilterCheck> checks = ImmutableList.builder();
             final String ruleName = configRule.name != null ? configRule.name : "rule" + i;
             if (configRule.what == null) {
@@ -233,16 +232,21 @@ public class MFService {
                 final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
                 checks.add(new CategoryCheck(enumSet));
             }
-            if (when.entityId != null)
+            if (when.entityId != null) {
                 checks.add(new EntityIdCheck(IdMatcher.of(when.entityId)));
-            if (when.worldName != null)
+            }
+            if (when.worldName != null) {
                 checks.add(new WorldNameCheck(Matcher.of(when.worldName)));
-            if (when.dimensionId != null)
+            }
+            if (when.dimensionId != null) {
                 checks.add(new DimensionCheck(IdMatcher.of(when.dimensionId)));
-            if (when.biomeId != null)
+            }
+            if (when.biomeId != null) {
                 checks.add(new BiomeCheck(IdMatcher.of(when.biomeId)));
-            if (when.blockId != null)
+            }
+            if (when.blockId != null) {
                 checks.add(new BlockIdCheck(IdMatcher.of(when.blockId)));
+            }
             if (when.blockX != null) {
                 int[] range = parseRange(when.blockX);
                 checks.add(new BlockPosCheck(Direction.Axis.X, range[0], range[1]));
