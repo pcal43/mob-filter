@@ -111,6 +111,11 @@ I wrote this mod because I wanted to be able to be able to play survival minecra
 we had to have a mob-free area around our base. There are numerous other mods out there that manage mob spawning but
 none of them did quite what I needed them to do.
 
+## Backports?
+
+As a rule, I don't do backports unless critical security issues are involved.  It's just
+too much tedious work to backport every mod feature to every old version.  But I'm happy
+to accept PRs if you want to do one yourself.
 
 ## Legal
 
