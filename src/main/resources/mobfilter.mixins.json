@@ -5,8 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "EntityTypeMixin",
-    "SpawnPlacementsMixin",
-    "StructureTemplateMixin"
+    "NaturalSpawnerSpawnStateMixin",
+    "ServerLevelMixin",
+    "WorldGenRegionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
