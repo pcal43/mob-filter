@@ -1,9 +1,10 @@
 # Configuring Mob-Filter
 
-Please choose the version you are running:
+To ensure you're looking at the right version of the docs,
+please choose the version of the mod you are running:
 
 * [`0.16.0+1.21.6`](../0.16.0+1.21.6/CONFIG-GUIDE.md)
-* 
+
 * [`0.16.0+1.21.6`](../0.16.0+1.21.6/CONFIG.md)
 * [`0.15.0+1.21.5`](../0.15.0+1.21.5/CONFIG.md)
 * [`0.14.4+1.21.4`](../0.14.4+1.21.4/CONFIG.md)
@@ -34,5 +35,3 @@ Please choose the version you are running:
 * [`0.2.1+1.19.4`](../0.2.1+1.19.4/README.md)
 * [`0.2.0+1.19.4`](../0.2.0+1.19.4/README.md)
 * [`0.1.0+1.19.3`](../0.1.0+1.19.3/README.md)
-* [`0.1.0-prerelease`](../0.1.0-prerelease/README.md)
-* [`0.0.1`](../0.0.1/README.md)
