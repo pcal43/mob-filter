@@ -59,7 +59,11 @@
         "blockZ": [
           '63',
           512
-        ]
+        ],
+        lightLevel: [ 5, 10 ],
+        skylightLevel: [ 10, 20 ],
+        moonPhase: [ 3, 4, 5],
+        weather: [ 'RAIN', 'THUNDER']
       }
     }
   ]

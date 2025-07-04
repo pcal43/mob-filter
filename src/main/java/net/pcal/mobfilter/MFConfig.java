@@ -127,6 +127,7 @@ public class MFConfig {
         public String[] lightLevel;
         public String[] skylightLevel;
         public Integer[] moonPhase;
+        public MFRules.WeatherType[] weather;
 
         // for backwards compatibility:
         @Deprecated // use spawnReason instead

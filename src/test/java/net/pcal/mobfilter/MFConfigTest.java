@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MFConfigTest {
@@ -26,6 +27,12 @@ public class MFConfigTest {
         assertEquals(MobCategory.MONSTER, config.rules[1].when.spawnGroup[0]);
         assertEquals(EntitySpawnReason.STRUCTURE, config.rules[1].when.spawnReason[0]);
         assertEquals(EntitySpawnReason.JOCKEY, config.rules[1].when.spawnType[0]);
+        assertArrayEquals(new MFRules.WeatherType[] { MFRules.WeatherType.RAIN, MFRules.WeatherType.THUNDER},
+                config.rules[1].when.weather);
+        assertArrayEquals(new String[] { "5", "10", }, config.rules[1].when.lightLevel);
+        assertArrayEquals(new String[] { "10", "20", }, config.rules[1].when.skylightLevel);
+        assertArrayEquals(new Integer[] { 3, 4, 5 }, config.rules[1].when.moonPhase);
+
 
         // kick tires on rule building
         List<MFRules.FilterRule> rules = MFService.buildRules(config).getRules();

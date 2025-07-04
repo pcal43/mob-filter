@@ -39,6 +39,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
+import static net.pcal.mobfilter.MFRules.*;
 
 
 /**
@@ -244,6 +245,9 @@ public class MFService {
             }
             if (when.moonPhase != null) {
                 checks.add(new MoonPhaseCheck(Matcher.of(when.moonPhase)));
+            }
+            if (when.weather != null) {
+                checks.add(new WeatherCheck(Matcher.of(when.weather)));
             }
             rulesBuilder.add(new FilterRule(ruleName, checks.build(), configRule.what));
             i++;
