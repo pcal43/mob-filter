@@ -32,6 +32,7 @@ public class MFConfigTest {
         assertArrayEquals(new String[] { "5", "10", }, config.rules[1].when.lightLevel);
         assertArrayEquals(new String[] { "10", "20", }, config.rules[1].when.skylightLevel);
         assertArrayEquals(new Integer[] { 3, 4, 5 }, config.rules[1].when.moonPhase);
+        assertEquals(0.45d, config.rules[1].when.random);
 
 
         // kick tires on rule building
