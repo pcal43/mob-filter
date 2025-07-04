@@ -82,6 +82,11 @@ True if mob is spawning when the moon is at a phase number that is in the list.
 #### `timeOfDay`
 Two integers between 0 and 24000.  True if mob is spawning at a timeOfDay within the range.
 
+#### `weather`
+*Only available in version `0.16.1+1.21.6` and greater.*
+List of weather types: CLEAR, RAIN, SNOW, THUNDER.
+True if the mob is spawning on a block that has the given weather type.
+
 #### `spawnReason`
 *In version `0.11.2+1.21.1` and older, this key was called `spawnType`.* A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
 to one of the listed reasons.
