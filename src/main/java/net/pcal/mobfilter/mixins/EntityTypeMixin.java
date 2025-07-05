@@ -22,6 +22,7 @@ public abstract class EntityTypeMixin {
 
     @Inject(at = @At("RETURN"), method = "create(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/MobSpawnType;ZZ)Lnet/minecraft/world/entity/Entity;", cancellable = true)
     private void mf_create(ServerLevel serverLevel, Consumer ignored, BlockPos blockPos, MobSpawnType spawnType, boolean bl, boolean bl2, CallbackInfoReturnable<Entity> cir) {
+        I THINK YOU NEED TO GET IT FROM FINALIZESPAWN INSTEAD
         MFService.getInstance().notifyEntityCreate(serverLevel, spawnType, cir.getReturnValue());
     }
 }
