@@ -3,6 +3,8 @@
 To ensure you're looking at the right version of the docs,
 please choose the version of the mod you are running:
 
+* [`0.18.0+1.21.7`](../0.18.0+1.21.7/CONFIG-LATEST.md)
+* [`0.17.0+1.21.6`](../0.17.0+1.21.6/CONFIG-LATEST.md)
 * [`0.16.1+1.21.6`](../0.16.1+1.21.6/CONFIG-LATEST.md)
 
 * [`0.16.0+1.21.6`](../0.16.0+1.21.6/CONFIG.md)
