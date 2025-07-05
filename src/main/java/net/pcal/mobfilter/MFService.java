@@ -1,14 +1,13 @@
 package net.pcal.mobfilter;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
 import net.pcal.mobfilter.MFConfig.Configuration;
 import net.pcal.mobfilter.MFRules.BiomeCheck;
 import net.pcal.mobfilter.MFRules.BlockIdCheck;
@@ -22,7 +21,7 @@ import net.pcal.mobfilter.MFRules.FilterRuleList;
 import net.pcal.mobfilter.MFRules.LightLevelCheck;
 import net.pcal.mobfilter.MFRules.MoonPhaseCheck;
 import net.pcal.mobfilter.MFRules.SkylightLevelCheck;
-import net.pcal.mobfilter.MFRules.SpawnReasonCheck;
+import net.pcal.mobfilter.MFRules.SpawnTypeCheck;
 import net.pcal.mobfilter.MFRules.SpawnRequest;
 import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
 import net.pcal.mobfilter.MFRules.WorldNameCheck;
@@ -71,25 +70,25 @@ public class MFService {
     private Level logLevel = Level.INFO;
     private String configError = null;
     private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
-    private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
+    private final ThreadLocal<MobSpawnType> spawnType = new ThreadLocal<>();
 
     // ===================================================================================
     // Public methods
 
     /**
-     * Called during entity creation so that we can remember the spawnReason for future use.
+     * Called during entity creation so that we can remember the spawnType for future use.
      */
-    public void notifyEntityCreate(net.minecraft.world.level.Level level, final EntitySpawnReason reason, final Entity entity) {
+    public void notifyEntityCreate(net.minecraft.world.level.Level level, final MobSpawnType spawnType, final Entity entity) {
         if (level.isClientSide()) return;
         if (!(entity instanceof Mob)) return;
-        if (reason == null) {
-            this.logger.debug(() -> "Ignoring attempt to set null spawnReason for " + entity);
+        if (spawnType == null) {
+            this.logger.debug(() -> "Ignoring attempt to set null spawnType for " + entity);
             return;
-        } else if (this.spawnReason.get() != null && this.spawnReason.get() != reason) {
-            this.logger.trace(() -> "Unexpectedly changing existing spawnReason for " +
-                    entity + " from " +  this.spawnReason.get() + " to " + reason);
+        } else if (this.spawnType.get() != null && this.spawnType.get() != spawnType) {
+            this.logger.trace(() -> "Unexpectedly changing existing spawnType for " +
+                    entity + " from " +  this.spawnType.get() + " to " + spawnType);
         }
-        this.spawnReason.set(reason);
+        this.spawnType.set(spawnType);
     }
 
     /**
@@ -101,20 +100,20 @@ public class MFService {
         if (this.ruleList == null) return true;
         if (serverLevel.isClientSide()) return true;
         if (!(entity instanceof Mob)) return true;
-        final EntitySpawnReason reason = this.spawnReason.get();
-        if (reason == null) {
-            this.logger.debug(() -> "No spawnReason was set for " + entity.getType());
+        final MobSpawnType spawnType = this.spawnType.get();
+        if (spawnType == null) {
+            this.logger.debug(() -> "No spawnType was set for " + entity.getType());
         } else {
-            this.spawnReason.remove();
+            this.spawnType.remove();
         }
         final EntityType<?> entityType = entity.getType();
-        final SpawnRequest req = new SpawnRequest(serverLevel, reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
+        final SpawnRequest req = new SpawnRequest(serverLevel, spawnType, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
         final boolean allowSpawn = ruleList.isSpawnAllowed(req);
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
             if (allowSpawn) {
-                logger.debug(() -> "[MobFilter] ALLOW " + req.spawnReason() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] ALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
             } else {
-                logger.debug(() -> "[MobFilter] DISALLOW " + req.spawnReason() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] DISALLOW " + req.spawnType() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
             }
         }
         return allowSpawn;
@@ -223,13 +222,13 @@ public class MFService {
             if (when == null) {
                 throw new IllegalArgumentException("'when' must be specified on " + ruleName);
             }
-            if (when.spawnReason != null && when.spawnReason.length > 0) {
-                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnReason));
-                checks.add(new SpawnReasonCheck(enumSet));
+            if (when.spawnType != null && when.spawnType.length > 0) {
+                final EnumSet<MobSpawnType> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
+                checks.add(new SpawnTypeCheck(enumSet));
             } else if (when.spawnType != null && when.spawnType.length > 0) {
                 // legacy support for old name 'spawnType'
-                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
-                checks.add(new SpawnReasonCheck(enumSet));
+                final EnumSet<MobSpawnType> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
+                checks.add(new SpawnTypeCheck(enumSet));
             }
             if (when.category != null && when.category.length > 0) {
                 final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.category));

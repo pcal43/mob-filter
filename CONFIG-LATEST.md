@@ -92,9 +92,7 @@ True if the mob is spawning on a block that has the given weather type.
 A value between 0 and 1.  
 True if a freshly-generated random number is less than this value.
 
-#### `spawnReason`
-*In version `0.11.2+1.21.1` and older, this key was called `spawnType`.* A list of net.minecraft.entity.EntitySpawnReason values.  The condition is true when the mob is being spawned due
-to one of the listed reasons.
+#### `spawnType`
 
 As of Minecraft 1.21.3, valid values are:
 - `NATURAL`

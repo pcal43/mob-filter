@@ -6,7 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LightLayer;
@@ -95,7 +95,7 @@ abstract class MFRules {
      * Encapsualtes the parameters in a minecraft call to 'canSpawn'.
      */
     record SpawnRequest(ServerLevel serverWorld,
-                        EntitySpawnReason spawnReason,
+                        MobSpawnType spawnType,
                         MobCategory category,
                         EntityType<?> entityType,
                         BlockPos blockPos,
@@ -136,7 +136,7 @@ abstract class MFRules {
         public ResourceLocation getBiomeId() {
             final Biome biome = serverWorld.getBiome(this.blockPos()).value();
             // FIXME? I'm not entirely sure this is correct
-            return serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome);
+            return serverWorld.registryAccess().registryOrThrow(Registries.BIOME).getKey(biome);
         }
 
         /**
@@ -192,15 +192,15 @@ abstract class MFRules {
         }
     }
 
-    record SpawnReasonCheck(EnumSet<EntitySpawnReason> reasons) implements FilterCheck {
+    record SpawnTypeCheck(EnumSet<MobSpawnType> types) implements FilterCheck {
         @Override
         public boolean isMatch(SpawnRequest req) {
-            if (req.spawnReason == null) {
-                req.logger().debug(() -> "[MobFilter]     SpawnReasonCheck: reason could not be determined for "+req.entityType+ ", assuming match");
+            if (req.spawnType == null) {
+                req.logger().debug(() -> "[MobFilter]     SpawnTypeCheck: reason could not be determined for "+req.entityType+ ", assuming match");
                 return true;
             }
-            boolean isMatch = this.reasons.contains(req.spawnReason);
-            req.logger().trace(() -> "[MobFilter]     SpawnReasonCheck: " + this.reasons + " " + req.spawnReason + " " + isMatch + " " + isMatch);
+            boolean isMatch = this.types.contains(req.spawnType);
+            req.logger().trace(() -> "[MobFilter]     SpawnTypeCheck: " + this.types + " " + req.spawnType + " " + isMatch + " " + isMatch);
             return isMatch;
         }
     }
@@ -288,7 +288,7 @@ abstract class MFRules {
             if (req.serverWorld.isRainingAt(req.blockPos)) {
                 // Check for snow
                 final Biome biome = req.serverWorld.getBiome(req.blockPos).value();
-                if (biome.hasPrecipitation() && biome.coldEnoughToSnow(req.blockPos, req.blockPos.getY())) {
+                if (biome.hasPrecipitation() && biome.coldEnoughToSnow(req.blockPos)) {
                     return WeatherType.SNOW;
                 }
                 return WeatherType.RAIN;

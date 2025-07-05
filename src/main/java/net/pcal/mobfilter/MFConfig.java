@@ -5,13 +5,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.Strictness;
+
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobCategory;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class MFConfig {
         class TypoCatchingJsonReader extends JsonReader {
             public TypoCatchingJsonReader(StringReader in) {
                 super(in);
-                super.setStrictness(Strictness.LENIENT);
+                //super.setStrictness(Strictness.LENIENT);
             }
 
             @Override
@@ -117,7 +117,7 @@ public class MFConfig {
         public String[] dimensionId;
         public String[] entityId;
         public String[] biomeId;
-        public EntitySpawnReason[] spawnReason;
+        public MobSpawnType[] spawnType;
         public MobCategory[] category;
         public String[] blockX;
         public String[] blockY;
@@ -131,8 +131,6 @@ public class MFConfig {
         public Double random;
 
         // for backwards compatibility:
-        @Deprecated // use spawnReason instead
-        public EntitySpawnReason[] spawnType;
         @Deprecated // use category instead
         public MobCategory[] spawnGroup;
     }
