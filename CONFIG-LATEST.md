@@ -131,7 +131,7 @@ put blanket exclusions at the top of your rules list like this:
             "name" : "If we're in the nether, allow the spawn and ignore later rules.",
             "what" : "ALLOW_SPAWN",
             "when" : {
-                "dimensionId" : ["minecraft:nether"]
+                "dimensionId" : ["minecraft:the_nether"]
             }
         },
         {
