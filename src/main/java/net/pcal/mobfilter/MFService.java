@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.MFService.MinecraftThreadType.SERVER;
 import static net.pcal.mobfilter.MFService.MinecraftThreadType.WORLDGEN;
 
@@ -235,7 +234,7 @@ public final class MFService {
             att.getLogger().trace(() -> "[MobFilter]   RULE '" + rule.getName() + "'");
             Boolean isSpawnAllowed = rule.isSpawnAllowed(att);
             if (isSpawnAllowed != null) {
-                att.getLogger().trace(() -> "[MobFilter]   RETURN " + isSpawnAllowed);
+                att.getLogger().trace(() -> "[MobFilter]   SpawnAllowed: " + isSpawnAllowed);
                 return isSpawnAllowed;
             }
         }

@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.Rule.RuleAction;
@@ -20,6 +21,7 @@ import net.pcal.mobfilter.RuleCheck.BiomeCheck;
 import net.pcal.mobfilter.RuleCheck.BlockIdCheck;
 import net.pcal.mobfilter.RuleCheck.BlockPosCheck;
 import net.pcal.mobfilter.RuleCheck.CategoryCheck;
+import net.pcal.mobfilter.RuleCheck.DifficultyCheck;
 import net.pcal.mobfilter.RuleCheck.DimensionCheck;
 import net.pcal.mobfilter.RuleCheck.EntityIdCheck;
 import net.pcal.mobfilter.RuleCheck.LightLevelCheck;
@@ -39,8 +41,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumSet;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Object model for the config file.
@@ -133,6 +133,9 @@ public class MFConfig {
             }
             if (when.weather != null) {
                 checks.add(new WeatherCheck(Matcher.of(when.weather)));
+            }
+            if (when.difficulty != null) {
+                checks.add(new DifficultyCheck(Matcher.of(when.difficulty)));
             }
             if (when.random != null) {
                 checks.add(new RandomCheck(when.random));
@@ -253,6 +256,7 @@ public class MFConfig {
 
     public static class JsonWhen {
         public String[] worldName;
+
         public String[] dimensionId;
         public String[] entityId;
         public String[] biomeId;
@@ -267,6 +271,7 @@ public class MFConfig {
         public String[] skylightLevel;
         public Integer[] moonPhase;
         public WeatherType[] weather;
+        public Difficulty[] difficulty;
         public Double random;
 
         // for backwards compatibility:

@@ -3,6 +3,7 @@ package net.pcal.mobfilter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LightLayer;
@@ -202,7 +203,7 @@ interface RuleCheck {
             } else {
                 isMatch = matcher.isMatch(weather);
             }
-            att.getLogger().trace(() -> "[MobFilter] WeatherCheck: " + matcher + " at " + weather + ": " + isMatch);
+            att.getLogger().trace(() -> "[MobFilter] WeatherCheck: " + matcher + " contains " + weather + ": " + isMatch);
             return isMatch;
         }
 
@@ -265,6 +266,22 @@ interface RuleCheck {
             double r = Math.random();
             boolean isMatch = r < odds;
             att.getLogger().trace(() -> "[MobFilter] RadomCheck: " + r + " < " + odds + " " + isMatch);
+            return isMatch;
+        }
+    }
+
+    record DifficultyCheck(Matcher<Difficulty> matcher) implements RuleCheck {
+        @Override
+        public boolean isMatch(final SpawnAttempt att) {
+            final Difficulty val = att.getDifficulty();
+            final boolean isMatch;
+            if (val == null) {
+                att.getLogger().debug(() -> "[MobFilter] DifficultyCheck: difficulty could not be determined, assuming match");
+                isMatch = MFService.get().getDefaultRuleCheckResult();
+            } else {
+                isMatch = matcher.isMatch(val);
+            }
+            att.getLogger().trace(() -> "[MobFilter] DifficultyCheck: " + matcher + " contains " + val + ": " + isMatch);
             return isMatch;
         }
     }

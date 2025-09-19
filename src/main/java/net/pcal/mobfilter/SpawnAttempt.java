@@ -6,6 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -87,6 +88,11 @@ public interface SpawnAttempt {
      * Returns whether it is raining at the given block position.
      */
     Boolean isRainingAt(BlockPos blockPos);
+
+    /**
+     * Returns the difficulty setting of the current world.
+     */
+    Difficulty getDifficulty();
 
     /**
      * Returns the biome at the given block position.
@@ -216,6 +222,11 @@ public interface SpawnAttempt {
         @Override
         public Boolean isRainingAt(BlockPos blockPos) {
             return serverWorld.isRainingAt(blockPos);
+        }
+
+        @Override
+        public Difficulty getDifficulty() {
+            return serverWorld.getDifficulty();
         }
 
         @Override
@@ -352,6 +363,12 @@ public interface SpawnAttempt {
         @Override
         public Boolean isRainingAt(BlockPos blockPos) {
             this.logger.debug(()->"[MobFilter] isRainingAt cannot be evaluated during world generation");
+            return null;
+        }
+
+        @Override
+        public Difficulty getDifficulty() {
+            this.logger.debug(()->"[MobFilter] difficulty cannot be evaluated during world generation");
             return null;
         }
 

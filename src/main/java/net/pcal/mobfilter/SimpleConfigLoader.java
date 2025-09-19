@@ -2,16 +2,14 @@ package net.pcal.mobfilter;
 
 
 import com.google.common.collect.ImmutableList;
-import net.pcal.mobfilter.Rule.RuleAction;
 import net.pcal.mobfilter.RuleCheck.EntityIdCheck;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.Rule.RuleAction.ALLOW_SPAWN;
