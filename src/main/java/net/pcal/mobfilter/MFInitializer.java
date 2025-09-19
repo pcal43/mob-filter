@@ -13,7 +13,7 @@ public class MFInitializer implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        MFService.get().ensureConfigExists();
+        MFService.get().ensureConfigFilesExist();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
                 MFService.get().loadConfig();

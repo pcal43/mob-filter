@@ -1,15 +1,36 @@
-# Configuring Mob-Filter
+# Advanced Configuration (`mobfilter.json5`)
 
-To use mob filter, you create a list of rules that can 'veto' the spawning of a mobs in the game
-based on specific conditions.  Rules are configured in `mobfilter.json5` in your minecraft `config` 
-folder.
+The advanced configuration file is located here:
+
+```
+[minecraft directory]/config/mobfilter.json5
+```
+
+This is a json file that allows you to create a list of rules that can 'veto' the spawning of a mobs in the
+game based on specific conditions.
+
+*If you have never edited json files before, or if all you want to do is is completely remove specific mob types 
+from the game, you might want to start with the [Simple Configuration](simple-configuration.md) instead.*
 
 *To see example configurations that you can copy-paste, skip ahead to the [Examples](#examples) section.*
 
+
+
+
 ## Declaring Rules
 
-The top-level 'rules' configuration element contains a list of filtering rules that are checked to see whether
-a new mob should be allowed to spawn.
+Most of the `mobfilter.json5` file is simply a `rules` attribute that contains a list of filter rule definitions:
+
+```
+{
+  rules : [
+    // rules go here
+  ]
+}
+```
+
+Whenever Minecraft attempts to spawn a new mob, Mob Filter will check each of these rules *in order* to see whether 
+the spawn should be allowed.
 
 Each rule has three keys:
 - **`name`** - A human-readable name for the rule, useful for documentation and debugging.
@@ -34,7 +55,7 @@ in the list.
 #### `category`
 
 List of net.minecraft.entity.MobCategory values.  The condition is true when# the mob to be spawned is in one of
-the listed categories.  
+the listed categories.
 
 *In version 0.8.0+1.20.4 and older, this key was called `spawnType`.*
 
@@ -49,7 +70,7 @@ As of Minecraft 1.20.4, valid values are:
 - `MISC`
 
 #### `blockX`, `blockY` and `blockZ`
-Each of these is a list of two integers specifying a range.  True when the mob's spawning position on the given axis 
+Each of these is a list of two integers specifying a range.  True when the mob's spawning position on the given axis
 (X, Y or Z) is within the provided range.  `MIN` may be used for the first value and `MAX` may be used for the second.
 
 #### `worldName`
@@ -72,7 +93,7 @@ You can match all blocks in a given namespace using `*`; for example `minecraft:
 Two integers between 0 and 16.  True if mob is spawning in a lightLevel within the range.
 
 #### `skylightLevel`
-*Only available in versions `0.14.3+1.21.4` and later.*  Two integers 0 and 15, inclusive.  True if a mob is spawning on a block whose 
+*Only available in versions `0.14.3+1.21.4` and later.*  Two integers 0 and 15, inclusive.  True if a mob is spawning on a block whose
 [Sky Light level](https://minecraft.wiki/w/Light#Sky_light) is within the range.
 
 #### `moonPhase`
@@ -147,8 +168,8 @@ put blanket exclusions at the top of your rules list like this:
 
 ## Debugging
 
-After the `rules` section, you can specify `logLevel` to set the log4j logging level for the mod.  Set to 'DEBUG' 
-to log each time a spawn is disallowed.  Set to 'TRACE' to see detailed logging on rule evaluation.  
+After the `rules` section, you can specify `logLevel` to set the log4j logging level for the mod.  Set to 'DEBUG'
+to log each time a spawn is disallowed.  Set to 'TRACE' to see detailed logging on rule evaluation.
 
 Be careful - this can quickly fill up your logfiles.
 
@@ -165,7 +186,7 @@ instead.  Suggested steps:
 ## Caveats
 
 - You can't use mob-filter to spawn additional mobs, fewer mobs, or to change which mobs are spawned.  It just lets you
-prevent specific mobs from spawning.
+  prevent specific mobs from spawning.
 - mob-filter may be unable to block spawning of some special kinds of mobs.  Check the Issues tab for details.
 
 

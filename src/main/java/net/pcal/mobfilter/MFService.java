@@ -1,28 +1,10 @@
 package net.pcal.mobfilter;
 
-import com.google.common.collect.ImmutableList;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
-import net.pcal.mobfilter.MFConfig.Configuration;
-import net.pcal.mobfilter.RuleCheck.BiomeCheck;
-import net.pcal.mobfilter.RuleCheck.BlockIdCheck;
-import net.pcal.mobfilter.RuleCheck.BlockPosCheck;
-import net.pcal.mobfilter.RuleCheck.CategoryCheck;
-import net.pcal.mobfilter.RuleCheck.DimensionCheck;
-import net.pcal.mobfilter.RuleCheck.EntityIdCheck;
-import net.pcal.mobfilter.RuleCheck.LightLevelCheck;
-import net.pcal.mobfilter.RuleCheck.MoonPhaseCheck;
-import net.pcal.mobfilter.RuleCheck.RandomCheck;
-import net.pcal.mobfilter.RuleCheck.SkylightLevelCheck;
-import net.pcal.mobfilter.RuleCheck.SpawnReasonCheck;
-import net.pcal.mobfilter.RuleCheck.TimeOfDayCheck;
-import net.pcal.mobfilter.RuleCheck.WeatherCheck;
-import net.pcal.mobfilter.RuleCheck.WorldNameCheck;
 import net.pcal.mobfilter.SpawnAttempt.MainThreadSpawnAttempt;
 import net.pcal.mobfilter.SpawnAttempt.WorldgenThreadSpawnAttempt;
 import org.apache.logging.log4j.Level;
@@ -34,8 +16,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -67,10 +47,11 @@ public final class MFService {
     // Fields
 
     private final Logger logger = LogManager.getLogger(MFService.class);
-    private RuleList ruleList;
+    private RuleList config;
     private Level logLevel = Level.INFO;
     private String configError = null;
     private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
+    private final File simpleConfigFile = Paths.get("config", "mobfilter.simple").toFile();
     private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
 
     // ===================================================================================
@@ -110,7 +91,7 @@ public final class MFService {
     public boolean isSpawnAllowed(final ServerLevel serverLevel,
                                   final Entity entity,
                                   final MinecraftThreadType threadTypeGuess) {
-        if (this.ruleList == null) return true;
+        if (this.config == null) return true;
         if (serverLevel.isClientSide()) return true;
         if (!(entity instanceof Mob)) return true;
         final EntitySpawnReason reason = this.spawnReason.get();
@@ -126,7 +107,7 @@ public final class MFService {
         } else {
             att = new WorldgenThreadSpawnAttempt(reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
         }
-        final boolean allowSpawn = ruleList.isSpawnAllowed(att);
+        final boolean allowSpawn = isSpawnAllowed(att, this.config.getRules());
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
             if (allowSpawn) {
                 logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
@@ -140,7 +121,20 @@ public final class MFService {
     /**
      * Write a default configuration file if none exists.
      */
-    public void ensureConfigExists() {
+    public void ensureConfigFilesExist() {
+        if (!simpleConfigFile.exists()) {
+            try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.simple")) {
+                if (in == null) {
+                    throw new IllegalStateException("unable to load default-mobfilter.simple");
+                }
+                simpleConfigFile.getParentFile().mkdirs();
+                java.nio.file.Files.copy(in, simpleConfigFile.toPath());
+                logger.info(()->"[MobFilter] Wrote default config file to " + simpleConfigFile.getAbsolutePath());
+            } catch (Exception e) {
+                logger.catching(Level.ERROR, e);
+                logger.error(()->"[MobFilter] Failed to write default configuration file to " + simpleConfigFile.getAbsolutePath());
+            }
+        }
         if (!jsonConfigFile.exists()) {
             try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.json5")) {
                 if (in == null) {
@@ -148,60 +142,11 @@ public final class MFService {
                 }
                 jsonConfigFile.getParentFile().mkdirs();
                 java.nio.file.Files.copy(in, jsonConfigFile.toPath());
-                logger.info("[MobFilter] Wrote default config file to " + jsonConfigFile.getAbsolutePath());
+                logger.info(()->"[MobFilter] Wrote default config file to " + jsonConfigFile.getAbsolutePath());
             } catch (Exception e) {
                 logger.catching(Level.ERROR, e);
-                logger.error("[MobFilter] Failed to write default configuration file to " + jsonConfigFile.getAbsolutePath());
+                logger.error(()->"[MobFilter] Failed to write default configuration file to " + jsonConfigFile.getAbsolutePath());
             }
-        }
-    }
-
-    /**
-     * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
-     */
-    public void loadConfig() {
-        this.configError = null;
-        this.ruleList = null;
-        ensureConfigExists();
-        try {
-            setLogLevel(Level.INFO);
-            //
-            // load the config file and build the rules
-            //
-            final Configuration config;
-            this.logger.info("[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
-            try (final InputStream in = new FileInputStream(jsonConfigFile)) {
-                config = MFConfig.loadFromJson(in);
-            }
-            if (config == null) {
-                this.logger.warn("[MobFilter] Empty configuration");
-                return;
-            }
-            this.ruleList = buildRules(config);
-            if (this.ruleList == null) {
-                this.logger.warn("[MobFilter] No rules configured in ");
-            } else {
-                this.logger.info("[MobFilter] " + ruleList.getSize() + " rule(s) loaded:");
-                for (Rule rule : this.ruleList.getRules()) {
-                    this.logger.info("- " + rule.toString());
-                }
-            }
-            //
-            // adjust logging to configured level
-            //
-            if (config.logLevel != null) {
-                Level configuredLevel = Level.getLevel(config.logLevel);
-                if (configuredLevel == null) {
-                    logger.warn("[MobFilter] Invalid configured logLevel " + config.logLevel + ", using INFO");
-                } else {
-                    setLogLevel(configuredLevel);
-                }
-            }
-            logger.info("[MobFilter] Log level is " + logger.getLevel());
-        } catch (Exception e) {
-            this.configError = e.getMessage();
-            logger.catching(Level.ERROR, e);
-            logger.error("[MobFilter] Failed to load configuration");
         }
     }
 
@@ -223,8 +168,80 @@ public final class MFService {
         return configError;
     }
 
+    /**
+     * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
+     */
+    void loadConfig() {
+        //
+        // Clean the slate
+        //
+        this.configError = null;
+        this.config = null;
+        setLogLevel(Level.INFO);
+        ensureConfigFilesExist();
+        final RuleList.Builder configBuilder = RuleList.builder();
+        this.logger.info(()->"[MobFilter] Loading configuration");
+        //
+        // Load json config file
+        //
+        try {
+            this.logger.debug(()->"[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
+            try (final InputStream in = new FileInputStream(jsonConfigFile)) {
+                MFConfig.loadRules(in, configBuilder);
+            }
+        } catch (Exception e) {
+            this.configError = e.getMessage();
+            logger.catching(Level.ERROR, e);
+            logger.error(()->"[MobFilter] Failed to load " + jsonConfigFile.getAbsolutePath());
+        }
+        //
+        // Load simple config file
+        //
+        try {
+            this.logger.debug(()->"[MobFilter] Loading config from " + simpleConfigFile.getAbsolutePath());
+            try (final InputStream in = new FileInputStream(simpleConfigFile)) {
+                SimpleConfigLoader.loadRules(in, configBuilder);
+            }
+        } catch (Exception e) {
+            this.configError = e.getMessage();
+            logger.catching(Level.ERROR, e);
+            logger.error(()->"[MobFilter] Failed to load config from " + simpleConfigFile.getAbsolutePath());
+        }
+        //
+        // Assemble Config object
+        //
+        this.config = configBuilder.build();
+        if (config.getLogLevel() != null) setLogLevel(config.getLogLevel());
+        logger.info(()->"[MobFilter] Log level is " + logger.getLevel());
+        if (this.config.getRules().isEmpty()) {
+            this.logger.warn("[MobFilter] No rules configured");
+        } else {
+            this.logger.info(()->"[MobFilter] " + this.config.getRules().size() + " rule(s) loaded:");
+            for (final Rule rule : this.config.getRules()) {
+                this.logger.info(()->"[MobFilter] - " + rule.toString());
+            }
+        }
+    }
+
     // ===================================================================================
     // Private
+
+    /**
+     * @return whether the spawn attempt should be allowed according the rules in the given list.
+     */
+    private static boolean isSpawnAllowed(final SpawnAttempt att, final List<Rule> rules) {
+        att.getLogger().trace(() -> "[MobFilter] IS_SPAWN_ALLOWED " + att);
+        for (final Rule rule : rules) {
+            att.getLogger().trace(() -> "[MobFilter]   RULE '" + rule.getName() + "'");
+            Boolean isSpawnAllowed = rule.isSpawnAllowed(att);
+            if (isSpawnAllowed != null) {
+                att.getLogger().trace(() -> "[MobFilter]   RETURN " + isSpawnAllowed);
+                return isSpawnAllowed;
+            }
+        }
+        att.getLogger().trace(() -> "[MobFilter]   RETURN true (no rules matched)");
+        return true;
+    }
 
     /**
      * Determine which type of thread we're running in.  The 'guess' is based on where in the minecraft code the
@@ -260,112 +277,5 @@ public final class MFService {
     private void setLogLevel(Level logLevel) {
         Configurator.setLevel(MFService.class.getName(), logLevel);
         this.logLevel = logLevel;
-    }
-
-    /**
-     * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
-     * no rules.
-     */
-    static RuleList buildRules(Configuration fromConfig) {
-        requireNonNull(fromConfig);
-        if (fromConfig.rules == null) return null;
-        final ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
-        int i = 0;
-        for (final MFConfig.Rule configRule : fromConfig.rules) {
-            if (configRule == null) continue; // common with json trailing comma in list
-            final ImmutableList.Builder<RuleCheck> checks = ImmutableList.builder();
-            final String ruleName = configRule.name != null ? configRule.name : "rule" + i;
-            if (configRule.what == null) {
-                throw new IllegalArgumentException("'what' must be specified on " + ruleName);
-            }
-            final MFConfig.When when = configRule.when;
-            if (when == null) {
-                throw new IllegalArgumentException("'when' must be specified on " + ruleName);
-            }
-            if (when.spawnReason != null && when.spawnReason.length > 0) {
-                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnReason));
-                checks.add(new SpawnReasonCheck(enumSet));
-            } else if (when.spawnType != null && when.spawnType.length > 0) {
-                // legacy support for old name 'spawnType'
-                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
-                checks.add(new SpawnReasonCheck(enumSet));
-            }
-            if (when.category != null && when.category.length > 0) {
-                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.category));
-                checks.add(new CategoryCheck(enumSet));
-            } else if (when.spawnGroup != null && when.spawnGroup.length > 0) {
-                // legacy support for old name 'spawnGroup'
-                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
-                checks.add(new CategoryCheck(enumSet));
-            }
-            if (when.entityId != null) {
-                checks.add(new EntityIdCheck(IdMatcher.of(when.entityId)));
-            }
-            if (when.worldName != null) {
-                checks.add(new WorldNameCheck(Matcher.of(when.worldName)));
-            }
-            if (when.dimensionId != null) {
-                checks.add(new DimensionCheck(IdMatcher.of(when.dimensionId)));
-            }
-            if (when.biomeId != null) {
-                checks.add(new BiomeCheck(IdMatcher.of(when.biomeId)));
-            }
-            if (when.blockId != null) {
-                checks.add(new BlockIdCheck(IdMatcher.of(when.blockId)));
-            }
-            if (when.blockX != null) {
-                int[] range = parseRange(when.blockX);
-                checks.add(new BlockPosCheck(Direction.Axis.X, range[0], range[1]));
-            }
-            if (when.blockY != null) {
-                int[] range = parseRange(when.blockY);
-                checks.add(new BlockPosCheck(Direction.Axis.Y, range[0], range[1]));
-            }
-            if (when.blockZ != null) {
-                int[] range = parseRange(when.blockZ);
-                checks.add(new BlockPosCheck(Direction.Axis.Z, range[0], range[1]));
-            }
-            if (when.timeOfDay != null) {
-                int[] range = parseRange(when.timeOfDay);
-                checks.add(new TimeOfDayCheck(range[0], range[1]));
-            }
-            if (when.lightLevel != null) {
-                int[] range = parseRange(when.lightLevel);
-                checks.add(new LightLevelCheck(range[0], range[1]));
-            }
-            if (when.skylightLevel != null) {
-                int[] range = parseRange(when.skylightLevel);
-                checks.add(new SkylightLevelCheck(range[0], range[1]));
-            }
-            if (when.moonPhase != null) {
-                checks.add(new MoonPhaseCheck(Matcher.of(when.moonPhase)));
-            }
-            if (when.weather != null) {
-                checks.add(new WeatherCheck(Matcher.of(when.weather)));
-            }
-            if (when.random != null) {
-                checks.add(new RandomCheck(when.random));
-            }
-            rulesBuilder.add(new Rule(ruleName, checks.build(), configRule.what));
-            i++;
-        }
-        final List<Rule> rules = rulesBuilder.build();
-        return rules.isEmpty() ? null : new RuleList(rulesBuilder.build());
-    }
-
-    /**
-     * Parse a two-value list into an integer range.
-     */
-    private static int[] parseRange(String[] configValues) {
-        if (configValues.length != 2) {
-            throw new IllegalArgumentException("Invalid number of values in int range: " + Arrays.toString(configValues));
-        }
-        int[] out = new int[2];
-        out[0] = "MIN".equals(configValues[0]) ? Integer.MIN_VALUE : Integer.parseInt(configValues[0]);
-        out[1] = "MAX".equals(configValues[1]) ? Integer.MAX_VALUE : Integer.parseInt(configValues[1]);
-        if (out[0] > out[1]) {
-            throw new IllegalArgumentException("Invalid min/max range: " + Arrays.toString(configValues));
-        }
-        return out;
     }
 }
