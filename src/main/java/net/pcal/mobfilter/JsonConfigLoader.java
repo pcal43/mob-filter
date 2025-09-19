@@ -43,23 +43,23 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
- * Object model for the config file.
+ * Parse mobfilter.json5 and build a config object from it.
  */
 @SuppressWarnings("ALL")
-public class MFConfig {
+class JsonConfigLoader {
 
     /**
      * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
      * no rules.
      */
-    static void loadRules(final InputStream in, final RuleList.Builder configBuilder) throws IOException {
+    static void loadRules(final InputStream in, final Config.Builder configBuilder) throws IOException {
         final JsonConfiguration fromConfig = loadFromJson(in);
         if (fromConfig != null && fromConfig.rules != null) {
             loadRules(fromConfig ,configBuilder);
         }
     }
 
-    static void loadRules(final JsonConfiguration fromConfig, final RuleList.Builder configBuilder) {
+    static void loadRules(final JsonConfiguration fromConfig, final Config.Builder configBuilder) {
         int i = -1;
         for (final JsonRule configRule : fromConfig.rules) {
             i++;

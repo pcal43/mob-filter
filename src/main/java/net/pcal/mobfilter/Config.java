@@ -9,9 +9,9 @@ import java.util.List;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Encapsulates a list of filter rules to be evaluated against a running world.
+ * Runtime configuration state for the mod.  The filter rules, mainly.
  */
-public class RuleList {
+class Config {
 
     public static Builder builder() {
         return new Builder();
@@ -29,8 +29,8 @@ public class RuleList {
             this.logLevel = logLevel;
         }
 
-        RuleList build() {
-            return new RuleList(this.rules.build(), this.logLevel);
+        Config build() {
+            return new Config(this.rules.build(), this.logLevel);
         }
 
     }
@@ -38,7 +38,7 @@ public class RuleList {
     private final List<Rule> rules;
     private final Level logLevel;
 
-    RuleList(List<Rule> rules, Level logLevel) {
+    Config(List<Rule> rules, Level logLevel) {
         this.rules = requireNonNull(rules);
         this.logLevel = requireNonNull(logLevel);
     }

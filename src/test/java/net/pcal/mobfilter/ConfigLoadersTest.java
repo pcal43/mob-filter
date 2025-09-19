@@ -2,7 +2,7 @@ package net.pcal.mobfilter;
 
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
-import net.pcal.mobfilter.MFConfig.JsonConfiguration;
+import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
 import net.pcal.mobfilter.RuleCheck.WeatherType;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ public class ConfigLoadersTest {
                      .getResourceAsStream("ConfigLoadersTest/testJson/config.expected"))) {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
 
-            final JsonConfiguration jsonConfig = MFConfig.loadFromJson(in);
+            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in);
             assertEquals("TRACE", jsonConfig.logLevel);
             assertEquals(2, jsonConfig.rules.length);
             assertEquals(MobCategory.MONSTER, jsonConfig.rules[1].when.spawnGroup[0]);
@@ -39,9 +39,9 @@ public class ConfigLoadersTest {
 
 
             // kick tires on rule building
-            final RuleList.Builder configBuilder = RuleList.builder();
-            MFConfig.loadRules(jsonConfig, configBuilder);
-            final RuleList modConfig = configBuilder.build();
+            final Config.Builder configBuilder = Config.builder();
+            JsonConfigLoader.loadRules(jsonConfig, configBuilder);
+            final Config modConfig = configBuilder.build();
 
 
             final String configString = configToString(modConfig);
@@ -54,9 +54,9 @@ public class ConfigLoadersTest {
     public void testJsonEmpty() throws Exception {
         final InputStream in = getClass().getClassLoader()
                 .getResourceAsStream("ConfigLoadersTest/testJsonEmpty/empty-config.json5");
-        final RuleList.Builder configBuilder = new RuleList.Builder();
-        MFConfig.loadRules(in, configBuilder);
-        final RuleList rules = configBuilder.build();
+        final Config.Builder configBuilder = new Config.Builder();
+        JsonConfigLoader.loadRules(in, configBuilder);
+        final Config rules = configBuilder.build();
         final String configString = configToString(rules);
         System.out.println(configString);
         assertEquals("LogLevel: INFO\n", configString);
@@ -70,9 +70,9 @@ public class ConfigLoadersTest {
                      .getResourceAsStream("ConfigLoadersTest/testSimple/config.expected"))) {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
             // Build rules using SimpleConfigLoader
-            RuleList.Builder configBuilder = new RuleList.Builder();
+            Config.Builder configBuilder = new Config.Builder();
             SimpleConfigLoader.loadRules(in, configBuilder);
-            RuleList rules = configBuilder.build();
+            Config rules = configBuilder.build();
 
             final String configString = configToString(rules);
             System.out.println(configString);
@@ -86,16 +86,16 @@ public class ConfigLoadersTest {
         final InputStream in = getClass().getClassLoader()
                 .getResourceAsStream("ConfigLoadersTest/testSimpleEmpty/empty-config.simple");
         // Build rules using SimpleConfigLoader
-        RuleList.Builder configBuilder = new RuleList.Builder();
+        Config.Builder configBuilder = new Config.Builder();
         SimpleConfigLoader.loadRules(in, configBuilder);
-        RuleList rules = configBuilder.build();
+        Config rules = configBuilder.build();
 
         final String configString = configToString(rules);
         System.out.println(configString);
         assertEquals("LogLevel: INFO\n", configString);
     }
 
-    private static String configToString(RuleList config) {
+    private static String configToString(Config config) {
         final StringBuilder sb = new StringBuilder();
         for (final Rule rule : config.getRules()) {
             sb.append(rule.toString()).append("\n");

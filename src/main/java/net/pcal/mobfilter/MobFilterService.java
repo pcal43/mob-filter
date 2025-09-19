@@ -18,35 +18,35 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static net.pcal.mobfilter.MFService.MinecraftThreadType.SERVER;
-import static net.pcal.mobfilter.MFService.MinecraftThreadType.WORLDGEN;
+import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.SERVER;
+import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.WORLDGEN;
 
 
 /**
  * Singleton service that orchestrates the filtering logic.
  */
-public final class MFService {
+public final class MobFilterService {
 
     // ===================================================================================
     // Singleton
 
     private static final class SingletonHolder {
-        private static final MFService INSTANCE;
+        private static final MobFilterService INSTANCE;
 
         static {
-            INSTANCE = new MFService();
+            INSTANCE = new MobFilterService();
         }
     }
 
-    public static MFService get() {
+    public static MobFilterService get() {
         return SingletonHolder.INSTANCE;
     }
 
     // ===================================================================================
     // Fields
 
-    private final Logger logger = LogManager.getLogger(MFService.class);
-    private RuleList config;
+    private final Logger logger = LogManager.getLogger(MobFilterService.class);
+    private Config config;
     private Level logLevel = Level.INFO;
     private String configError = null;
     private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
@@ -178,7 +178,7 @@ public final class MFService {
         this.config = null;
         setLogLevel(Level.INFO);
         ensureConfigFilesExist();
-        final RuleList.Builder configBuilder = RuleList.builder();
+        final Config.Builder configBuilder = Config.builder();
         this.logger.info(()->"[MobFilter] Loading configuration");
         //
         // Load json config file
@@ -186,7 +186,7 @@ public final class MFService {
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(jsonConfigFile)) {
-                MFConfig.loadRules(in, configBuilder);
+                JsonConfigLoader.loadRules(in, configBuilder);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();
@@ -274,7 +274,7 @@ public final class MFService {
      * Manually adjust our logger's level.  Because changing the log4j config is a PITA.
      */
     private void setLogLevel(Level logLevel) {
-        Configurator.setLevel(MFService.class.getName(), logLevel);
+        Configurator.setLevel(MobFilterService.class.getName(), logLevel);
         this.logLevel = logLevel;
     }
 }
