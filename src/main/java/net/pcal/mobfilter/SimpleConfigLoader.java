@@ -25,7 +25,7 @@ class SimpleConfigLoader {
      * For other lines, an IdMatcher is created and used to create a rule with an EntityIdCheck based on that matcher.
      * If the line starts with '!', the rule action is ALLOW_SPAWN, otherwise it is DISALLOW_SPAWN.
      */
-    static void loadRules(final InputStream in, final RuleList.Builder configBuilder) throws IOException {
+    static void loadRules(final InputStream in, final Config.Builder configBuilder) throws IOException {
         try (BufferedReader reader = new BufferedReader(
                 new java.io.InputStreamReader(requireNonNull(in), StandardCharsets.UTF_8))) {
             int i = 0;

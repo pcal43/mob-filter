@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
  * Encapsulates information about a pending attempt by the game to spawn an entity.  Any of these
  * methods might return null for various reasons; be careful.
  */
-public interface SpawnAttempt {
+interface SpawnAttempt {
     /**
      * Returns the entity's resource location ID.
      */

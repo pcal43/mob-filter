@@ -61,7 +61,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (spawnReason == null) {
                 att.getLogger().debug(() -> "[MobFilter] SpawnReasonCheck: reason could not be determined for " + att.getEntityType() + ", assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.reasons.contains(spawnReason);
             }
@@ -77,7 +77,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (mobCategory == null) {
                 att.getLogger().debug(() -> "[MobFilter] CategoryCheck: category could not be determined for " + att.getEntityType() + ", assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.categories.contains(mobCategory);
             }
@@ -93,7 +93,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (entityId == null) {
                 att.getLogger().debug(() -> "[MobFilter] EntityIdCheck: entity ID could not be determined for " + att.getEntityType() + ", assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.entityMatcher.isMatch(entityId);
             }
@@ -109,7 +109,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (blockId == null) {
                 att.getLogger().debug(() -> "[MobFilter] BlockIdCheck: block ID could not be determined for " + att.getEntityType() + ", assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.blockMatcher.isMatch(blockId);
             }
@@ -126,7 +126,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (blockPos == null) {
                 att.getLogger().debug(() -> "[MobFilter] BlockPosCheck: no block position, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
                 val = null;
             } else {
                 val = att.getBlockPos().get(this.axis);
@@ -144,7 +144,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] LightLevelCheck: light level could not be determined, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = min <= val && val <= max;
             }
@@ -160,7 +160,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] SkylightLevelCheck: skylight level could not be determined, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = min <= val && val <= max;
             }
@@ -176,7 +176,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] MoonPhaseCheck: moon phase could not be determined, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = matcher.isMatch(val);
             }
@@ -199,7 +199,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (weather == null) {
                 att.getLogger().debug(() -> "[MobFilter] WeatherCheck: weather could not be determined, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = matcher.isMatch(weather);
             }
@@ -248,7 +248,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (dayTime == null) {
                 att.getLogger().debug(() -> "[MobFilter] TimeOfDayCheck: day time could not be determined, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
                 val = null;
             } else {
                 final long TICKS_PER_DAY = 24000;
@@ -277,7 +277,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] DifficultyCheck: difficulty could not be determined, assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = matcher.isMatch(val);
             }
@@ -298,7 +298,7 @@ interface RuleCheck {
             final boolean isMatch;
             if (worldName == null) {
                 att.getLogger().debug(() -> "[MobFilter] WorldNameCheck: world name could not be determined for " + att.getEntityType() + ", assuming match");
-                isMatch = MFService.get().getDefaultRuleCheckResult();
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = worldNames.isMatch(worldName);
             }

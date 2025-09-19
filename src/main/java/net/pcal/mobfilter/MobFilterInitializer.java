@@ -6,17 +6,20 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * THe main mod initializer.
+ */
 @SuppressWarnings("unused")
-public class MFInitializer implements ModInitializer {
+public class MobFilterInitializer implements ModInitializer {
 
-    private static final Logger LOGGER = LogManager.getLogger(MFInitializer.class);
+    private static final Logger LOGGER = LogManager.getLogger(MobFilterInitializer.class);
 
     @Override
     public void onInitialize() {
-        MFService.get().ensureConfigFilesExist();
+        MobFilterService.get().ensureConfigFilesExist();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
-                MFService.get().loadConfig();
+                MobFilterService.get().loadConfig();
             } catch (Exception | NoClassDefFoundError e) {
                 LOGGER.catching(Level.ERROR, e);
                 LOGGER.error("[MobFilter] failed to initialize");
