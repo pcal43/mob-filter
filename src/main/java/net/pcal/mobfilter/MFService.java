@@ -1,7 +1,6 @@
 package net.pcal.mobfilter;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -10,22 +9,22 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MFConfig.Configuration;
-import net.pcal.mobfilter.MFRules.BiomeCheck;
-import net.pcal.mobfilter.MFRules.BlockIdCheck;
-import net.pcal.mobfilter.MFRules.BlockPosCheck;
-import net.pcal.mobfilter.MFRules.CategoryCheck;
-import net.pcal.mobfilter.MFRules.DimensionCheck;
-import net.pcal.mobfilter.MFRules.EntityIdCheck;
-import net.pcal.mobfilter.MFRules.FilterCheck;
-import net.pcal.mobfilter.MFRules.FilterRule;
-import net.pcal.mobfilter.MFRules.FilterRuleList;
-import net.pcal.mobfilter.MFRules.LightLevelCheck;
-import net.pcal.mobfilter.MFRules.MoonPhaseCheck;
-import net.pcal.mobfilter.MFRules.SkylightLevelCheck;
-import net.pcal.mobfilter.MFRules.SpawnReasonCheck;
-import net.pcal.mobfilter.MFRules.SpawnRequest;
-import net.pcal.mobfilter.MFRules.TimeOfDayCheck;
-import net.pcal.mobfilter.MFRules.WorldNameCheck;
+import net.pcal.mobfilter.RuleCheck.BiomeCheck;
+import net.pcal.mobfilter.RuleCheck.BlockIdCheck;
+import net.pcal.mobfilter.RuleCheck.BlockPosCheck;
+import net.pcal.mobfilter.RuleCheck.CategoryCheck;
+import net.pcal.mobfilter.RuleCheck.DimensionCheck;
+import net.pcal.mobfilter.RuleCheck.EntityIdCheck;
+import net.pcal.mobfilter.RuleCheck.LightLevelCheck;
+import net.pcal.mobfilter.RuleCheck.MoonPhaseCheck;
+import net.pcal.mobfilter.RuleCheck.RandomCheck;
+import net.pcal.mobfilter.RuleCheck.SkylightLevelCheck;
+import net.pcal.mobfilter.RuleCheck.SpawnReasonCheck;
+import net.pcal.mobfilter.RuleCheck.TimeOfDayCheck;
+import net.pcal.mobfilter.RuleCheck.WeatherCheck;
+import net.pcal.mobfilter.RuleCheck.WorldNameCheck;
+import net.pcal.mobfilter.SpawnAttempt.MainThreadSpawnAttempt;
+import net.pcal.mobfilter.SpawnAttempt.WorldgenThreadSpawnAttempt;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,13 +39,14 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.MFRules.*;
+import static net.pcal.mobfilter.MFService.MinecraftThreadType.SERVER;
+import static net.pcal.mobfilter.MFService.MinecraftThreadType.WORLDGEN;
 
 
 /**
  * Singleton service that orchestrates the filtering logic.
  */
-public class MFService {
+public final class MFService {
 
     // ===================================================================================
     // Singleton
@@ -59,7 +59,7 @@ public class MFService {
         }
     }
 
-    public static MFService getInstance() {
+    public static MFService get() {
         return SingletonHolder.INSTANCE;
     }
 
@@ -67,7 +67,7 @@ public class MFService {
     // Fields
 
     private final Logger logger = LogManager.getLogger(MFService.class);
-    private FilterRuleList ruleList;
+    private RuleList ruleList;
     private Level logLevel = Level.INFO;
     private String configError = null;
     private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
@@ -83,13 +83,23 @@ public class MFService {
         if (level.isClientSide()) return;
         if (!(entity instanceof Mob)) return;
         if (reason == null) {
-            this.logger.debug(() -> "Ignoring attempt to set null spawnReason for " + entity);
+            this.logger.debug(() -> "[MobFilter] Ignoring attempt to set null spawnReason for " + entity);
             return;
         } else if (this.spawnReason.get() != null && this.spawnReason.get() != reason) {
-            this.logger.trace(() -> "Unexpectedly changing existing spawnReason for " +
-                    entity + " from " +  this.spawnReason.get() + " to " + reason);
+            this.logger.trace(() -> "[MobFilter] Unexpectedly changing existing spawnReason for " +
+                    entity + " from " + this.spawnReason.get() + " to " + reason);
         }
         this.spawnReason.set(reason);
+    }
+
+
+    /**
+     * Broad categories of vanilla minecraft thready types.  We care because some kinds of filtering
+     * can't be done in the worldgen thread.
+     */
+    public enum MinecraftThreadType {
+        SERVER,
+        WORLDGEN
     }
 
     /**
@@ -97,24 +107,31 @@ public class MFService {
      * be allowed.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSpawnAllowed(final ServerLevel serverLevel, final Entity entity) {
+    public boolean isSpawnAllowed(final ServerLevel serverLevel,
+                                  final Entity entity,
+                                  final MinecraftThreadType threadTypeGuess) {
         if (this.ruleList == null) return true;
         if (serverLevel.isClientSide()) return true;
         if (!(entity instanceof Mob)) return true;
         final EntitySpawnReason reason = this.spawnReason.get();
         if (reason == null) {
-            this.logger.debug(() -> "No spawnReason was set for " + entity.getType());
+            this.logger.debug(() -> "[MobFilter] No spawnReason was set for " + entity.getType());
         } else {
             this.spawnReason.remove();
         }
         final EntityType<?> entityType = entity.getType();
-        final SpawnRequest req = new SpawnRequest(serverLevel, reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
-        final boolean allowSpawn = ruleList.isSpawnAllowed(req);
+        final SpawnAttempt att;
+        if (determineThreadType(threadTypeGuess) == SERVER) {
+            att = new MainThreadSpawnAttempt(serverLevel, reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
+        } else {
+            att = new WorldgenThreadSpawnAttempt(reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
+        }
+        final boolean allowSpawn = ruleList.isSpawnAllowed(att);
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
             if (allowSpawn) {
-                logger.debug(() -> "[MobFilter] ALLOW " + req.spawnReason() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
             } else {
-                logger.debug(() -> "[MobFilter] DISALLOW " + req.spawnReason() + " " + req.getEntityId() + " at [" + req.blockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
             }
         }
         return allowSpawn;
@@ -165,7 +182,7 @@ public class MFService {
                 this.logger.warn("[MobFilter] No rules configured in ");
             } else {
                 this.logger.info("[MobFilter] " + ruleList.getSize() + " rule(s) loaded:");
-                for (FilterRule rule : this.ruleList.getRules()) {
+                for (Rule rule : this.ruleList.getRules()) {
                     this.logger.info("- " + rule.toString());
                 }
             }
@@ -188,12 +205,54 @@ public class MFService {
         }
     }
 
+    /**
+     * @return the result to use for a RuleCheck that could not be evaluated (e.g., because
+     * it's checking something that's inaccessible during worldgen).  Assuming true for now,
+     * might want to make this configurable someday.
+     */
+    boolean getDefaultRuleCheckResult() {
+        return true;
+    }
+
+    /**
+     * @return the error that was encountered during configuration parsing, or null if none
+     * was.  This is just so we can display it in the chat window for folks who don't know
+     * how to find the logfile.
+     */
     String getConfigError() {
         return configError;
     }
 
     // ===================================================================================
     // Private
+
+    /**
+     * Determine which type of thread we're running in.  The 'guess' is based on where in the minecraft code the
+     * mixin executed, and it's probably right.  But because the consequence of guessing wrong can cause the entire
+     * game to deadlock, we need to err on the side of caution.
+     */
+    private MinecraftThreadType determineThreadType(final MinecraftThreadType threadTypeGuess) {
+        final String threadName = Thread.currentThread().getName();
+        final boolean threadNameLooksLikeWorldgen = threadName.contains("Worker"); // I guess?
+        if (threadTypeGuess == WORLDGEN) {
+            if (!threadNameLooksLikeWorldgen) {
+                this.logger.debug(() -> "[MobFilter] Thread guess is " + WORLDGEN + " but the name is " + threadName);
+            }
+            // WORLDGEN is the least-risky case, so let's just go with the guess in any case
+            return WORLDGEN;
+        } else {
+            // However, if we think we're in the MAIN thread, let's double check the name of the current thread.
+            // It's difficult to be certain whether any of the mixin code is guaranteed to only run in the MAIN thread,
+            // so let's err on the side of caution and double-check the thrad name.  This is not very robust
+            // but AFAICT the vanilla code gives us no better way to check.
+            if (threadNameLooksLikeWorldgen) {
+                this.logger.debug(() -> "[MobFilter] Overriding guessed MAIN thread to WORLDGEN because current thread name is " + threadName);
+                return WORLDGEN;
+            } else {
+                return SERVER;
+            }
+        }
+    }
 
     /**
      * Manually adjust our logger's level.  Because changing the log4j config is a PITA.
@@ -207,14 +266,14 @@ public class MFService {
      * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
      * no rules.
      */
-    static FilterRuleList buildRules(Configuration fromConfig) {
+    static RuleList buildRules(Configuration fromConfig) {
         requireNonNull(fromConfig);
         if (fromConfig.rules == null) return null;
-        final ImmutableList.Builder<FilterRule> rulesBuilder = ImmutableList.builder();
+        final ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
         int i = 0;
         for (final MFConfig.Rule configRule : fromConfig.rules) {
             if (configRule == null) continue; // common with json trailing comma in list
-            final ImmutableList.Builder<FilterCheck> checks = ImmutableList.builder();
+            final ImmutableList.Builder<RuleCheck> checks = ImmutableList.builder();
             final String ruleName = configRule.name != null ? configRule.name : "rule" + i;
             if (configRule.what == null) {
                 throw new IllegalArgumentException("'what' must be specified on " + ruleName);
@@ -287,11 +346,11 @@ public class MFService {
             if (when.random != null) {
                 checks.add(new RandomCheck(when.random));
             }
-            rulesBuilder.add(new FilterRule(ruleName, checks.build(), configRule.what));
+            rulesBuilder.add(new Rule(ruleName, checks.build(), configRule.what));
             i++;
         }
-        final List<FilterRule> rules = rulesBuilder.build();
-        return rules.isEmpty() ? null : new FilterRuleList(rulesBuilder.build());
+        final List<Rule> rules = rulesBuilder.build();
+        return rules.isEmpty() ? null : new RuleList(rulesBuilder.build());
     }
 
     /**

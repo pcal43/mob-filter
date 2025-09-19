@@ -3,6 +3,9 @@ package net.pcal.mobfilter;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MFConfig.Configuration;
+import net.pcal.mobfilter.RuleCheck.CategoryCheck;
+import net.pcal.mobfilter.RuleCheck.SpawnReasonCheck;
+import net.pcal.mobfilter.RuleCheck.WeatherType;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -27,7 +30,7 @@ public class MFConfigTest {
         assertEquals(MobCategory.MONSTER, config.rules[1].when.spawnGroup[0]);
         assertEquals(EntitySpawnReason.STRUCTURE, config.rules[1].when.spawnReason[0]);
         assertEquals(EntitySpawnReason.JOCKEY, config.rules[1].when.spawnType[0]);
-        assertArrayEquals(new MFRules.WeatherType[] { MFRules.WeatherType.RAIN, MFRules.WeatherType.THUNDER},
+        assertArrayEquals(new WeatherType[] { RuleCheck.WeatherType.RAIN, RuleCheck.WeatherType.THUNDER},
                 config.rules[1].when.weather);
         assertArrayEquals(new String[] { "5", "10", }, config.rules[1].when.lightLevel);
         assertArrayEquals(new String[] { "10", "20", }, config.rules[1].when.skylightLevel);
@@ -36,15 +39,15 @@ public class MFConfigTest {
 
 
         // kick tires on rule building
-        List<MFRules.FilterRule> rules = MFService.buildRules(config).getRules();
+        List<Rule> rules = MFService.buildRules(config).getRules();
         assertEquals(2, rules.size());
         // the checks declared using deprecated names get ignored
         assertEquals(
                 EnumSet.of(EntitySpawnReason.STRUCTURE),
-                ((MFRules.SpawnReasonCheck)rules.get(1).checks().get(0)).reasons());
+                ((SpawnReasonCheck)rules.get(1).checks().get(0)).reasons());
         // but if only the old name is present, we use it
         assertEquals(
                 EnumSet.of(MobCategory.MONSTER),
-                ((MFRules.CategoryCheck)rules.get(1).checks().get(1)).categories());
+                ((CategoryCheck)rules.get(1).checks().get(1)).categories());
     }
 }

@@ -12,7 +12,7 @@ public class MFClientInitializer implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.player != null) {
-                String configError = MFService.getInstance().getConfigError();
+                String configError = MFService.get().getConfigError();
                 if (configError != null) {
                     client.player.displayClientMessage(Component.literal(
                             "Mob Filter has been disabled due to an error in config/mobfilter.json5:\n" +

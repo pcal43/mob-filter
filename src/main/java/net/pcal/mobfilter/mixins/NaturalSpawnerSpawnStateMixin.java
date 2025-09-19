@@ -13,14 +13,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class NaturalSpawnerSpawnStateMixin {
 
     /**
-     * Ensure that filtered mobs don't count against mob caps or perform
+     * Ensures that filtered mobs don't count against mob caps or trigger
      * other finalization work.
      */
     @Inject(method = "afterSpawn", at = @At("HEAD"), cancellable = true)
     private void mf_afterSpawn(Mob mob, ChunkAccess chunkAccess, CallbackInfo ci) {
-        if (mob.isRemoved()) {
-            ci.cancel();
-        }
+        if (mob.isRemoved()) ci.cancel();
     }
 }
 

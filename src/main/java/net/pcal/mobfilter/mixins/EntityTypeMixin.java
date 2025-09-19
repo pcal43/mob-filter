@@ -19,7 +19,7 @@ public abstract class EntityTypeMixin {
 
     @Inject(at = @At("RETURN"), method = "create(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/EntitySpawnReason;)Lnet/minecraft/world/entity/Entity;", cancellable = true)
     private void mf_create(Level level, EntitySpawnReason entitySpawnReason, CallbackInfoReturnable<Entity> cir) {
-        MFService.getInstance().notifyEntityCreate(level, entitySpawnReason, cir.getReturnValue());
+        MFService.get().notifyEntityCreate(level, entitySpawnReason, cir.getReturnValue());
     }
 }
 

@@ -13,6 +13,8 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
+import net.pcal.mobfilter.Rule.RuleAction;
+import net.pcal.mobfilter.RuleCheck.WeatherType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,7 +110,7 @@ public class MFConfig {
 
     public static class Rule {
         public String name;
-        public MFRules.FilterRuleAction what;
+        public RuleAction what;
         public When when;
     }
 
@@ -127,7 +129,7 @@ public class MFConfig {
         public String[] lightLevel;
         public String[] skylightLevel;
         public Integer[] moonPhase;
-        public MFRules.WeatherType[] weather;
+        public WeatherType[] weather;
         public Double random;
 
         // for backwards compatibility:
