@@ -9,7 +9,7 @@
     "homepage": "https://github.com/pcal43/",
     "sources": "https://github.com/pcal43/mob-filter"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
