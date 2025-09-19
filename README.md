@@ -35,6 +35,17 @@ minecraft:phantom
 minecraft:silverfish
 ```
 
+You can also use negations and wildcards to filter out most or all of
+the mobs in a namespace:
+
+```
+# I love cats, so don't filter them...
+!minecraft:cat
+
+# ...but I don't want ANY other vanilla mobs
+minecraft:*
+```
+
 See the [documentation](docs/simple-configuration.md) for more details.
 
 

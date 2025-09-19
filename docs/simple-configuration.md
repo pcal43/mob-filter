@@ -45,7 +45,7 @@ to come after the `:` separator and has to be the last thing in the pattern.*
 ## Allowing Just Some Mobs
 
 You can also use a `!` character at the start of a line to indicate that 
-you _do_ want the specific mob to spawn. When combined with Namespace 
+you _do_ want the specific mob to spawn. When combined with 
 Wildcards, this allows you to easily keep just a few specific mobs around:
 
 ```
