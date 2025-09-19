@@ -18,8 +18,9 @@ minecraft:phantom
 minecraft:silverfish
 ```
 
-If the doesn't exist, an empty placeholder file will be generated the first 
-time you start minecraft with mob-filter installed.
+If the file doesn't exist, an empty placeholder file will be generated the 
+first time you start minecraft with mob-filter installed.  You can then edit
+the file and restart your world for the changes to take effect.
 
 ## Wildcards
 
