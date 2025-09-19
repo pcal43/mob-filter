@@ -22,6 +22,8 @@ minecraft installation: `mobfilter.simple` and `mobfilter.json5`.
 
 ### Simple Configuration (`mobfilter.simple`)
 
+***Only available in versions 0.19.0+1.21.7 and later.***
+
 If you just want to remove some mobs from the game, edit
 [`mobfilter.simple`](docs/simple-configuration.md) and add a list of the
 mob ids that you want to prevent spawning:
