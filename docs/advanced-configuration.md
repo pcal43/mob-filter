@@ -122,6 +122,11 @@ within the range.
 List of weather types: CLEAR, RAIN, SNOW, THUNDER.
 True if the mob is spawning on a block that has the given weather type.
 
+#### `difficulty`
+*Only available in version `0.19.1+1.21.7` and greater.*
+List of difficulty types: PEACEFUL, EASY, NORMAL, HARD.
+True if the current world difficulty is included in the list.
+
 #### `random`
 *Only available in version `0.16.1+1.21.6` and greater.*
 A value between 0 and 1.  
