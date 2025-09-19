@@ -48,8 +48,8 @@ you _do_ want the specific mob to spawn. When combined with Namespace
 Wildcards, this allows you to easily keep just a few specific mobs around:
 
 ```
-
-# I like these animals and want them in my world.  Using the ! means "don't filter these out"
+# I like these animals and want them in my world.  
+# Using the ! means "don't filter these out"
 !minecraft:cow
 !minecraft:sheep
 !minecraft:chicken
@@ -57,7 +57,6 @@ Wildcards, this allows you to easily keep just a few specific mobs around:
 
 # But I don't want any other mobs in my world:
 minecraft:*
-
 ```
 
 ## Order Matters
