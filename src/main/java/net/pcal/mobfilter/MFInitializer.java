@@ -13,10 +13,10 @@ public class MFInitializer implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        MFService.getInstance().ensureConfigExists();
+        MFService.get().ensureConfigExists();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
-                MFService.getInstance().loadConfig();
+                MFService.get().loadConfig();
             } catch (Exception | NoClassDefFoundError e) {
                 LOGGER.catching(Level.ERROR, e);
                 LOGGER.error("[MobFilter] failed to initialize");
