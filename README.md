@@ -69,6 +69,7 @@ area, you could add a rule like this:
 { 
   rules : [
     {
+      name : "Safe Zone",
       what : 'DISALLOW_SPAWN',
       when : {
         category : [ 'MONSTER' ],
