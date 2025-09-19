@@ -1,6 +1,18 @@
 # Configuring Mob-Filter
 
-To ensure you're looking at the right version of the docs,
+
+As of Mob Filter version 0.19.0+1.21.7, you can choose from two different 
+ways to configure MobFilter:
+
+* [`mobfilter.simple`](docs/simple-configuration.md) - Simplified configuration with limited features.
+* [`mobfilter.json5`](docs/advanced-configuration.md) - Advanced configuration using json.
+
+Click on the links above for more information.
+
+
+### Older Versions (0.18.1+1.21.7 and older)
+
+If you're looking for documentation on older versions of the mod, 
 please choose the version of the mod you are running:
 
 * [`0.18.0+1.21.7`](../0.18.0+1.21.7/CONFIG-LATEST.md)

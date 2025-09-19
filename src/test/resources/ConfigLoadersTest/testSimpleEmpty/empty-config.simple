@@ -1,0 +1,42 @@
+#
+# mobfilter.simple
+#
+# This file controls the simple spawn filtering rules for mob-filter.  For details, see the docs at:
+#   https://github.com/pcal43/mob-filter/blob/main/docs/simple-configuration-landing.md
+#
+# This is the simple configuration system.  If you want more control over mob spawning, use the
+# advanced configuration file (mobfilter.json5) instead.
+#
+
+
+
+#######################################################
+# EXAMPLE 1 - I HATE THESE MOBS
+#######################################################
+
+# (Remove the '#' from the start of each of the three lines below)
+
+# minecraft:creeper
+# minecraft:phantom
+# minecraft:silverfish
+
+
+
+#######################################################
+# EXAMPLE 2 - NO VANILLA MOBS AT ALL
+#######################################################
+
+# (Remove the '#' from the start of the line below)
+
+# minecraft:*
+
+
+
+#######################################################
+# EXAMPLE 3 - SECRET COW LEVEL.  COWS AND NOTHING ELSE
+#######################################################
+
+# (Remove the '#' from the start of each of the two lines below)
+
+# !minecraft:cow
+# minecraft:*

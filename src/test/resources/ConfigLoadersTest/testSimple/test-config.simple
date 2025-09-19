@@ -1,0 +1,18 @@
+#
+#
+#
+ # #
+
+ #
+    
+
+cobblemon:pikachu
+cobblemon:charmander
+
+!minecraft:cow
+!minecraft:horse
+
+minecraft:*
+
+!cobblemon:*
+

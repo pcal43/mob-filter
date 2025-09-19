@@ -1,26 +1,47 @@
 # MobFilter
 
-MobFilter is a Minecraft mod that allows you to limit spawning of mobs in your world.  
-You can use it to
-* Create safe zones in your world where mobs aren't allowed to spawn.
+MobFilter is a Minecraft mod that allows you to limit spawning of mobs in 
+your world.  You can use it to
 * Completely prevent particular mobs from ever spawning
+* Create safe zones in your world where mobs aren't allowed to spawn.
 * Limit mob spawning to specific biomes, times, or light levels
 * ...and more
 
 MobFilter uses the Fabric modloader and runs only on the server.
 
-I will not be doing a Forge version of MobFilter.
-
 ## Usage
 
-MobFilter uses a flexible, rule-based filtering system that you configure.  When Minecraft wants to spawn
-a new mob, MobFilter checks the rules you provide to see if the spawn should be 'vetoed.'
+MobFilter uses a flexible, rule-based filtering system that you configure. 
+When Minecraft wants to spawn a new mob, MobFilter checks the rules you 
+provide to see if the spawn should be 'vetoed.'
 
-The first time you run Minecraft with the mobfilter jar installed, an empty configuration file will be
-created in `config/mobfilter.json5`.  Just edit this file to set up your rules.  The rules will take effect the
-next time you start a world.
+The first time you run Minecraft with MobFilter installed, two empty 
+configuration files will be created in the `config` directory of your 
+minecraft installation: `mobfilter.simple` and `mobfilter.json5`.  
 
-Rules can test for several conditions, including:
+
+### Simple Configuration (`mobfilter.simple`)
+
+If you just want to remove some mobs from the game, edit
+[`mobfilter.simple`](docs/simple-configuration.md) and add a list of the
+mob ids that you want to prevent spawning:
+
+```
+# I never want to see these mobs again:
+minecraft:creeper
+minecraft:phantom
+minecraft:silverfish
+```
+
+See the [documentation](docs/simple-configuration.md) for more details.
+
+
+### Advanced Configuration (`mobfilter.json5`)
+
+If you need more detailed control over mob spawning, you can instead edit
+[`mobfilter.json5`](docs/advanced-configuration.md).  This file is a bit more
+complicated to configure but it allows your filtering logic to test for more
+complicated conditions, including:
 * Block Position
 * Location (Biome, World, Dimension, BlockId)
 * Mob Type (EntiyId or SpawnGroup)
@@ -28,47 +49,9 @@ Rules can test for several conditions, including:
 * Light Level
 * Phase of moon
 
-See [CONFIG.md](https://github.com/pcal43/mob-filter/blob/main/CONFIG.md) for more information about setting up rules.
+For example, if you want to prevent hostile mobs from spawning in a specific
+area, you could add a rule like this:
 
-## Config Examples
-
-### Disable All Vanilla Mobs
-```
-{
-  rules : [
-    {
-      name : 'No Vanilla',
-      what : 'DISALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:*' ]
-      }
-    }
-  ]
-}
-```
-
-### Secret Cow Level
-
-```
-{
-  rules : [
-    {
-      name : 'Allow cows...',
-      what : 'ALLOW_SPAWN',
-      when : {
-        entityId : [ 'minecraft:cow' ]
-      }
-    },
-    {
-      name : '...and nothing else',
-      what : 'DISALLOW_SPAWN',
-      when : {}
-    }
-  ]
-}
-```
-
-### Safe Zone
 ```
 { 
   rules : [
@@ -86,43 +69,27 @@ See [CONFIG.md](https://github.com/pcal43/mob-filter/blob/main/CONFIG.md) for mo
 }
 ```
 
-### Peaceful Surface
-*This stops monsters from spawning on the surface - anywhere exposed to the sky.*
-```
-{
-  rules : [
-    {
-      name : 'Peaceful surface',
-      what : 'DISALLOW_SPAWN',
-      when : {
-        category : [ 'MONSTER' ],
-        dimensionId : [ 'minecraft:overworld' ],
-        skylightLevel : [ 1, 15 ],
-        spawnReason : [ 'NATURAL' ]
-      }
-    }
-  ]
-}
-```
+See the [documentation](docs/advanced-configuration.md) for more details.
 
 ## Why This Mod?
 
-I wrote this mod because I wanted to be able to be able to play survival minecraft with my daughter, and that meant
-we had to have a mob-free area around our base. There are numerous other mods out there that manage mob spawning but
-none of them did quite what I needed them to do.
+I wrote this mod because I wanted to be able to be able to play survival 
+minecraft with my daughter, and that meant we had to have a mob-free area 
+around our base. There are numerous other mods out there that manage mob 
+spawning but none of them did quite what I needed them to do.
 
 ## Backports?
 
-As a rule, I don't do backports unless critical security issues are involved.  It's just
-too much tedious work to backport every mod feature to every old version.  But I'm happy
-to accept PRs if you want to do one yourself.
+As a rule, I don't do backports unless critical security issues are involved. 
+It's just too much tedious work to backport every mod feature to every old 
+version.  But I'm happy to accept PRs if you want to do one yourself.
 
 ## Legal
 
 This mod is published under the [Apache 2.0 License](LICENSE).
 
-You're free to include this mod in your modpack provided you attribute it to pcal.net.
-
+You're free to include this mod in your modpack provided you attribute it 
+to pcal.net.
 
 ## Questions?
 

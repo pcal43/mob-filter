@@ -1,0 +1,5 @@
+Rule[name=simple-0, checks=[EntityIdCheck[entityMatcher=[cobblemon:pikachu, cobblemon:charmander][]]], action=DISALLOW_SPAWN]
+Rule[name=simple-1, checks=[EntityIdCheck[entityMatcher=[minecraft:cow, minecraft:horse][]]], action=ALLOW_SPAWN]
+Rule[name=simple-2, checks=[EntityIdCheck[entityMatcher=[][minecraft]]], action=DISALLOW_SPAWN]
+Rule[name=simple-3, checks=[EntityIdCheck[entityMatcher=[][cobblemon]]], action=ALLOW_SPAWN]
+LogLevel: INFO

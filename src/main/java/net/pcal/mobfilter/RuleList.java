@@ -1,5 +1,8 @@
 package net.pcal.mobfilter;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.logging.log4j.Level;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -10,34 +13,41 @@ import static java.util.Objects.requireNonNull;
  */
 public class RuleList {
 
-    private final List<Rule> rules;
-
-    RuleList(List<Rule> rules) {
-        this.rules = requireNonNull(rules);
+    public static Builder builder() {
+        return new Builder();
     }
 
-    /**
-     * @return whether the spawn attempt should be allowed according the rules in this list.
-     */
-    public boolean isSpawnAllowed(final SpawnAttempt att) {
-        att.getLogger().trace(() -> "[MobFilter] IS_SPAWN_ALLOWED " + att);
-        for (Rule rule : rules) {
-            att.getLogger().trace(() -> "[MobFilter]   RULE '" + rule.getName() + "'");
-            Boolean isSpawnAllowed = rule.isSpawnAllowed(att);
-            if (isSpawnAllowed != null) {
-                att.getLogger().trace(() -> "[MobFilter]   RETURN " + isSpawnAllowed);
-                return isSpawnAllowed;
-            }
+    public static class Builder {
+
+        private final ImmutableList.Builder<Rule> rules = ImmutableList.builder();
+        private Level logLevel = Level.INFO;
+
+        void addRule(Rule rule) {
+            this.rules.add(requireNonNull(rule));
         }
-        att.getLogger().trace(() -> "[MobFilter]   RETURN true (no rules matched)");
-        return true;
+        void setLogLevel(Level logLevel) {
+            this.logLevel = logLevel;
+        }
+
+        RuleList build() {
+            return new RuleList(this.rules.build(), this.logLevel);
+        }
+
     }
 
-    public int getSize() {
-        return this.rules.size();
+    private final List<Rule> rules;
+    private final Level logLevel;
+
+    RuleList(List<Rule> rules, Level logLevel) {
+        this.rules = requireNonNull(rules);
+        this.logLevel = requireNonNull(logLevel);
     }
 
     List<Rule> getRules() {
         return Collections.unmodifiableList(rules);
+    }
+
+    public Level getLogLevel() {
+        return this.logLevel;
     }
 }
