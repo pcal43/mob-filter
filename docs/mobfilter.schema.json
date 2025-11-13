@@ -1,0 +1,133 @@
+{
+  "$id": "https://github.com/pcal43/mob-filter/blob/0.22.0+1.21.10/docs/mobfilter.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MobFilter Advanced Configuration",
+  "description": "Schema for mobfilter.json5.  AI-generated, still a WIP.",
+  "type": "object",
+  "properties": {
+    "logLevel": {
+      "type": "string",
+      "enum": ["DEBUG", "INFO", "WARN", "ERROR"],
+      "description": "Optional log level for MobFilter"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "A descriptive name for the rule"
+          },
+          "what": {
+            "type": "string",
+            "enum": ["DISALLOW_SPAWN", "ALLOW_SPAWN"],
+            "description": "Action to take when the rule matches"
+          },
+          "when": {
+            "type": "object",
+            "description": "Conditions under which this rule applies",
+            "properties": {
+              "worldName": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Optional world names to which this rule applies"
+              },
+              "dimensionId": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "biomeId": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "entityId": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "category": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["MONSTER", "CREATURE", "AMBIENT", "WATER_CREATURE", "MISC"]
+                },
+                "description": "Spawn group / category"
+              },
+              "spawnReason": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "NATURAL",
+                    "CHUNK_GENERATION",
+                    "SPAWNER",
+                    "SPAWNER_EGG",
+                    "BREEDING",
+                    "CUSTOM",
+                    "LIGHTNING",
+                    "STRUCTURE",
+                    "DEFAULT"
+                  ]
+                },
+                "description": "Reason the mob was spawned"
+              },
+              "blockId": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Optional block IDs to which this rule applies"
+              },
+              "blockX": {
+                "type": "array",
+                "items": { "type": ["integer", "string"] },
+                "description": "X-coordinate bounds (integer or MIN/MAX)"
+              },
+              "blockY": {
+                "type": "array",
+                "items": { "type": ["integer", "string"] },
+                "description": "Y-coordinate bounds (integer or MIN/MAX)"
+              },
+              "blockZ": {
+                "type": "array",
+                "items": { "type": ["integer", "string"] },
+                "description": "Z-coordinate bounds (integer or MIN/MAX)"
+              },
+              "timeOfDay": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "lightLevel": {
+                "type": "array",
+                "items": { "type": ["integer", "string"] },
+                "description": "Light level bounds (integer or MIN/MAX)"
+              },
+              "skyLightLevel": {
+                "type": "array",
+                "items": { "type": ["integer", "string"] },
+                "description": "Sky light level bounds (integer or MIN/MAX)"
+              },
+              "moonPhase": {
+                "type": "array",
+                "items": { "type": "integer", "minimum": 0, "maximum": 7 },
+                "description": "Moon phase(s) when this rule applies (0–7)"
+              },
+              "weather": {
+                "type": "array",
+                "items": { "type": "string", "enum": ["CLEAR", "RAIN", "THUNDER"] },
+                "description": "Weather conditions under which this rule applies"
+              },
+              "difficulty": {
+                "type": "array",
+                "items": { "type": "string", "enum": ["PEACEFUL", "EASY", "NORMAL", "HARD"] }
+              },
+              "random": {
+                "type": "array",
+                "items": { "type": "number", "minimum": 0, "maximum": 1 },
+                "description": "Probability values for applying this rule (0–1)"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
