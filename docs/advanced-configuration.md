@@ -26,7 +26,7 @@ be a little daunting.  Consider using Chat-GPT or another LLM to generate a
 config for you.  You'll get much better results if you direct it to fetch
 the json schema for the config file here:
 
-https://github.com/pcal43/mob-filter/blob/0.22.0+1.21.10/docs/mobfilter.schema.json?raw=true
+https://github.com/pcal43/mob-filter/blob/main/docs/mobfilter.schema.json?raw=true
 
 Here's an example of a prompt that generates pretty a good result:
 ```
@@ -34,7 +34,7 @@ Please generate a json config file for the Minecraft mod "Mob Filter."  I
 would like to prevent hostile mobs from ever spawning in the overworld above
 sea level. I'd also like to prevent silverfish from ever spawning anywhere.
 For reference, please fetch the json schema for the config file from this url:
-https://github.com/pcal43/mob-filter/blob/0.22.0+1.21.10/docs/mobfilter.schema.json?raw=true
+https://github.com/pcal43/mob-filter/blob/main/docs/mobfilter.schema.json?raw=true
 ```
 Also, if your existing config is having problems, you can upload it to
 Chat-GPT and ask it to fix it for you.
