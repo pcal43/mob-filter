@@ -21,9 +21,9 @@ with the [Simple Configuration](simple-configuration.md) instead.*
 
 ## Stuck?
 
-If you havent'w roked with json before, the advanced configuration can
-be a little daunting.  Consider using Chat-GPT or another LLM to generate a config
-for you.  You'll get much better results if you direct it to the json
+If you haven't worked with json before, the advanced configuration can
+be a little daunting.  Consider using Chat-GPT or another LLM to generate a 
+config for you.  You'll get much better results if you direct it to the json
 schema for the config file here:
 
 https://github.com/pcal43/mob-filter/blob/main/docs/mobfilter.schema.json
@@ -37,7 +37,7 @@ sea level. I'd also like to prevent silverfish from ever spawning anywhere.
 Please reference the json schema here:
 https://github.com/pcal43/mob-filter/blob/main/docs/mobfilter.schema.json
 ```
-Also, if your existing config is having problems, you can also upload it to
+Also, if your existing config is having problems, you can upload it to
 Chat-GPT and ask it to fix it for you.
 
 But if the robots are unable to help, you can also ask humans for help
