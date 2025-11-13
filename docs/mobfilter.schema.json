@@ -1,7 +1,8 @@
 {
-  "$id": "https://github.com/pcal43/mob-filter/blob/0.21.0+1.21.9/docs/mobfilter.schema.json",
+  "$id": "https://github.com/pcal43/mob-filter/blob/0.22.0+1.21.10/docs/mobfilter.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MobFilter Advanced Configuration",
+  "description": "Schema for mobfilter.json5.  AI-generated, still a WIP.",
   "type": "object",
   "properties": {
     "logLevel": {
