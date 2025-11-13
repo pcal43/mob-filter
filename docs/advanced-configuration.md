@@ -19,6 +19,30 @@ with the [Simple Configuration](simple-configuration.md) instead.*
 *To see example configurations that you can copy-paste, skip ahead to the
 [Examples](#examples) section.*
 
+## Stuck?
+
+If you havent'w roked with json before, the advanced configuration can
+be a little daunting.  Consider using Chat-GPT or another LLM to generate a config
+for you.  You'll get much better results if you direct it to the json
+schema for the config file here:
+
+https://github.com/pcal43/mob-filter/blob/main/docs/mobfilter.schema.json
+
+
+Here's an example of a prompt that generates pretty a good result:
+```
+Please generate a json config file for the Minecraft mod "Mob Filter."  I
+would like to prevent hostile mobs from ever spawning in the overworld above
+sea level. I'd also like to prevent silverfish from ever spawning anywhere.
+Please reference the json schema here:
+https://github.com/pcal43/mob-filter/blob/main/docs/mobfilter.schema.json
+```
+Also, if your existing config is having problems, you can also upload it to
+Chat-GPT and ask it to fix it for you.
+
+But if the robots are unable to help, you can also ask humans for help
+on the discord server at: https://discord.pcal.net
+
 
 ## Declaring Rules
 
