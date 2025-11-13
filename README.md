@@ -25,7 +25,7 @@ minecraft installation: `mobfilter.simple` and `mobfilter.json5`.
 ***Only available in versions 0.19.0+1.21.7 and later.***
 
 If you just want to remove some mobs from the game, edit
-[`mobfilter.simple`](docs/simple-configuration.md) and add a list of the
+[`mobfilter.simple`](https://github.com/pcal43/mob-filter/blob/main/docs/simple-configuration.md) and add a list of the
 mob ids that you want to prevent spawning:
 
 ```
@@ -46,13 +46,13 @@ the mobs in a namespace:
 minecraft:*
 ```
 
-See the [documentation](docs/simple-configuration.md) for more details.
+See the [documentation](https://github.com/pcal43/mob-filter/blob/main/docs/simple-configuration.md) for more details.
 
 
 ### Advanced Configuration (`mobfilter.json5`)
 
 If you need more detailed control over mob spawning, you can instead edit
-[`mobfilter.json5`](docs/advanced-configuration.md).  This file is a bit more
+[`mobfilter.json5`](https://github.com/pcal43/mob-filter/blob/main/docs/advanced-configuration.md).  This file is a bit more
 complicated to configure but it allows your filtering logic to test for more
 complicated conditions, including:
 * Block Position
@@ -83,7 +83,7 @@ area, you could add a rule like this:
 }
 ```
 
-See the [documentation](docs/advanced-configuration.md) for more details.
+See the [documentation](https://github.com/pcal43/mob-filter/blob/main/docs/advanced-configuration.md) for more details.
 
 ## Why This Mod?
 
@@ -100,7 +100,7 @@ version.  But I'm happy to accept PRs if you want to do one yourself.
 
 ## Legal
 
-This mod is published under the [MIT License](LICENSE).
+This mod is published under the [MIT License](https://github.com/pcal43/mob-filter/blob/main/LICENSE).
 
 You're free to include this mod in your modpack provided you attribute it 
 to pcal.net.
