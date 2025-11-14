@@ -2,7 +2,7 @@ package net.pcal.mobfilter;
 
 public interface Platform {
 
-    MinecraftId parseMinecraftId(String pattern);
+    MinecraftId parseMinecraftId(String id);
 
     Class<? extends Enum<?>> getSpawnReasonEnum();
 

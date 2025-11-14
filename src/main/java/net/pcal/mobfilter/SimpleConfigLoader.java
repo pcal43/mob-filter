@@ -47,7 +47,7 @@ class SimpleConfigLoader {
                 // If polarity changes, flush group
                 if (currentPolarity != groupPolarity) {
                     if (!groupIds.isEmpty()) {
-                        RuleCheck check = new EntityIdCheck(IdMatcher.of(groupIds.toArray(new String[0]), platform));
+                        RuleCheck check = new EntityIdCheck(MinecraftIdMatcher.of(groupIds.toArray(new String[0]), platform));
                         configBuilder.addRule(new Rule("simple-" + i, ImmutableList.of(check),  currentPolarity ? ALLOW_SPAWN : DISALLOW_SPAWN));
                         i++;
                         groupIds.clear();
@@ -58,7 +58,7 @@ class SimpleConfigLoader {
             }
             // EOF, flush anything left
             if (groupIds != null && !groupIds.isEmpty()) {
-                RuleCheck check = new EntityIdCheck(IdMatcher.of(groupIds.toArray(new String[0]), platform));
+                RuleCheck check = new EntityIdCheck(MinecraftIdMatcher.of(groupIds.toArray(new String[0]), platform));
                 configBuilder.addRule(new Rule("simple-" + i, ImmutableList.of(check),  currentPolarity ? ALLOW_SPAWN : DISALLOW_SPAWN));
             }
         }

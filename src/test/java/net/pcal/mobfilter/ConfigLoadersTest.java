@@ -1,14 +1,10 @@
-package net.pcal.mobfilter.fabric;
+package net.pcal.mobfilter;
 
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
-import net.pcal.mobfilter.Config;
 import net.pcal.mobfilter.Config.Builder;
-import net.pcal.mobfilter.JsonConfigLoader;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
-import net.pcal.mobfilter.Rule;
-import net.pcal.mobfilter.SimpleConfigLoader;
-import net.pcal.mobfilter.WeatherType;
+import net.pcal.mobfilter.fabric.FabricPlatform;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -29,7 +25,8 @@ public class ConfigLoadersTest {
                      .getResourceAsStream("ConfigLoadersTest/testJson/config.expected"))) {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
 
-            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in, Fa);
+            final Platform p = FabricPlatform.get();
+            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in, p);
             assertEquals("TRACE", jsonConfig.logLevel);
             assertEquals(2, jsonConfig.rules.length);
             assertEquals(MobCategory.MONSTER, jsonConfig.rules[1].when.spawnGroup[0]);
@@ -45,7 +42,7 @@ public class ConfigLoadersTest {
 
             // kick tires on rule building
             final Builder configBuilder = Config.builder();
-            JsonConfigLoader.loadRules(jsonConfig, configBuilder);
+            JsonConfigLoader.loadRules(jsonConfig, configBuilder, p);
             final Config modConfig = configBuilder.build();
 
 
@@ -60,7 +57,7 @@ public class ConfigLoadersTest {
         final InputStream in = getClass().getClassLoader()
                 .getResourceAsStream("ConfigLoadersTest/testJsonEmpty/empty-config.json5");
         final Config.Builder configBuilder = new Config.Builder();
-        JsonConfigLoader.loadRules(in, configBuilder);
+        JsonConfigLoader.loadRules(in, configBuilder, getPlatform());
         final Config rules = configBuilder.build();
         final String configString = configToString(rules);
         System.out.println(configString);
@@ -76,7 +73,7 @@ public class ConfigLoadersTest {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
             // Build rules using SimpleConfigLoader
             Config.Builder configBuilder = new Config.Builder();
-            SimpleConfigLoader.loadRules(in, configBuilder);
+            SimpleConfigLoader.loadRules(in, configBuilder, getPlatform());
             Config rules = configBuilder.build();
 
             final String configString = configToString(rules);
@@ -92,7 +89,7 @@ public class ConfigLoadersTest {
                 .getResourceAsStream("ConfigLoadersTest/testSimpleEmpty/empty-config.simple");
         // Build rules using SimpleConfigLoader
         Config.Builder configBuilder = new Config.Builder();
-        SimpleConfigLoader.loadRules(in, configBuilder);
+        SimpleConfigLoader.loadRules(in, configBuilder, getPlatform());
         Config rules = configBuilder.build();
 
         final String configString = configToString(rules);
@@ -107,5 +104,9 @@ public class ConfigLoadersTest {
         }
         sb.append("LogLevel: " + config.getLogLevel() + "\n");
         return sb.toString();
+    }
+
+    private Platform getPlatform() {
+        return FabricPlatform.get(); // FIXME make a mock
     }
 }

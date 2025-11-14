@@ -1,6 +1,5 @@
-package net.pcal.mobfilter.fabric;
+package net.pcal.mobfilter;
 
-import net.pcal.mobfilter.Matcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

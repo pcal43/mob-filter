@@ -15,7 +15,7 @@ interface RuleCheck {
     // ======================================================================
     // Implementation classes
 
-    record DimensionCheck(IdMatcher dimensionMatcher) implements RuleCheck {
+    record DimensionCheck(MinecraftIdMatcher dimensionMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
             final MinecraftId dimensionId = att.getDimensionId();
@@ -30,7 +30,7 @@ interface RuleCheck {
         }
     }
 
-    record BiomeCheck(IdMatcher biomeMatcher) implements RuleCheck {
+    record BiomeCheck(MinecraftIdMatcher biomeMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
             final MinecraftId biomeId = att.getBiomeId();
@@ -77,7 +77,7 @@ interface RuleCheck {
         }
     }
 
-    record EntityIdCheck(IdMatcher entityMatcher) implements RuleCheck {
+    record EntityIdCheck(MinecraftIdMatcher entityMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
             final MinecraftId entityId = att.getEntityId();
@@ -93,7 +93,7 @@ interface RuleCheck {
         }
     }
 
-    record BlockIdCheck(IdMatcher blockMatcher) implements RuleCheck {
+    record BlockIdCheck(MinecraftIdMatcher blockMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
             final MinecraftId blockId = att.getBlockId();

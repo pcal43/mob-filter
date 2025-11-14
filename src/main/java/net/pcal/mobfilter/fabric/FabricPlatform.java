@@ -7,9 +7,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.Platform;
 
-import static net.pcal.mobfilter.fabric.FabricMinecraftId.id;
-
-class FabricPlatform implements Platform {
+public class FabricPlatform implements Platform {
 
     // ===================================================================================
     // Singleton
@@ -22,13 +20,16 @@ class FabricPlatform implements Platform {
         }
     }
 
-    static FabricPlatform get() {
+    public static FabricPlatform get() {
         return SingletonHolder.INSTANCE;
     }
 
+    // ===================================================================================
+    // Platform implementation
+
     @Override
     public MinecraftId parseMinecraftId(String id) {
-        return id(ResourceLocation.parse(id));
+        return new FabricMinecraftId(ResourceLocation.parse(id));
     }
 
     @Override
@@ -44,5 +45,24 @@ class FabricPlatform implements Platform {
     @Override
     public  Class<? extends Enum<?>> getDifficultyEnum() {
         return Difficulty.class;
+    }
+
+
+    // ===================================================================================
+    // Package
+
+    static MinecraftId id(ResourceLocation loc) {
+        return new FabricMinecraftId(loc);
+    }
+
+    // ===================================================================================
+    // Private
+
+    private record FabricMinecraftId(ResourceLocation loc) implements MinecraftId {
+
+        @Override
+        public String getNamespace() {
+            return loc.getNamespace();
+        }
     }
 }

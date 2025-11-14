@@ -20,7 +20,7 @@ import net.pcal.mobfilter.WeatherType;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.fabric.FabricMinecraftId.id;
+import static net.pcal.mobfilter.fabric.FabricPlatform.id;
 
 /**
  * Implementation of SpawnAttempt for the main game thread.  All attributes of the world are available.

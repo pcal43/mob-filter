@@ -9,7 +9,7 @@ import java.util.Set;
  * Determines whether a given item is contained in a list.  Optimizes for the common case where the
  * list size is small or 1.
  */
-interface Matcher<T> {
+public interface Matcher<T> {
 
     boolean isMatch(final T value);
 

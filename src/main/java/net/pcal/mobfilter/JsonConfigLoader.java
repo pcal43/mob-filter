@@ -88,19 +88,19 @@ class JsonConfigLoader {
                 checks.add(new CategoryCheck(enumSet));
             }
             if (when.entityId != null) {
-                checks.add(new EntityIdCheck(IdMatcher.of(when.entityId, platform)));
+                checks.add(new EntityIdCheck(MinecraftIdMatcher.of(when.entityId, platform)));
             }
             if (when.worldName != null) {
                 checks.add(new WorldNameCheck(Matcher.of(when.worldName)));
             }
             if (when.dimensionId != null) {
-                checks.add(new DimensionCheck(IdMatcher.of(when.dimensionId, platform)));
+                checks.add(new DimensionCheck(MinecraftIdMatcher.of(when.dimensionId, platform)));
             }
             if (when.biomeId != null) {
-                checks.add(new BiomeCheck(IdMatcher.of(when.biomeId, platform)));
+                checks.add(new BiomeCheck(MinecraftIdMatcher.of(when.biomeId, platform)));
             }
             if (when.blockId != null) {
-                checks.add(new BlockIdCheck(IdMatcher.of(when.blockId, platform)));
+                checks.add(new BlockIdCheck(MinecraftIdMatcher.of(when.blockId, platform)));
             }
             if (when.blockX != null) {
                 int[] range = parseRange(when.blockX);
