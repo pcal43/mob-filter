@@ -15,15 +15,20 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ServerLevelData;
+import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.SpawnAttempt;
+import net.pcal.mobfilter.WeatherType;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Objects.requireNonNull;
+import static net.pcal.mobfilter.fabric.FabricMinecraftId.id;
 
 /**
  * Implementation of SpawnAttempt for the main game thread.  All attributes of the world are available.
  */
 public class MainThreadSpawnAttempt implements SpawnAttempt {
+
+
 
     private final ServerLevel serverWorld;
     private final EntitySpawnReason spawnReason;
@@ -47,13 +52,8 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public ResourceLocation getEntityId() {
-        return BuiltInRegistries.ENTITY_TYPE.getKey(entityType); // FIXME is this right?
-    }
-
-    @Override
-    public EntityType<?> getEntityType() {
-        return this.entityType;
+    public MinecraftId getEntityId() {
+        return id(BuiltInRegistries.ENTITY_TYPE.getKey(entityType)); // FIXME is this right?
     }
 
     @Override
@@ -70,15 +70,15 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public ResourceLocation getDimensionId() {
-        return this.serverWorld.dimension().location();
+    public MinecraftId getDimensionId() {
+        return id(this.serverWorld.dimension().location());
     }
 
     @Override
-    public ResourceLocation getBlockId() {
+    public MinecraftId getBlockId() {
         final BlockState bs = serverWorld.getBlockState(this.blockPos.below());
         final Block block = bs.getBlock();
-        return BuiltInRegistries.BLOCK.getKey(block);
+        return id(BuiltInRegistries.BLOCK.getKey(block));
     }
 
     @Override
@@ -97,8 +97,18 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public BlockPos getBlockPos() {
-        return this.blockPos;
+    public Integer getBlockX() {
+        return this.blockPos.getX();
+    }
+
+    @Override
+    public Integer getBlockY() {
+        return this.blockPos.getY();
+    }
+
+    @Override
+    public Integer getBlockZ() {
+        return this.blockPos.getZ();
     }
 
     @Override
@@ -107,23 +117,13 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public Integer getBrightness(LightLayer lightLayer, BlockPos blockPos) {
-        return serverWorld.getBrightness(lightLayer, blockPos);
+    public Integer getSkylightLevel() {
+        return serverWorld.getBrightness(LightLayer.SKY, blockPos);
     }
 
     @Override
-    public Integer getMaxLocalRawBrightness(BlockPos blockPos) {
+    public Integer getLightLevel() {
         return serverWorld.getMaxLocalRawBrightness(blockPos);
-    }
-
-    @Override
-    public Boolean isThundering() {
-        return serverWorld.isThundering();
-    }
-
-    @Override
-    public Boolean isRainingAt(BlockPos blockPos) {
-        return serverWorld.isRainingAt(blockPos);
     }
 
     @Override
@@ -132,7 +132,23 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public Biome getBiome(BlockPos blockPos) {
+    public MinecraftId getBiomeId() {
+        final Biome biome = this.getBiome(blockPos);
+        if (biome == null) return null;
+        // FIXME? I'm not entirely sure this is correct
+        return id(serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome));
+    }
+
+    @Override
+    public Long getDayTime() {
+        return serverWorld.getDayTime();
+    }
+
+
+    // ===================================================================================
+    // Private
+
+    private Biome getBiome(BlockPos blockPos) {
         final Holder<Biome> holder = serverWorld.getBiome(this.blockPos);
         //noinspection ConstantValue
         if (holder == null) {
@@ -143,16 +159,37 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
         }
     }
 
-    @Override
-    public ResourceLocation getBiomeId() {
-        final Biome biome = this.getBiome(blockPos);
-        if (biome == null) return null;
-        // FIXME? I'm not entirely sure this is correct
-        return serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome);
+    private WeatherType getWeatherType() {
+        if (blockPos == null) {
+            getLogger().debug(() -> "[MobFilter] WeatherCheck: no block position");
+            return null;
+        }
+        final Boolean isThundering = this.isThundering();
+        if (isThundering == null) {
+            getLogger().debug(() -> "[MobFilter] WeatherCheck: isThundering could not be determined");
+            return null;
+        } else if (isThundering) {
+            return WeatherType.THUNDER;
+        }
+        final Boolean isRaining = isRainingAt(blockPos);
+        if (isRaining == null) {
+            getLogger().debug(() -> "[MobFilter] WeatherCheck: isRaining could not be determined");
+            return null;
+        } else if (isRaining) {
+            // Check for snow
+            final Biome biome = getBiome(blockPos);
+            if (biome == null) {
+                getLogger().debug(() -> "[MobFilter] WeatherCheck: biome could not be determined");
+                return null;
+            } else if (biome.hasPrecipitation() && biome.coldEnoughToSnow(blockPos, blockPos.getY())) {
+                return WeatherType.SNOW;
+            } else {
+                return WeatherType.RAIN;
+            }
+        }
+        return WeatherType.CLEAR;
     }
 
-    @Override
-    public Long getDayTime() {
-        return serverWorld.getDayTime();
-    }
+
+
 }

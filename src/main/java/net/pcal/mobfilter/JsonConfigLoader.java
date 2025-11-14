@@ -12,14 +12,10 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.core.Direction;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.Rule.RuleAction;
 import net.pcal.mobfilter.RuleCheck.BiomeCheck;
 import net.pcal.mobfilter.RuleCheck.BlockIdCheck;
-import net.pcal.mobfilter.RuleCheck.BlockPosCheck;
+import net.pcal.mobfilter.RuleCheck.*;
 import net.pcal.mobfilter.RuleCheck.CategoryCheck;
 import net.pcal.mobfilter.RuleCheck.DifficultyCheck;
 import net.pcal.mobfilter.RuleCheck.DimensionCheck;
@@ -31,7 +27,6 @@ import net.pcal.mobfilter.RuleCheck.SkylightLevelCheck;
 import net.pcal.mobfilter.RuleCheck.SpawnReasonCheck;
 import net.pcal.mobfilter.RuleCheck.TimeOfDayCheck;
 import net.pcal.mobfilter.RuleCheck.WeatherCheck;
-import net.pcal.mobfilter.RuleCheck.WeatherType;
 import net.pcal.mobfilter.RuleCheck.WorldNameCheck;
 import org.apache.logging.log4j.Level;
 
@@ -41,6 +36,9 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Map;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Parse mobfilter.json5 and build a config object from it.
@@ -52,14 +50,14 @@ class JsonConfigLoader {
      * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
      * no rules.
      */
-    static void loadRules(final InputStream in, final Config.Builder configBuilder) throws IOException {
-        final JsonConfiguration fromConfig = loadFromJson(in);
+    static void loadRules(final InputStream in, final Config.Builder configBuilder, final Platform platform) throws IOException {
+        final JsonConfiguration fromConfig = loadFromJson(in, platform);
         if (fromConfig != null && fromConfig.rules != null) {
-            loadRules(fromConfig ,configBuilder);
+            loadRules(fromConfig ,configBuilder, platform);
         }
     }
 
-    static void loadRules(final JsonConfiguration fromConfig, final Config.Builder configBuilder) {
+    static void loadRules(final JsonConfiguration fromConfig, final Config.Builder configBuilder, final Platform platform) {
         int i = -1;
         for (final JsonRule configRule : fromConfig.rules) {
             i++;
@@ -74,47 +72,47 @@ class JsonConfigLoader {
                 throw new IllegalArgumentException("'when' must be specified on " + ruleName);
             }
             if (when.spawnReason != null && when.spawnReason.length > 0) {
-                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnReason));
+                final EnumSet enumSet = enumSetOf(platform.getSpawnReasonEnum(), when.spawnReason);
                 checks.add(new SpawnReasonCheck(enumSet));
             } else if (when.spawnType != null && when.spawnType.length > 0) {
                 // legacy support for old name 'spawnType'
-                final EnumSet<EntitySpawnReason> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnType));
+                final EnumSet enumSet = enumSetOf(platform.getSpawnReasonEnum(), when.spawnType);
                 checks.add(new SpawnReasonCheck(enumSet));
             }
             if (when.category != null && when.category.length > 0) {
-                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.category));
-                checks.add(new CategoryCheck(enumSet));
+                final EnumSet enumSet = enumSetOf(platform.getMobCategoryEnum(), when.category);
+                checks.add(new SpawnReasonCheck(enumSet));
             } else if (when.spawnGroup != null && when.spawnGroup.length > 0) {
                 // legacy support for old name 'spawnGroup'
-                final EnumSet<MobCategory> enumSet = EnumSet.copyOf(Arrays.asList(when.spawnGroup));
+                final EnumSet enumSet = enumSetOf(platform.getMobCategoryEnum(), when.spawnGroup);
                 checks.add(new CategoryCheck(enumSet));
             }
             if (when.entityId != null) {
-                checks.add(new EntityIdCheck(IdMatcher.of(when.entityId)));
+                checks.add(new EntityIdCheck(IdMatcher.of(when.entityId, platform)));
             }
             if (when.worldName != null) {
                 checks.add(new WorldNameCheck(Matcher.of(when.worldName)));
             }
             if (when.dimensionId != null) {
-                checks.add(new DimensionCheck(IdMatcher.of(when.dimensionId)));
+                checks.add(new DimensionCheck(IdMatcher.of(when.dimensionId, platform)));
             }
             if (when.biomeId != null) {
-                checks.add(new BiomeCheck(IdMatcher.of(when.biomeId)));
+                checks.add(new BiomeCheck(IdMatcher.of(when.biomeId, platform)));
             }
             if (when.blockId != null) {
-                checks.add(new BlockIdCheck(IdMatcher.of(when.blockId)));
+                checks.add(new BlockIdCheck(IdMatcher.of(when.blockId, platform)));
             }
             if (when.blockX != null) {
                 int[] range = parseRange(when.blockX);
-                checks.add(new BlockPosCheck(Direction.Axis.X, range[0], range[1]));
+                checks.add(new BlockXCheck(range[0], range[1]));
             }
             if (when.blockY != null) {
                 int[] range = parseRange(when.blockY);
-                checks.add(new BlockPosCheck(Direction.Axis.Y, range[0], range[1]));
+                checks.add(new BlockYCheck(range[0], range[1]));
             }
             if (when.blockZ != null) {
                 int[] range = parseRange(when.blockZ);
-                checks.add(new BlockPosCheck(Direction.Axis.Z, range[0], range[1]));
+                checks.add(new BlockZCheck(range[0], range[1]));
             }
             if (when.timeOfDay != null) {
                 int[] range = parseRange(when.timeOfDay);
@@ -151,12 +149,31 @@ class JsonConfigLoader {
         }
     }
 
-    static JsonConfiguration loadFromJson(final InputStream in) throws IOException {
+    /**
+     * So we can create an EnumSet when we don't know the concrete enum type statically.
+     */
+    private static EnumSet enumSetOf(Class<? extends Enum> enumClass, Enum<?>[] values) {
+        final EnumSet enumSet = EnumSet.noneOf(enumClass);
+        for (Enum<?> e : values) enumSet.add(e);
+        return enumSet;
+    }
+
+    static JsonConfiguration loadFromJson(final InputStream in, final Platform patform) throws IOException {
         final String rawJson = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+        final Map<String, Class<? extends Enum<?>>> enumFieldTypes = Map.of(
+                // all of the enum fields in JsonWhen have to be accounted for here
+                "spawnReason", patform.getSpawnReasonEnum(),
+                "category", patform.getMobCategoryEnum(),
+                "difficulty", patform.getDifficultyEnum(),
+                "spawnType", patform.getSpawnReasonEnum(),
+                "spawnGroup", patform.getMobCategoryEnum(),
+                "weatherType", WeatherType.class
+        );
 
         final Gson gson = new GsonBuilder().
                 setLenient().
-                registerTypeAdapterFactory(new ValidatingEnumAdapterFactory()).
+                registerTypeAdapterFactory(new ValidatingEnumAdapterFactory(enumFieldTypes)).
                 create();
         class TypoCatchingJsonReader extends JsonReader {
             public TypoCatchingJsonReader(StringReader in) {
@@ -210,6 +227,13 @@ class JsonConfigLoader {
      * clearly instead.
      */
     private static class ValidatingEnumAdapterFactory implements TypeAdapterFactory {
+
+        private final Map<String, Class<? extends Enum<?>>> concreteEnums;
+
+        ValidatingEnumAdapterFactory(final  Map<String, Class<? extends Enum<?>>> concreteEnums) {
+            this.concreteEnums = requireNonNull(concreteEnums);
+        }
+
         @Override
         @SuppressWarnings("unchecked")
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -260,8 +284,8 @@ class JsonConfigLoader {
         public String[] dimensionId;
         public String[] entityId;
         public String[] biomeId;
-        public EntitySpawnReason[] spawnReason;
-        public MobCategory[] category;
+        public Enum<?>[] spawnReason;
+        public Enum<?>[] category;
         public String[] blockX;
         public String[] blockY;
         public String[] blockZ;
@@ -271,13 +295,13 @@ class JsonConfigLoader {
         public String[] skylightLevel;
         public Integer[] moonPhase;
         public WeatherType[] weather;
-        public Difficulty[] difficulty;
+        public Enum<?>[] difficulty;
         public Double random;
 
         // for backwards compatibility:
         @Deprecated // use spawnReason instead
-        public EntitySpawnReason[] spawnType;
+        public Enum<?>[] spawnType;
         @Deprecated // use category instead
-        public MobCategory[] spawnGroup;
+        public Enum<?>[] spawnGroup;
     }
 }

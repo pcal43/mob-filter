@@ -3,7 +3,6 @@ package net.pcal.mobfilter;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
-import net.pcal.mobfilter.RuleCheck.WeatherType;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -30,7 +29,7 @@ public class ConfigLoadersTest {
             assertEquals(MobCategory.MONSTER, jsonConfig.rules[1].when.spawnGroup[0]);
             assertEquals(EntitySpawnReason.STRUCTURE, jsonConfig.rules[1].when.spawnReason[0]);
             assertEquals(EntitySpawnReason.JOCKEY, jsonConfig.rules[1].when.spawnType[0]);
-            assertArrayEquals(new WeatherType[]{RuleCheck.WeatherType.RAIN, RuleCheck.WeatherType.THUNDER},
+            assertArrayEquals(new WeatherType[]{WeatherType.RAIN, WeatherType.THUNDER},
                     jsonConfig.rules[1].when.weather);
             assertArrayEquals(new String[]{"5", "10",}, jsonConfig.rules[1].when.lightLevel);
             assertArrayEquals(new String[]{"10", "20",}, jsonConfig.rules[1].when.skylightLevel);

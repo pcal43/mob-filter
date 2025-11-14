@@ -1,8 +1,9 @@
-package net.pcal.mobfilter;
+package net.pcal.mobfilter.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
+import net.pcal.mobfilter.MobFilterService;
 
 import static net.minecraft.ChatFormatting.RED;
 

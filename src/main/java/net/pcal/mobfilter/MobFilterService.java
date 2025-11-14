@@ -1,12 +1,5 @@
 package net.pcal.mobfilter;
 
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.pcal.mobfilter.fabric.MainThreadSpawnAttempt;
-import net.pcal.mobfilter.fabric.WorldgenThreadSpawnAttempt;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.SERVER;
 import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.WORLDGEN;
 
@@ -51,7 +45,7 @@ public final class MobFilterService {
     private String configError = null;
     private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
     private final File simpleConfigFile = Paths.get("config", "mobfilter.simple").toFile();
-    private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
+    private final ThreadLocal<Enum<?>> spawnReason = new ThreadLocal<>();
 
     // ===================================================================================
     // Public methods
@@ -59,19 +53,18 @@ public final class MobFilterService {
     /**
      * Called during entity creation so that we can remember the spawnReason for future use.
      */
-    public void notifyEntityCreate(net.minecraft.world.level.Level level, final EntitySpawnReason reason, final Entity entity) {
-        if (level.isClientSide()) return;
-        if (!(entity instanceof Mob)) return;
+    public void notifyServersideMobCreate(final Enum<?> reason) {
+        //if (level.isClientSide()) return;
+        //if (!(entity instanceof Mob)) return;
         if (reason == null) {
-            this.logger.debug(() -> "[MobFilter] Ignoring attempt to set null spawnReason for " + entity);
+            this.logger.debug(() -> "[MobFilter] Ignoring attempt to set null spawnReason");
             return;
         } else if (this.spawnReason.get() != null && this.spawnReason.get() != reason) {
-            this.logger.trace(() -> "[MobFilter] Unexpectedly changing existing spawnReason for " +
-                    entity + " from " + this.spawnReason.get() + " to " + reason);
+            this.logger.trace(() -> "[MobFilter] Unexpectedly changing existing spawnReason  " +
+                    " from " + this.spawnReason.get() + " to " + reason);
         }
         this.spawnReason.set(reason);
     }
-
 
     /**
      * Broad categories of vanilla minecraft thready types.  We care because some kinds of filtering
@@ -87,7 +80,21 @@ public final class MobFilterService {
      * be allowed.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSpawnAllowed(final ServerLevel serverLevel,
+    public boolean isSpawnAllowed(final SpawnAttempt att) {
+        if (this.config == null) return true;
+        final boolean allowSpawn = isSpawnAllowed(att, this.config.getRules());
+        if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
+            if (allowSpawn) {
+                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
+            } else {
+                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
+            }
+        }
+        return allowSpawn;
+    }
+
+    /**
+    public boolean isSpawnAllowed(final Spawn serverLevel,
                                   final Entity entity,
                                   final MinecraftThreadType threadTypeGuess) {
         if (this.config == null) return true;
@@ -109,13 +116,13 @@ public final class MobFilterService {
         final boolean allowSpawn = isSpawnAllowed(att, this.config.getRules());
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
             if (allowSpawn) {
-                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
             } else {
-                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
             }
         }
         return allowSpawn;
-    }
+    }**/
 
     /**
      * Write a default configuration file if none exists.
@@ -170,7 +177,8 @@ public final class MobFilterService {
     /**
      * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
      */
-    void loadConfig() {
+    void loadConfig(final Platform platform) {
+        requireNonNull(platform);
         //
         // Clean the slate
         //
@@ -180,13 +188,14 @@ public final class MobFilterService {
         ensureConfigFilesExist();
         final Config.Builder configBuilder = Config.builder();
         this.logger.info(()->"[MobFilter] Loading configuration");
+
         //
         // Load json config file
         //
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(jsonConfigFile)) {
-                JsonConfigLoader.loadRules(in, configBuilder);
+                JsonConfigLoader.loadRules(in, configBuilder, platform);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();

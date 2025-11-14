@@ -49,8 +49,7 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     /**
      * Return the entity id of the mob that is going to spawn.
      */
-    @Override
-    public EntityType<?> getEntityType() {
+    public EntityType<?> getEntityId() {
         return this.entityType;
     }
 
@@ -108,7 +107,7 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public Integer getMaxLocalRawBrightness(BlockPos blockPos) {
+    public Integer getLightLevel(BlockPos blockPos) {
         this.logger.debug(() -> "[MobFilter] maxLocalRawBrightness cannot be evaluated during world generation");
         return null;
     }

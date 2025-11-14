@@ -1,14 +1,5 @@
 package net.pcal.mobfilter;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
-
 import java.util.EnumSet;
 
 /**
@@ -27,9 +18,9 @@ interface RuleCheck {
     record DimensionCheck(IdMatcher dimensionMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation dimensionId = att.getDimensionId();
+            final MinecraftId dimensionId = att.getDimensionId();
             if (dimensionId == null) {
-                att.getLogger().debug(() -> "[MobFilter] DimensionCheck: dimension ID could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] DimensionCheck: dimension ID could not be determined for " + att.getEntityId() + ", assuming match");
                 return true;
             } else {
                 final boolean isMatch = this.dimensionMatcher.isMatch(dimensionId);
@@ -42,9 +33,9 @@ interface RuleCheck {
     record BiomeCheck(IdMatcher biomeMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation biomeId = att.getBiomeId();
+            final MinecraftId biomeId = att.getBiomeId();
             if (biomeId == null) {
-                att.getLogger().debug(() -> "[MobFilter] BiomeCheck: biome ID could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] BiomeCheck: biome ID could not be determined for " + att.getEntityId() + ", assuming match");
                 return true;
             } else {
                 final boolean isMatch = this.biomeMatcher.isMatch(biomeId);
@@ -54,13 +45,13 @@ interface RuleCheck {
         }
     }
 
-    record SpawnReasonCheck(EnumSet<EntitySpawnReason> reasons) implements RuleCheck {
+    record SpawnReasonCheck(EnumSet<?> reasons) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final EntitySpawnReason spawnReason = att.getSpawnReason();
+            final Enum<?> spawnReason = att.getSpawnReason();
             final boolean isMatch;
             if (spawnReason == null) {
-                att.getLogger().debug(() -> "[MobFilter] SpawnReasonCheck: reason could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] SpawnReasonCheck: reason could not be determined for " + att.getEntityId() + ", assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.reasons.contains(spawnReason);
@@ -70,13 +61,13 @@ interface RuleCheck {
         }
     }
 
-    record CategoryCheck(EnumSet<MobCategory> categories) implements RuleCheck {
+    record CategoryCheck(EnumSet<?> categories) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final MobCategory mobCategory = att.getMobCategory();
+            final Enum<?> mobCategory = att.getMobCategory();
             final boolean isMatch;
             if (mobCategory == null) {
-                att.getLogger().debug(() -> "[MobFilter] CategoryCheck: category could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] CategoryCheck: category could not be determined for " + att.getEntityId() + ", assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.categories.contains(mobCategory);
@@ -89,10 +80,10 @@ interface RuleCheck {
     record EntityIdCheck(IdMatcher entityMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation entityId = att.getEntityId();
+            final MinecraftId entityId = att.getEntityId();
             final boolean isMatch;
             if (entityId == null) {
-                att.getLogger().debug(() -> "[MobFilter] EntityIdCheck: entity ID could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] EntityIdCheck: entity ID could not be determined for " + att.getEntityId() + ", assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.entityMatcher.isMatch(entityId);
@@ -105,10 +96,10 @@ interface RuleCheck {
     record BlockIdCheck(IdMatcher blockMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation blockId = att.getBlockId();
+            final MinecraftId blockId = att.getBlockId();
             final boolean isMatch;
             if (blockId == null) {
-                att.getLogger().debug(() -> "[MobFilter] BlockIdCheck: block ID could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] BlockIdCheck: block ID could not be determined for " + att.getEntityId() + ", assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = this.blockMatcher.isMatch(blockId);
@@ -118,21 +109,50 @@ interface RuleCheck {
         }
     }
 
-    record BlockPosCheck(Direction.Axis axis, int min, int max) implements RuleCheck {
+    record BlockXCheck(int min, int max) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final BlockPos blockPos = att.getBlockPos();
-            final Integer val;
+            final Integer val = att.getBlockX();
             final boolean isMatch;
-            if (blockPos == null) {
-                att.getLogger().debug(() -> "[MobFilter] BlockPosCheck: no block position, assuming match");
+            if (val == null) {
+                att.getLogger().debug(() -> "[MobFilter] BlockXCheck: no block position, assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
-                val = null;
             } else {
-                val = att.getBlockPos().get(this.axis);
                 isMatch = min <= val && val <= max;
             }
-            att.getLogger().trace(() -> "[MobFilter] BlockPosCheck: " + axis + " " + min + " <= " + val + " <= " + max + " " + isMatch);
+            att.getLogger().trace(() -> "[MobFilter] BlockXCheck: " + min + " <= " + val + " <= " + max + " " + isMatch);
+            return isMatch;
+        }
+    }
+
+    record BlockYCheck(int min, int max) implements RuleCheck {
+        @Override
+        public boolean isMatch(final SpawnAttempt att) {
+            final Integer val = att.getBlockY();
+            final boolean isMatch;
+            if (val == null) {
+                att.getLogger().debug(() -> "[MobFilter] BlockYCheck: no block position, assuming match");
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
+            } else {
+                isMatch = min <= val && val <= max;
+            }
+            att.getLogger().trace(() -> "[MobFilter] BlockYCheck: " + min + " <= " + val + " <= " + max + " " + isMatch);
+            return isMatch;
+        }
+    }
+
+    record BlockZCheck(int min, int max) implements RuleCheck {
+        @Override
+        public boolean isMatch(final SpawnAttempt att) {
+            final Integer val = att.getBlockZ();
+            final boolean isMatch;
+            if (val == null) {
+                att.getLogger().debug(() -> "[MobFilter] BlockZCheck: no block position, assuming match");
+                isMatch = MobFilterService.get().getDefaultRuleCheckResult();
+            } else {
+                isMatch = min <= val && val <= max;
+            }
+            att.getLogger().trace(() -> "[MobFilter] BlockZCheck: " + min + " <= " + val + " <= " + max + " " + isMatch);
             return isMatch;
         }
     }
@@ -140,7 +160,7 @@ interface RuleCheck {
     record LightLevelCheck(int min, int max) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final Integer val = att.getMaxLocalRawBrightness(att.getBlockPos());
+            final Integer val = att.getLightLevel();
             final boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] LightLevelCheck: light level could not be determined, assuming match");
@@ -156,8 +176,8 @@ interface RuleCheck {
     record SkylightLevelCheck(int min, int max) implements RuleCheck {
         @Override
         public boolean isMatch(SpawnAttempt att) {
-            final Integer val = att.getBrightness(LightLayer.SKY, att.getBlockPos());
-            final boolean isMatch;
+            final Integer val = att.getSkylightLevel();
+            boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] SkylightLevelCheck: skylight level could not be determined, assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
@@ -185,17 +205,10 @@ interface RuleCheck {
         }
     }
 
-    enum WeatherType {
-        CLEAR,
-        RAIN,
-        THUNDER,
-        SNOW
-    }
-
     record WeatherCheck(Matcher<WeatherType> matcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final WeatherType weather = getWeatherType(att);
+            final WeatherType weather = att.getWeather();
             final boolean isMatch;
             if (weather == null) {
                 att.getLogger().debug(() -> "[MobFilter] WeatherCheck: weather could not be determined, assuming match");
@@ -207,37 +220,6 @@ interface RuleCheck {
             return isMatch;
         }
 
-        private static WeatherType getWeatherType(final SpawnAttempt att) {
-            final BlockPos blockpos = att.getBlockPos();
-            if (blockpos == null) {
-                att.getLogger().debug(() -> "[MobFilter] WeatherCheck: no block position");
-                return null;
-            }
-            final Boolean isThundering = att.isThundering();
-            if (isThundering == null) {
-                att.getLogger().debug(() -> "[MobFilter] WeatherCheck: isThundering could not be determined");
-                return null;
-            } else if (isThundering) {
-                return WeatherType.THUNDER;
-            }
-            final Boolean isRaining = att.isRainingAt(att.getBlockPos());
-            if (isRaining == null) {
-                att.getLogger().debug(() -> "[MobFilter] WeatherCheck: isRaining could not be determined");
-                return null;
-            } else if (isRaining) {
-                // Check for snow
-                final Biome biome = att.getBiome(att.getBlockPos());
-                if (biome == null) {
-                    att.getLogger().debug(() -> "[MobFilter] WeatherCheck: biome could not be determined");
-                    return null;
-                } else if (biome.hasPrecipitation() && biome.coldEnoughToSnow(att.getBlockPos(), att.getBlockPos().getY())) {
-                    return WeatherType.SNOW;
-                } else {
-                    return WeatherType.RAIN;
-                }
-            }
-            return WeatherType.CLEAR;
-        }
     }
 
     record TimeOfDayCheck(long min, long max) implements RuleCheck {
@@ -270,10 +252,10 @@ interface RuleCheck {
         }
     }
 
-    record DifficultyCheck(Matcher<Difficulty> matcher) implements RuleCheck {
+    record DifficultyCheck(Matcher<Enum<?>> matcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final Difficulty val = att.getDifficulty();
+            final Enum<?> val = att.getDifficulty();
             final boolean isMatch;
             if (val == null) {
                 att.getLogger().debug(() -> "[MobFilter] DifficultyCheck: difficulty could not be determined, assuming match");
@@ -297,7 +279,7 @@ interface RuleCheck {
             final String worldName = att.getWorldName();
             final boolean isMatch;
             if (worldName == null) {
-                att.getLogger().debug(() -> "[MobFilter] WorldNameCheck: world name could not be determined for " + att.getEntityType() + ", assuming match");
+                att.getLogger().debug(() -> "[MobFilter] WorldNameCheck: world name could not be determined for " + att.getEntityId() + ", assuming match");
                 isMatch = MobFilterService.get().getDefaultRuleCheckResult();
             } else {
                 isMatch = worldNames.isMatch(worldName);
