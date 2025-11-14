@@ -4,9 +4,9 @@ public interface Platform {
 
     MinecraftId parseMinecraftId(String pattern);
 
-    Class<Enum<?>> getSpawnReasonEnum();
+    Class<? extends Enum<?>> getSpawnReasonEnum();
 
-    Class<Enum<?>> getMobCategoryEnum();
+    Class<? extends Enum<?>> getMobCategoryEnum();
 
-    Class<Enum<?>> getDifficultyEnum();
+    Class<? extends Enum<?>> getDifficultyEnum();
 }

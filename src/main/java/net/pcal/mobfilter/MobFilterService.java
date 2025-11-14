@@ -208,7 +208,7 @@ public final class MobFilterService {
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + simpleConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(simpleConfigFile)) {
-                SimpleConfigLoader.loadRules(in, configBuilder);
+                SimpleConfigLoader.loadRules(in, configBuilder, platform);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();

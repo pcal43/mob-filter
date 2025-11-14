@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -26,9 +25,7 @@ import static net.pcal.mobfilter.fabric.FabricMinecraftId.id;
 /**
  * Implementation of SpawnAttempt for the main game thread.  All attributes of the world are available.
  */
-public class MainThreadSpawnAttempt implements SpawnAttempt {
-
-
+public final class MainThreadSpawnAttempt implements SpawnAttempt {
 
     private final ServerLevel serverWorld;
     private final EntitySpawnReason spawnReason;
@@ -133,51 +130,22 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
 
     @Override
     public MinecraftId getBiomeId() {
-        final Biome biome = this.getBiome(blockPos);
+        final Biome biome = this.getBiome();
         if (biome == null) return null;
         // FIXME? I'm not entirely sure this is correct
         return id(serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome));
     }
 
     @Override
-    public Long getDayTime() {
-        return serverWorld.getDayTime();
-    }
-
-
-    // ===================================================================================
-    // Private
-
-    private Biome getBiome(BlockPos blockPos) {
-        final Holder<Biome> holder = serverWorld.getBiome(this.blockPos);
-        //noinspection ConstantValue
-        if (holder == null) {
-            this.logger.debug(() -> "[MobFilter] null biome returned at " + this.blockPos);
-            return null;
-        } else {
-            return holder.value();
-        }
-    }
-
-    private WeatherType getWeatherType() {
+    public WeatherType getWeather() {
         if (blockPos == null) {
             getLogger().debug(() -> "[MobFilter] WeatherCheck: no block position");
             return null;
         }
-        final Boolean isThundering = this.isThundering();
-        if (isThundering == null) {
-            getLogger().debug(() -> "[MobFilter] WeatherCheck: isThundering could not be determined");
-            return null;
-        } else if (isThundering) {
-            return WeatherType.THUNDER;
-        }
-        final Boolean isRaining = isRainingAt(blockPos);
-        if (isRaining == null) {
-            getLogger().debug(() -> "[MobFilter] WeatherCheck: isRaining could not be determined");
-            return null;
-        } else if (isRaining) {
+        if (serverWorld.isThundering()) return WeatherType.THUNDER;
+        if (serverWorld.isRainingAt(blockPos)) {
             // Check for snow
-            final Biome biome = getBiome(blockPos);
+            final Biome biome = getBiome();
             if (biome == null) {
                 getLogger().debug(() -> "[MobFilter] WeatherCheck: biome could not be determined");
                 return null;
@@ -190,6 +158,23 @@ public class MainThreadSpawnAttempt implements SpawnAttempt {
         return WeatherType.CLEAR;
     }
 
+    @Override
+    public Long getDayTime() {
+        return serverWorld.getDayTime();
+    }
 
 
+    // ===================================================================================
+    // Private
+
+    private Biome getBiome() {
+        final Holder<Biome> holder = serverWorld.getBiome(this.blockPos);
+        //noinspection ConstantValue
+        if (holder == null) {
+            this.logger.debug(() -> "[MobFilter] null biome returned at " + this.blockPos);
+            return null;
+        } else {
+            return holder.value();
+        }
+    }
 }

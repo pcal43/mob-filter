@@ -2,23 +2,23 @@ package net.pcal.mobfilter.fabric;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
+import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.SpawnAttempt;
+import net.pcal.mobfilter.WeatherType;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Objects.requireNonNull;
+import static net.pcal.mobfilter.fabric.FabricMinecraftId.id;
 
 /**
  * Implementation of SpawnAttempt for the world generation thread.  Because we cannot safely access the world
  * state during worldgen, many of the attributes here must return null.
  */
-public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
+public final class WorldgenThreadSpawnAttempt implements SpawnAttempt {
 
     private final EntitySpawnReason spawnReason;
     private final MobCategory category;
@@ -42,15 +42,8 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
      * Return the entity id of the mob that is going to spawn.
      */
     @Override
-    public ResourceLocation getEntityId() {
-        return BuiltInRegistries.ENTITY_TYPE.getKey(entityType); // FIXME is this right?
-    }
-
-    /**
-     * Return the entity id of the mob that is going to spawn.
-     */
-    public EntityType<?> getEntityId() {
-        return this.entityType;
+    public MinecraftId getEntityId() {
+        return id(BuiltInRegistries.ENTITY_TYPE.getKey(entityType)); // FIXME is this right?
     }
 
     @Override
@@ -64,8 +57,18 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public BlockPos getBlockPos() {
-        return this.blockPos;
+    public Integer getBlockX() {
+        return this.blockPos.getX();
+    }
+
+    @Override
+    public Integer getBlockY() {
+        return this.blockPos.getY();
+    }
+
+    @Override
+    public Integer getBlockZ() {
+        return this.blockPos.getZ();
     }
 
     @Override
@@ -83,13 +86,13 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public ResourceLocation getDimensionId() {
+    public MinecraftId getDimensionId() {
         this.logger.debug(() -> "[MobFilter] dimensionId cannot be evaluated during world generation");
         return null;
     }
 
     @Override
-    public ResourceLocation getBlockId() {
+    public MinecraftId getBlockId() {
         this.logger.debug(() -> "[MobFilter] blockId cannot be evaluated during world generation");
         return null;
     }
@@ -101,26 +104,20 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public Integer getBrightness(LightLayer lightLayer, BlockPos blockPos) {
-        this.logger.debug(() -> "[MobFilter] brightness cannot be evaluated during world generation");
+    public Integer getSkylightLevel() {
+        this.logger.debug(() -> "[MobFilter] skyLightLevel cannot be evaluated during world generation");
         return null;
     }
 
     @Override
-    public Integer getLightLevel(BlockPos blockPos) {
-        this.logger.debug(() -> "[MobFilter] maxLocalRawBrightness cannot be evaluated during world generation");
+    public Integer getLightLevel() {
+        this.logger.debug(() -> "[MobFilter] lightLevel cannot be evaluated during world generation");
         return null;
     }
 
     @Override
-    public Boolean isThundering() {
-        this.logger.debug(() -> "[MobFilter] thundering cannot be evaluated during world generation");
-        return null;
-    }
-
-    @Override
-    public Boolean isRainingAt(BlockPos blockPos) {
-        this.logger.debug(() -> "[MobFilter] isRainingAt cannot be evaluated during world generation");
+    public WeatherType getWeather() {
+        this.logger.debug(() -> "[MobFilter] weather cannot be evaluated during world generation");
         return null;
     }
 
@@ -131,14 +128,8 @@ public class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public ResourceLocation getBiomeId() {
+    public MinecraftId getBiomeId() {
         this.logger.debug("[MobFilter] biomeId cannot be evaluated during world generation");
-        return null;
-    }
-
-    @Override
-    public Biome getBiome(BlockPos blockPos) {
-        this.logger.debug(() -> "[MobFilter] biome cannot be evaluated during world generation");
         return null;
     }
 
