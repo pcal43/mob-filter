@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.mixins;
+package net.pcal.mobfilter.fabric.mixins;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
