@@ -11,16 +11,16 @@ import org.apache.logging.log4j.Logger;
  * THe main mod initializer.
  */
 @SuppressWarnings("unused")
-public class MobFilterInitializer implements ModInitializer {
+public class FabricModInitializer implements ModInitializer {
 
-    private static final Logger LOGGER = LogManager.getLogger(MobFilterInitializer.class);
+    private static final Logger LOGGER = LogManager.getLogger(FabricModInitializer.class);
 
     @Override
     public void onInitialize() {
         MobFilterService.get().ensureConfigFilesExist();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
-                MobFilterService.get().loadConfig();
+                MobFilterService.get().loadConfig(FabricPlatform.get());
             } catch (Exception | NoClassDefFoundError e) {
                 LOGGER.catching(Level.ERROR, e);
                 LOGGER.error("[MobFilter] failed to initialize");

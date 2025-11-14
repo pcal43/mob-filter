@@ -9,7 +9,7 @@ import java.util.List;
  * - anything-in-a-namespace matching (e.g., "minecraft:*")
  * and nothing else.
  */
-interface IdMatcher {
+public interface IdMatcher {
 
     boolean isMatch(final MinecraftId id);
 

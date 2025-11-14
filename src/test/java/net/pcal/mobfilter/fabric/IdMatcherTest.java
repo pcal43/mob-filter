@@ -1,6 +1,9 @@
-package net.pcal.mobfilter;
+package net.pcal.mobfilter.fabric;
 
 import net.minecraft.resources.ResourceLocation;
+import net.pcal.mobfilter.IdMatcher;
+import net.pcal.mobfilter.Platform;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,7 +14,9 @@ public class IdMatcherTest {
     @Test
     public void testMatching() {
 
-        assertFalse(IdMatcher.of(new String[] {}).isMatch(r("minecraft:cobblestone")));
+        final Platform platform = FabricPlatform.get();
+
+        Assertions.assertFalse(IdMatcher.of(new String[] {}).isMatch(r("minecraft:cobblestone")));
 
         assertTrue(IdMatcher.of(new String[] { "minecraft:cobblestone" }).isMatch(r("minecraft:cobblestone")));
         assertFalse(IdMatcher.of(new String[] { "minecraft:cobblestone" }).isMatch(r("minecraft:stone")));

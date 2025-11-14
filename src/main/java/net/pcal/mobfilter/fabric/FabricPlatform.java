@@ -9,7 +9,22 @@ import net.pcal.mobfilter.Platform;
 
 import static net.pcal.mobfilter.fabric.FabricMinecraftId.id;
 
-public class FabricPlatform implements Platform {
+class FabricPlatform implements Platform {
+
+    // ===================================================================================
+    // Singleton
+
+    private static final class SingletonHolder {
+        private static final FabricPlatform INSTANCE;
+
+        static {
+            INSTANCE = new FabricPlatform();
+        }
+    }
+
+    static FabricPlatform get() {
+        return SingletonHolder.INSTANCE;
+    }
 
     @Override
     public MinecraftId parseMinecraftId(String id) {

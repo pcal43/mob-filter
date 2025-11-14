@@ -14,10 +14,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.pcal.mobfilter.MobFilterInitializer"
+      "net.pcal.mobfilter.FabricModInitializer"
     ],
     "client": [
-      "net.pcal.mobfilter.MobFilterClientInitializer"
+      "net.pcal.mobfilter.FabricClientModInitializer"
     ]
   },
   "mixins": [

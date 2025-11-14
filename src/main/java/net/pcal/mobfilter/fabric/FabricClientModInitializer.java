@@ -14,7 +14,7 @@ import static net.minecraft.ChatFormatting.RED;
  * without checking the logs, and a lot of people don't think to do that.
  */
 @SuppressWarnings("unused")
-public class MobFilterClientInitializer implements ClientModInitializer {
+public class FabricClientModInitializer implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {

@@ -1,8 +1,14 @@
-package net.pcal.mobfilter;
+package net.pcal.mobfilter.fabric;
 
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
+import net.pcal.mobfilter.Config;
+import net.pcal.mobfilter.Config.Builder;
+import net.pcal.mobfilter.JsonConfigLoader;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
+import net.pcal.mobfilter.Rule;
+import net.pcal.mobfilter.SimpleConfigLoader;
+import net.pcal.mobfilter.WeatherType;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -23,7 +29,7 @@ public class ConfigLoadersTest {
                      .getResourceAsStream("ConfigLoadersTest/testJson/config.expected"))) {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
 
-            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in);
+            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in, Fa);
             assertEquals("TRACE", jsonConfig.logLevel);
             assertEquals(2, jsonConfig.rules.length);
             assertEquals(MobCategory.MONSTER, jsonConfig.rules[1].when.spawnGroup[0]);
@@ -38,7 +44,7 @@ public class ConfigLoadersTest {
 
 
             // kick tires on rule building
-            final Config.Builder configBuilder = Config.builder();
+            final Builder configBuilder = Config.builder();
             JsonConfigLoader.loadRules(jsonConfig, configBuilder);
             final Config modConfig = configBuilder.build();
 
