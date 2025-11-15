@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.pcal.mobfilter.mixins",
+  "package": "net.pcal.mobfilter.fabric.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "EntityTypeMixin",

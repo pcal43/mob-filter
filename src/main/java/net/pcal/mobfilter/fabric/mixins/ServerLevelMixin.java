@@ -1,28 +1,20 @@
-package net.pcal.mobfilter.mixins;
+package net.pcal.mobfilter.fabric.mixins;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.pcal.mobfilter.MobFilterService;
+import net.pcal.mobfilter.fabric.FabricMixinHandlers;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.SERVER;
 
 @SuppressWarnings("ALL")
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
 
-    @Shadow
-    public abstract boolean addEntity(Entity entity);
-
     @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity")
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (!MobFilterService.get().isSpawnAllowed((ServerLevel) (Object) this, entity, SERVER)) {
-            entity.remove(Entity.RemovalReason.DISCARDED);
-            cir.setReturnValue(false);
-        }
+        FabricMixinHandlers.get().ServerLevel_addFreshEntity((ServerLevel)(Object)this, entity, cir);
     }
 }

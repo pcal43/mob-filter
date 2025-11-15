@@ -1,8 +1,9 @@
-package net.pcal.mobfilter;
+package net.pcal.mobfilter.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
+import net.pcal.mobfilter.MobFilterService;
 
 import static net.minecraft.ChatFormatting.RED;
 
@@ -13,7 +14,7 @@ import static net.minecraft.ChatFormatting.RED;
  * without checking the logs, and a lot of people don't think to do that.
  */
 @SuppressWarnings("unused")
-public class MobFilterClientInitializer implements ClientModInitializer {
+public class FabricClientModInitializer implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {

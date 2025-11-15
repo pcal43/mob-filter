@@ -1,0 +1,15 @@
+{
+  "logLevel": "INFO",
+  "rules": [
+    {
+      "name": "Test Rule",
+      "what": "DISALLOW_SPAWN",
+      "when": {
+        "spawnReason": [
+          "INVALID_SPAWN_REASON"
+        ]
+      }
+    }
+  ]
+}
+

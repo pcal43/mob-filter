@@ -1,12 +1,5 @@
 package net.pcal.mobfilter;
 
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.pcal.mobfilter.SpawnAttempt.MainThreadSpawnAttempt;
-import net.pcal.mobfilter.SpawnAttempt.WorldgenThreadSpawnAttempt;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.SERVER;
-import static net.pcal.mobfilter.MobFilterService.MinecraftThreadType.WORLDGEN;
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -51,67 +43,23 @@ public final class MobFilterService {
     private String configError = null;
     private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
     private final File simpleConfigFile = Paths.get("config", "mobfilter.simple").toFile();
-    private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
 
     // ===================================================================================
     // Public methods
-
-    /**
-     * Called during entity creation so that we can remember the spawnReason for future use.
-     */
-    public void notifyEntityCreate(net.minecraft.world.level.Level level, final EntitySpawnReason reason, final Entity entity) {
-        if (level.isClientSide()) return;
-        if (!(entity instanceof Mob)) return;
-        if (reason == null) {
-            this.logger.debug(() -> "[MobFilter] Ignoring attempt to set null spawnReason for " + entity);
-            return;
-        } else if (this.spawnReason.get() != null && this.spawnReason.get() != reason) {
-            this.logger.trace(() -> "[MobFilter] Unexpectedly changing existing spawnReason for " +
-                    entity + " from " + this.spawnReason.get() + " to " + reason);
-        }
-        this.spawnReason.set(reason);
-    }
-
-
-    /**
-     * Broad categories of vanilla minecraft thready types.  We care because some kinds of filtering
-     * can't be done in the worldgen thread.
-     */
-    public enum MinecraftThreadType {
-        SERVER,
-        WORLDGEN
-    }
 
     /**
      * Called just as entities are being added to the world to determine whether they should
      * be allowed.
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isSpawnAllowed(final ServerLevel serverLevel,
-                                  final Entity entity,
-                                  final MinecraftThreadType threadTypeGuess) {
+    public boolean isSpawnAllowed(final SpawnAttempt att) {
         if (this.config == null) return true;
-        if (serverLevel.isClientSide()) return true;
-        if (!(entity instanceof Mob)) return true;
-        final EntitySpawnReason reason = this.spawnReason.get();
-        if (reason == null) {
-            this.logger.debug(() -> "[MobFilter] No spawnReason was set for " + entity.getType());
-        } else {
-            this.spawnReason.remove();
-        }
-        final EntityType<?> entityType = entity.getType();
-        final SpawnAttempt att;
-        if (determineThreadType(threadTypeGuess) == SERVER) {
-            att = new MainThreadSpawnAttempt(serverLevel, reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
-        } else {
-            att = new WorldgenThreadSpawnAttempt(reason, entityType.getCategory(), entityType, entity.blockPosition(), this.logger);
-        }
         final boolean allowSpawn = isSpawnAllowed(att, this.config.getRules());
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
             if (allowSpawn) {
-                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
             } else {
-                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos().toShortString() + "]");
+                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
             }
         }
         return allowSpawn;
@@ -163,14 +111,15 @@ public final class MobFilterService {
      * was.  This is just so we can display it in the chat window for folks who don't know
      * how to find the logfile.
      */
-    String getConfigError() {
+    public String getConfigError() {
         return configError;
     }
 
     /**
      * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
      */
-    void loadConfig() {
+    public void loadConfig(final Platform platform) {
+        requireNonNull(platform);
         //
         // Clean the slate
         //
@@ -180,13 +129,14 @@ public final class MobFilterService {
         ensureConfigFilesExist();
         final Config.Builder configBuilder = Config.builder();
         this.logger.info(()->"[MobFilter] Loading configuration");
+
         //
         // Load json config file
         //
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(jsonConfigFile)) {
-                JsonConfigLoader.loadRules(in, configBuilder);
+                JsonConfigLoader.loadRules(in, configBuilder, platform);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();
@@ -199,7 +149,7 @@ public final class MobFilterService {
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + simpleConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(simpleConfigFile)) {
-                SimpleConfigLoader.loadRules(in, configBuilder);
+                SimpleConfigLoader.loadRules(in, configBuilder, platform);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();
@@ -222,6 +172,10 @@ public final class MobFilterService {
         }
     }
 
+    public Logger getLogger() {
+        return this.logger;
+    }
+
     // ===================================================================================
     // Private
 
@@ -240,34 +194,6 @@ public final class MobFilterService {
         }
         att.getLogger().trace(() -> "[MobFilter]   RETURN true (no rules matched)");
         return true;
-    }
-
-    /**
-     * Determine which type of thread we're running in.  The 'guess' is based on where in the minecraft code the
-     * mixin executed, and it's probably right.  But because the consequence of guessing wrong can cause the entire
-     * game to deadlock, we need to err on the side of caution.
-     */
-    private MinecraftThreadType determineThreadType(final MinecraftThreadType threadTypeGuess) {
-        final String threadName = Thread.currentThread().getName();
-        final boolean threadNameLooksLikeWorldgen = threadName.contains("Worker"); // I guess?
-        if (threadTypeGuess == WORLDGEN) {
-            if (!threadNameLooksLikeWorldgen) {
-                this.logger.debug(() -> "[MobFilter] Thread guess is " + WORLDGEN + " but the name is " + threadName);
-            }
-            // WORLDGEN is the least-risky case, so let's just go with the guess in any case
-            return WORLDGEN;
-        } else {
-            // However, if we think we're in the MAIN thread, let's double check the name of the current thread.
-            // It's difficult to be certain whether any of the mixin code is guaranteed to only run in the MAIN thread,
-            // so let's err on the side of caution and double-check the thrad name.  This is not very robust
-            // but AFAICT the vanilla code gives us no better way to check.
-            if (threadNameLooksLikeWorldgen) {
-                this.logger.debug(() -> "[MobFilter] Overriding guessed MAIN thread to WORLDGEN because current thread name is " + threadName);
-                return WORLDGEN;
-            } else {
-                return SERVER;
-            }
-        }
     }
 
     /**
