@@ -1,9 +1,12 @@
 package net.pcal.mobfilter.forge;
 
+import static java.util.Objects.requireNonNull;
+
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
@@ -17,9 +20,6 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.SpawnAttempt;
 import net.pcal.mobfilter.WeatherType;
-import org.apache.logging.log4j.Logger;
-
-import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.forge.ForgePlatform.id;
 
 /**
@@ -130,10 +130,11 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
 
     @Override
     public MinecraftId getBiomeId() {
-        final Biome biome = this.getBiome();
-        if (biome == null) return null;
-        // FIXME? I'm not entirely sure this is correct
-        return id(serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome));
+        final Holder<Biome> holder = serverWorld.getBiome(this.blockPos);
+        if (holder == null) return null;
+        return holder.unwrapKey()
+                .map(key -> id(key.location()))
+                .orElse(null);
     }
 
     @Override
