@@ -1,5 +1,5 @@
 plugins {
-	id 'net.neoforged.moddev' version '1.0.21'
+	id 'net.neoforged.moddev' version '2.0.38-beta'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -32,7 +32,7 @@ neoForge {
 
 dependencies {
 	// Depend on the common module
-	// implementation project(":common")
+	implementation project(":common")
 	
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
