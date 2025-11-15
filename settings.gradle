@@ -13,7 +13,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'mob-filter'
+rootProject.name = 'mobfilter'
 include 'common'
 
 include 'forge'
