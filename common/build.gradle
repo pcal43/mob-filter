@@ -1,5 +1,4 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
 	id 'java-library'
 }
 
@@ -10,17 +9,20 @@ group = project.maven_group
 version = project.mod_version
 
 repositories {
-	maven {
-		name = 'Fabric'
-		url = 'https://maven.fabricmc.net/'
-	}
 	mavenCentral()
 }
 
 dependencies {
-	// Minecraft dependencies (for common code that references Minecraft classes)
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
+	// Gson - must match Minecraft's strict version (2.10.1)
+	// Note: Strictness was added in 2.11.0, but we'll need to work around this
+	api "com.google.code.gson:gson:2.10.1"
+	
+	// Guava - must match Minecraft's strict version (32.1.2-jre)
+	api "com.google.guava:guava:32.1.2-jre"
+	
+	// Log4j API and Core - matches Minecraft's bundled version
+	api "org.apache.logging.log4j:log4j-api:2.22.1"
+	api "org.apache.logging.log4j:log4j-core:2.22.1"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -31,9 +33,4 @@ java {
 	withSourcesJar()
 }
 
-// Configure loom to not remap the common module (it will be remapped when included in fabric)
-loom {
-	// Don't create a mod metadata file for the common module
-	// It will be included in the fabric module
-}
 
