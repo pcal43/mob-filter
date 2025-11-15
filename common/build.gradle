@@ -21,14 +21,6 @@ dependencies {
 	// Minecraft dependencies (for common code that references Minecraft classes)
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
-	
-	// Test dependencies
-	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
-}
-
-test {
-	useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile).configureEach {
