@@ -19,7 +19,7 @@ repositories {
 
 neoForge {
 	version = project.neoforge_version
-	
+	/**
 	runs {
 		client {
 		type = "client"
@@ -30,6 +30,7 @@ neoForge {
 			gameDirectory = file("${project.projectDir}/run")
 		}
 	}
+	 */
 }
 
 dependencies {
