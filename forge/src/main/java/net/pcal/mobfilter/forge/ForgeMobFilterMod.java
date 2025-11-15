@@ -27,12 +27,12 @@ public class ForgeMobFilterMod {
 
     private static void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("[MobFilter] FMLCommonSetupEvent fired - runs on both client and server");
-        MobFilterService.get().ensureConfigFilesExist();        
+        MobFilterService.get().ensureConfigFilesExists(ForgePlatform.get());
     }
 
     private static void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("[MobFilter] ServerStartingEvent fired");
-        MobFilterService.get().ensureConfigFilesExist();
+        MobFilterService.get().ensureConfigFilesExists(ForgePlatform.get());
         try {
             MobFilterService.get().loadConfig(ForgePlatform.get());
         } catch (Exception | NoClassDefFoundError e) {

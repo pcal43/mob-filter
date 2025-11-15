@@ -7,6 +7,9 @@ import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.Platform;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class FabricPlatform implements Platform {
 
     // ===================================================================================
@@ -30,6 +33,11 @@ public class FabricPlatform implements Platform {
     @Override
     public MinecraftId parseMinecraftId(String id) {
         return new FabricMinecraftId(ResourceLocation.parse(id));
+    }
+
+    @Override
+    public Path getConfigFilePath(String filename) {
+        return Paths.get("config", filename);
     }
 
     @Override

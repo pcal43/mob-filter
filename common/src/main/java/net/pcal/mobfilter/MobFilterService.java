@@ -3,7 +3,6 @@ package net.pcal.mobfilter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
 
@@ -36,12 +35,12 @@ public final class MobFilterService {
     // ===================================================================================
     // Fields
 
+    private static final String SIMPLE_FILENAME = "mobfilter.simple";
+    private static final String JSON_FILENAME = "mobfilter.json5";
     private final Logger logger = LogManager.getLogger(MobFilterService.class);
     private Config config;
     private Level logLevel = Level.INFO;
     private String configError = null;
-    private final File jsonConfigFile = Paths.get("config", "mobfilter.json5").toFile();
-    private final File simpleConfigFile = Paths.get("config", "mobfilter.simple").toFile();
 
     // ===================================================================================
     // Public methods
@@ -67,7 +66,11 @@ public final class MobFilterService {
     /**
      * Write a default configuration file if none exists.
      */
-    public void ensureConfigFilesExist() {
+    public void ensureConfigFilesExists(Platform platform) {
+
+        final File jsonConfigFile = platform.getConfigFilePath(JSON_FILENAME).toFile();
+        final File simpleConfigFile = platform.getConfigFilePath(SIMPLE_FILENAME).toFile();
+
         if (!simpleConfigFile.exists()) {
             try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.simple")) {
                 if (in == null) {
@@ -118,6 +121,10 @@ public final class MobFilterService {
      * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
      */
     public void loadConfig(final Platform platform) {
+
+        final File jsonConfigFile = platform.getConfigFilePath(JSON_FILENAME).toFile();
+        final File simpleConfigFile = platform.getConfigFilePath(SIMPLE_FILENAME).toFile();
+
         requireNonNull(platform);
         //
         // Clean the slate
@@ -125,7 +132,7 @@ public final class MobFilterService {
         this.configError = null;
         this.config = null;
         setLogLevel(Level.INFO);
-        ensureConfigFilesExist();
+        ensureConfigFilesExists(platform);
         final Config.Builder configBuilder = Config.builder();
         this.logger.info(()->"[MobFilter] Loading configuration");
 

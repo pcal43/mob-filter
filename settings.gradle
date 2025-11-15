@@ -15,5 +15,5 @@ pluginManagement {
 
 rootProject.name = 'mobfilter'
 include 'common'
-
+include 'fabric'
 include 'forge'

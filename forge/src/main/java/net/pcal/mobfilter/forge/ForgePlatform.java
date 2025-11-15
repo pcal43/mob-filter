@@ -7,6 +7,10 @@ import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.Platform;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class ForgePlatform implements Platform {
 
     // ===================================================================================
@@ -30,6 +34,11 @@ public class ForgePlatform implements Platform {
     @Override
     public MinecraftId parseMinecraftId(String id) {
         return new ForgeMinecraftId(ResourceLocation.parse(id));
+    }
+
+    @Override
+    public Path getConfigFilePath(String filename) {
+        return Paths.get("config", filename);
     }
 
     @Override

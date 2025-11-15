@@ -17,7 +17,7 @@ public class FabricModInitializer implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        MobFilterService.get().ensureConfigFilesExist();
+        MobFilterService.get().ensureConfigFilesExists(FabricPlatform.get());
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
                 MobFilterService.get().loadConfig(FabricPlatform.get());
