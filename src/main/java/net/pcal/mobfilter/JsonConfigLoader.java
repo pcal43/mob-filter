@@ -4,7 +4,10 @@ package net.pcal.mobfilter;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.Strictness;
 import com.google.gson.TypeAdapter;
@@ -33,18 +36,17 @@ import org.apache.logging.log4j.Level;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Parse mobfilter.json5 and build a config object from it.
  */
 @SuppressWarnings("ALL")
-class JsonConfigLoader {
+public class JsonConfigLoader {
 
     /**
      * Build the runtime rule structures from the configuration.  Returns null if the configuration contains
@@ -173,7 +175,8 @@ class JsonConfigLoader {
 
         final Gson gson = new GsonBuilder().
                 setLenient().
-                registerTypeAdapterFactory(new ValidatingEnumAdapterFactory(enumFieldTypes)).
+                registerTypeAdapterFactory(new ValidatingEnumAdapterFactory()).
+                registerTypeAdapterFactory(new RuntimeEnumAdapterFactory(enumFieldTypes)).
                 create();
         class TypoCatchingJsonReader extends JsonReader {
             public TypoCatchingJsonReader(StringReader in) {
@@ -228,12 +231,6 @@ class JsonConfigLoader {
      */
     private static class ValidatingEnumAdapterFactory implements TypeAdapterFactory {
 
-        private final Map<String, Class<? extends Enum<?>>> concreteEnums;
-
-        ValidatingEnumAdapterFactory(final  Map<String, Class<? extends Enum<?>>> concreteEnums) {
-            this.concreteEnums = requireNonNull(concreteEnums);
-        }
-
         @Override
         @SuppressWarnings("unchecked")
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -243,7 +240,7 @@ class JsonConfigLoader {
             return new TypeAdapter<T>() {
                 @Override
                 public void write(JsonWriter out, T value) throws IOException {
-                    defaultAdapter.write(out, value);
+                    gson.getAdapter((Class<Object>) value.getClass()).write(out, value);
                 }
 
                 @Override
@@ -266,6 +263,90 @@ class JsonConfigLoader {
             };
         }
     }
+
+    /**
+     * Contends with the fact that some of the bound java fields are of type Enum<?> - we don't know 
+     * the type at compile time (because it might be in Fabric or Forge).  This adapter handles the
+     * deserialization of those types by referencing a provided map of fieldName to concrete enum class.
+     */
+    private static class RuntimeEnumAdapterFactory implements TypeAdapterFactory {
+
+        private final Map<String, Class<? extends Enum<?>>> fieldEnumTypes;
+
+        private RuntimeEnumAdapterFactory(Map<String, Class<? extends Enum<?>>> fieldEnumTypes) {
+            this.fieldEnumTypes = fieldEnumTypes;
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            Class<?> rawType = type.getRawType();
+
+            // Don't handle arrays - let Gson use its default array adapter
+            if (rawType.isArray()) {
+                return null;
+            }
+
+            // Only handle our config classes that contain enum fields
+            if (rawType != JsonConfiguration.class && 
+                rawType != JsonRule.class && 
+                rawType != JsonWhen.class) {
+                return null;
+            }
+
+            // For objects, delegate to a custom adapter
+            return (TypeAdapter<T>) new TypeAdapter<Object>() {
+                @Override
+                public void write(JsonWriter out, Object value) throws IOException {
+                    gson.getAdapter((Class<Object>) value.getClass()).write(out, value);
+                }
+
+                @Override
+                public Object read(JsonReader in) throws IOException {
+                    JsonElement element = JsonParser.parseReader(in);
+                    Object instance;
+                    try {
+                        instance = rawType.getDeclaredConstructor().newInstance();
+                    } catch (Exception e) {
+                        throw new JsonParseException(e);
+                    }
+                    for (Field field : rawType.getDeclaredFields()) {
+                        try {
+                            field.setAccessible(true);
+                        } catch (Exception e) {
+                            // Skip fields we can't access (e.g., synthetic fields, or in newer Java versions)
+                            continue;
+                        }
+                        JsonElement jsonValue = element.getAsJsonObject().get(field.getName());
+                        if (jsonValue == null) continue;
+
+                        Class<? extends Enum<?>> enumClass = fieldEnumTypes.get(field.getName());
+                        if (enumClass != null) {
+                            Class<?> fieldType = field.getType();
+                            if (fieldType.isArray()) {
+                                // Handle array of enums
+                                JsonArray jsonArray = jsonValue.getAsJsonArray();
+                                Enum<?>[] enumArray = (Enum<?>[]) java.lang.reflect.Array.newInstance(enumClass, jsonArray.size());
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    enumArray[i] = Enum.valueOf((Class)enumClass, jsonArray.get(i).getAsString());
+                                }
+                                try { field.set(instance, enumArray); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
+                            } else {
+                                // Handle single enum value
+                                Enum<?> enumValue = Enum.valueOf((Class)enumClass, jsonValue.getAsString());
+                                try { field.set(instance, enumValue); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
+                            }
+                        } else {
+                            Object fieldValue = gson.fromJson(jsonValue, field.getType());
+                            try { field.set(instance, fieldValue); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
+                        }
+                    }
+                    return instance;
+                }
+            };
+        }
+    }
+
 
     public static class JsonConfiguration {
         public JsonRule[] rules;

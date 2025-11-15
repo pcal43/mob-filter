@@ -64,5 +64,10 @@ public class FabricPlatform implements Platform {
         public String getNamespace() {
             return loc.getNamespace();
         }
+
+        @Override
+        public String toString() {
+            return loc.toString();
+        }
     }
 }
