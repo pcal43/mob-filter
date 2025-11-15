@@ -1,5 +1,9 @@
 package net.pcal.mobfilter.forge;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
@@ -9,10 +13,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.pcal.mobfilter.MobFilterService;
 import net.pcal.mobfilter.SpawnAttempt;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 import static net.pcal.mobfilter.forge.ForgeMixinHandlers.MinecraftThreadType.SERVER;
 import static net.pcal.mobfilter.forge.ForgeMixinHandlers.MinecraftThreadType.WORLDGEN;
 
@@ -60,7 +60,6 @@ public class ForgeMixinHandlers {
         SERVER,
         WORLDGEN
     }
-
 
     public void WorldGenRegion_addFreshEntity(WorldGenRegion worldGenRegion, Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (!this.isSpawnAllowed(worldGenRegion.getLevel(), entity, WORLDGEN)) {
