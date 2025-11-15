@@ -8,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.Strictness;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -172,40 +171,13 @@ public class JsonConfigLoader {
                 "spawnType", patform.getSpawnReasonEnum(),
                 "spawnGroup", patform.getMobCategoryEnum()
         );
-
         final Gson gson = new GsonBuilder().
                 setLenient().
-                registerTypeAdapterFactory(new ValidatingEnumAdapterFactory()).
-                registerTypeAdapterFactory(new RuntimeEnumAdapterFactory(enumFieldTypes)).
+                registerTypeAdapterFactory(new EmumAdapterFactory(enumFieldTypes)).
                 create();
-        class TypoCatchingJsonReader extends JsonReader {
-            public TypoCatchingJsonReader(StringReader in) {
-                super(in);
-                super.setStrictness(Strictness.LENIENT);
-            }
-
-            @Override
-            public void skipValue()  {
-                // GSon calls this to silently ignore json keys that don't bind to anything.  People then get
-                // confused about why their configuration isn't fully working.  So here we just fail loudly instead.
-                // Note we don't throw IOException because GSon tries to handle that in a waysthat obscures the message.
-                throw new RuntimeException("Unexpected configuration names at: "+this.toString());
-            }
-
-            /**
-             * The base class doesn't expose useful info like line number except via toString().
-             * Hack it up to make it a little less ugly.
-             */
-            @Override
-            public String toString() {
-                String out = super.toString();
-                String possiblePrefix = getClass().getSimpleName() + " at ";
-                if (out.startsWith(possiblePrefix)) out = out.substring(possiblePrefix.length());
-                return out;
-            }
-        }
         return gson.fromJson(new TypoCatchingJsonReader(new StringReader(rawJson)), TypeToken.get(JsonConfiguration.class));
     }
+
 
     /**
      * Parse a two-value list into an integer range.
@@ -224,58 +196,187 @@ public class JsonConfigLoader {
     }
 
 
+
+    public static class JsonConfiguration {
+        public JsonRule[] rules;
+        public String logLevel;
+    }
+
+    public static class JsonRule {
+        public String name;
+        public RuleAction what;
+        public JsonWhen when;
+    }
+
+    public static class JsonWhen {
+        public String[] worldName;
+
+        public String[] dimensionId;
+        public String[] entityId;
+        public String[] biomeId;
+        public Enum<?>[] spawnReason;
+        public Enum<?>[] category;
+        public String[] blockX;
+        public String[] blockY;
+        public String[] blockZ;
+        public String[] blockId;
+        public String[] timeOfDay;
+        public String[] lightLevel;
+        public String[] skylightLevel;
+        public Integer[] moonPhase;
+        public WeatherType[] weather;
+        public Enum<?>[] difficulty;
+        public Double random;
+
+        // for backwards compatibility:
+        @Deprecated // use spawnReason instead
+        public Enum<?>[] spawnType;
+        @Deprecated // use category instead
+        public Enum<?>[] spawnGroup;
+    }
+
+
+    // ===================================================================================
+    // Private
+
     /**
-     * By default, invalid enum values in the json file silently get bound by gson as null.
-     * Which ends up causing pain and confusion later.  This adapter fails loudly and
-     * clearly instead.
+     * By default, GSon calls this to silently ignore json keys that don't bind to anything.
+     * People then get confused about why their configuration isn't fully working.  This
+     * reader fails loudly instead of swallowing the error.
      */
-    private static class ValidatingEnumAdapterFactory implements TypeAdapterFactory {
+    static class TypoCatchingJsonReader extends JsonReader {
+        public TypoCatchingJsonReader(StringReader in) {
+            super(in);
+            super.setStrictness(Strictness.LENIENT);
+        }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-            if (!type.getRawType().isEnum()) return null; // Only handle enums
-            final TypeAdapter<T> defaultAdapter = gson.getDelegateAdapter(this, type);
-            final Class<T> enumClass = (Class<T>) type.getRawType();
-            return new TypeAdapter<T>() {
-                @Override
-                public void write(JsonWriter out, T value) throws IOException {
-                    gson.getAdapter((Class<Object>) value.getClass()).write(out, value);
-                }
+        public void skipValue()  {
+            // This is where it goes when an unknown field is encountered.  Note we don't
+            // throw IOException because GSon tries to handle that in a ways that obscures the message.
+            throw new RuntimeException("Unexpected configuration names at: "+this.toString());
+        }
 
-                @Override
-                public T read(JsonReader in) throws IOException {
-                    String value = in.nextString();
-                    if (Arrays.stream(enumClass.getEnumConstants())
-                            .noneMatch(e -> ((Enum<?>) e).name().equals(value))) {
-                        final StringBuilder msg = new StringBuilder();
-                        msg.append("Invalid "+enumClass.getSimpleName()+" value '"+value+"' at " + in.toString());
-                        msg.append(".  Valid values are: ");
-                        boolean isFirst = true;
-                        for (T val : enumClass.getEnumConstants()) {
-                            if (isFirst) isFirst = false; else msg.append(", ");
-                            msg.append(val);
-                        }
-                        throw new JsonParseException(msg.toString());
-                    }
-                    return defaultAdapter.fromJsonTree(new JsonPrimitive(value));
-                }
-            };
+        /**
+         * The base class doesn't expose useful info like line number except via toString().
+         * Hack it up to make it a little less ugly.
+         */
+        @Override
+        public String toString() {
+            String out = super.toString();
+            String possiblePrefix = getClass().getSimpleName() + " at ";
+            if (out.startsWith(possiblePrefix)) out = out.substring(possiblePrefix.length());
+            return out;
         }
     }
 
     /**
-     * Contends with the fact that some of the bound java fields are of type Enum<?> - we don't know 
+     * Contends with the fact that some of the bound java fields are of type Enum<?> - we don't know
      * the type at compile time (because it might be in Fabric or Forge).  This adapter handles the
      * deserialization of those types by referencing a provided map of fieldName to concrete enum class.
+     *
+     * This also provides nicer error messages to the user if they provide an invalid value for a config
+     * field of an enum type.
      */
-    private static class RuntimeEnumAdapterFactory implements TypeAdapterFactory {
+    private static class EmumAdapterFactory implements TypeAdapterFactory {
 
         private final Map<String, Class<? extends Enum<?>>> fieldEnumTypes;
 
-        private RuntimeEnumAdapterFactory(Map<String, Class<? extends Enum<?>>> fieldEnumTypes) {
+        EmumAdapterFactory(Map<String, Class<? extends Enum<?>>> fieldEnumTypes) {
             this.fieldEnumTypes = fieldEnumTypes;
         }
+
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        @Override
+        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+            Class<?> rawType = type.getRawType();
+
+            // Don't handle arrays - let Gson use its default array adapter
+            if (rawType.isArray()) {
+                return null;
+            }
+
+            // Only handle our config classes that contain enum fields
+            if (rawType != JsonConfiguration.class &&
+                    rawType != JsonRule.class &&
+                    rawType != JsonWhen.class) {
+                return null;
+            }
+
+            // For objects, delegate to a custom adapter
+            return (TypeAdapter<T>) new TypeAdapter<Object>() {
+                @Override
+                public void write(JsonWriter out, Object value) throws IOException {
+                    gson.getAdapter((Class<Object>) value.getClass()).write(out, value);
+                }
+
+                @Override
+                public Object read(JsonReader in) throws IOException {
+                    JsonElement element = JsonParser.parseReader(in);
+                    Object instance;
+                    try {
+                        instance = rawType.getDeclaredConstructor().newInstance();
+                    } catch (Exception e) {
+                        throw new JsonParseException(e);
+                    }
+                    for (Field field : rawType.getDeclaredFields()) {
+                        try {
+                            field.setAccessible(true);
+                        } catch (Exception e) {
+                            // Skip fields we can't access (e.g., synthetic fields, or in newer Java versions)
+                            continue;
+                        }
+                        JsonElement jsonValue = element.getAsJsonObject().get(field.getName());
+                        if (jsonValue == null) continue;
+
+                        Class<?> fieldType = field.getType();
+                        String fieldName = field.getName();
+
+                        // First check if it's a concrete enum type (like WeatherType[])
+                        Class<? extends Enum<?>> enumClass = getEnumClassFromFieldType(fieldType);
+
+                        // If not a concrete enum, check the map for generic Enum<?> types
+                        if (enumClass == null) {
+                            enumClass = fieldEnumTypes.get(field.getName());
+                        }
+
+                        if (enumClass != null) {
+                            if (fieldType.isArray()) {
+                                // Handle array of enums
+                                JsonArray jsonArray = jsonValue.getAsJsonArray();
+                                Enum<?>[] enumArray = (Enum<?>[]) java.lang.reflect.Array.newInstance(enumClass, jsonArray.size());
+                                for (int i = 0; i < jsonArray.size(); i++) {
+                                    enumArray[i] = validateAndGetEnum(enumClass, jsonArray.get(i).getAsString(), fieldName);
+                                }
+                                try {
+                                    field.set(instance, enumArray);
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            } else {
+                                // Handle single enum value
+                                Enum<?> enumValue = validateAndGetEnum(enumClass, jsonValue.getAsString(), fieldName);
+                                try {
+                                    field.set(instance, enumValue);
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        } else {
+                            Object fieldValue = gson.fromJson(jsonValue, field.getType());
+                            try {
+                                field.set(instance, fieldValue);
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                    return instance;
+                }
+            };
+        }
+
 
         /**
          * Extracts the enum class from a field type. Returns null if the field is not an enum type.
@@ -315,129 +416,13 @@ public class JsonConfigLoader {
                 msg.append(".  Valid values are: ");
                 boolean isFirst = true;
                 for (Enum<?> val : enumClass.getEnumConstants()) {
-                    if (isFirst) isFirst = false; else msg.append(", ");
+                    if (isFirst) isFirst = false;
+                    else msg.append(", ");
                     msg.append(val.name());
                 }
                 throw new JsonParseException(msg.toString());
             }
             return Enum.valueOf((Class) enumClass, value);
         }
-
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        @Override
-        public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-            Class<?> rawType = type.getRawType();
-
-            // Don't handle arrays - let Gson use its default array adapter
-            if (rawType.isArray()) {
-                return null;
-            }
-
-            // Only handle our config classes that contain enum fields
-            if (rawType != JsonConfiguration.class && 
-                rawType != JsonRule.class && 
-                rawType != JsonWhen.class) {
-                return null;
-            }
-
-            // For objects, delegate to a custom adapter
-            return (TypeAdapter<T>) new TypeAdapter<Object>() {
-                @Override
-                public void write(JsonWriter out, Object value) throws IOException {
-                    gson.getAdapter((Class<Object>) value.getClass()).write(out, value);
-                }
-
-                @Override
-                public Object read(JsonReader in) throws IOException {
-                    JsonElement element = JsonParser.parseReader(in);
-                    Object instance;
-                    try {
-                        instance = rawType.getDeclaredConstructor().newInstance();
-                    } catch (Exception e) {
-                        throw new JsonParseException(e);
-                    }
-                    for (Field field : rawType.getDeclaredFields()) {
-                        try {
-                            field.setAccessible(true);
-                        } catch (Exception e) {
-                            // Skip fields we can't access (e.g., synthetic fields, or in newer Java versions)
-                            continue;
-                        }
-                        JsonElement jsonValue = element.getAsJsonObject().get(field.getName());
-                        if (jsonValue == null) continue;
-
-                        Class<?> fieldType = field.getType();
-                        String fieldName = field.getName();
-                        
-                        // First check if it's a concrete enum type (like WeatherType[])
-                        Class<? extends Enum<?>> enumClass = getEnumClassFromFieldType(fieldType);
-                        
-                        // If not a concrete enum, check the map for generic Enum<?> types
-                        if (enumClass == null) {
-                            enumClass = fieldEnumTypes.get(field.getName());
-                        }
-                        
-                        if (enumClass != null) {
-                            if (fieldType.isArray()) {
-                                // Handle array of enums
-                                JsonArray jsonArray = jsonValue.getAsJsonArray();
-                                Enum<?>[] enumArray = (Enum<?>[]) java.lang.reflect.Array.newInstance(enumClass, jsonArray.size());
-                                for (int i = 0; i < jsonArray.size(); i++) {
-                                    enumArray[i] = validateAndGetEnum(enumClass, jsonArray.get(i).getAsString(), fieldName);
-                                }
-                                try { field.set(instance, enumArray); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
-                            } else {
-                                // Handle single enum value
-                                Enum<?> enumValue = validateAndGetEnum(enumClass, jsonValue.getAsString(), fieldName);
-                                try { field.set(instance, enumValue); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
-                            }
-                        } else {
-                            Object fieldValue = gson.fromJson(jsonValue, field.getType());
-                            try { field.set(instance, fieldValue); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
-                        }
-                    }
-                    return instance;
-                }
-            };
-        }
-    }
-
-
-    public static class JsonConfiguration {
-        public JsonRule[] rules;
-        public String logLevel;
-    }
-
-    public static class JsonRule {
-        public String name;
-        public RuleAction what;
-        public JsonWhen when;
-    }
-
-    public static class JsonWhen {
-        public String[] worldName;
-
-        public String[] dimensionId;
-        public String[] entityId;
-        public String[] biomeId;
-        public Enum<?>[] spawnReason;
-        public Enum<?>[] category;
-        public String[] blockX;
-        public String[] blockY;
-        public String[] blockZ;
-        public String[] blockId;
-        public String[] timeOfDay;
-        public String[] lightLevel;
-        public String[] skylightLevel;
-        public Integer[] moonPhase;
-        public WeatherType[] weather;
-        public Enum<?>[] difficulty;
-        public Double random;
-
-        // for backwards compatibility:
-        @Deprecated // use spawnReason instead
-        public Enum<?>[] spawnType;
-        @Deprecated // use category instead
-        public Enum<?>[] spawnGroup;
     }
 }
