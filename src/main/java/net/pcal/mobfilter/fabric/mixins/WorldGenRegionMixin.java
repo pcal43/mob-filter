@@ -14,6 +14,6 @@ public abstract class WorldGenRegionMixin {
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity")
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        FabricMixinHandlers.get().WorldGenRegion_addFreshEntity(entity, cir);
+        FabricMixinHandlers.get().WorldGenRegion_addFreshEntity((WorldGenRegion)(Object)this, entity, cir);
     }
 }

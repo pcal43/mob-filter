@@ -15,6 +15,6 @@ public abstract class ServerLevelMixin {
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity")
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        FabricMixinHandlers.get().ServerLevel_addFreshEntity(entity, cir);
+        FabricMixinHandlers.get().ServerLevel_addFreshEntity((ServerLevel)(Object)this, entity, cir);
     }
 }

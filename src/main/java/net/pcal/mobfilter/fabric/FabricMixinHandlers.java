@@ -62,15 +62,15 @@ public class FabricMixinHandlers {
     }
 
 
-    public void WorldGenRegion_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (!this.isSpawnAllowed(((WorldGenRegion)(Object)this).getLevel(), entity, WORLDGEN)) {
+    public void WorldGenRegion_addFreshEntity(WorldGenRegion worldGenRegion, Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (!this.isSpawnAllowed(worldGenRegion.getLevel(), entity, WORLDGEN)) {
             entity.remove(Entity.RemovalReason.DISCARDED);
             cir.setReturnValue(false);
         }
     }
 
-    public void ServerLevel_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (!this.isSpawnAllowed((ServerLevel) (Object) this, entity, SERVER)) {
+    public void ServerLevel_addFreshEntity(ServerLevel serverLevel, Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (!this.isSpawnAllowed(serverLevel, entity, SERVER)) {
             entity.remove(Entity.RemovalReason.DISCARDED);
             cir.setReturnValue(false);
         }
