@@ -1,5 +1,5 @@
 plugins {
-	id 'net.neoforged.gradle.userdev' version '7.0.142'
+	id 'net.neoforged.moddev' version '1.0.21'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -17,13 +17,22 @@ repositories {
 	}
 }
 
-minecraft {
-	version = project.minecraft_version
+neoForge {
+	version = project.neoforge_version
+	
+	runs {
+		client {
+			gameDirectory = file("${rootProject.projectDir}/run")
+		}
+		server {
+			gameDirectory = file("${rootProject.projectDir}/run")
+		}
+	}
 }
 
 dependencies {
 	// Depend on the common module
-	implementation project(":common")
+	// implementation project(":common")
 	
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
@@ -46,6 +55,9 @@ processResources {
 }
 
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 	withSourcesJar()
 }
 
