@@ -1,0 +1,47 @@
+plugins {
+	id 'fabric-loom' version '1.11-SNAPSHOT'
+	id 'java-library'
+}
+
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+group = project.maven_group
+version = project.mod_version
+
+repositories {
+	maven {
+		name = 'Fabric'
+		url = 'https://maven.fabricmc.net/'
+	}
+	mavenCentral()
+}
+
+dependencies {
+	// Minecraft dependencies (for common code that references Minecraft classes)
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	
+	// Test dependencies
+	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
+}
+
+test {
+	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+java {
+	withSourcesJar()
+}
+
+// Configure loom to not remap the common module (it will be remapped when included in fabric)
+loom {
+	// Don't create a mod metadata file for the common module
+	// It will be included in the fabric module
+}
+
