@@ -277,6 +277,30 @@ public class JsonConfigLoader {
             this.fieldEnumTypes = fieldEnumTypes;
         }
 
+        /**
+         * Validates that a string value matches one of the enum constants and returns it.
+         * Throws a helpful JsonParseException if the value is invalid.
+         */
+        @SuppressWarnings("unchecked")
+        private Enum<?> validateAndGetEnum(Class<? extends Enum<?>> enumClass, String value, String fieldName) {
+            if (Arrays.stream(enumClass.getEnumConstants())
+                    .noneMatch(e -> ((Enum<?>) e).name().equals(value))) {
+                final StringBuilder msg = new StringBuilder();
+                msg.append("Invalid ").append(enumClass.getSimpleName()).append(" value '").append(value).append("'");
+                if (fieldName != null) {
+                    msg.append(" for field '").append(fieldName).append("'");
+                }
+                msg.append(".  Valid values are: ");
+                boolean isFirst = true;
+                for (Enum<?> val : enumClass.getEnumConstants()) {
+                    if (isFirst) isFirst = false; else msg.append(", ");
+                    msg.append(val.name());
+                }
+                throw new JsonParseException(msg.toString());
+            }
+            return Enum.valueOf((Class) enumClass, value);
+        }
+
         @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -323,17 +347,18 @@ public class JsonConfigLoader {
                         Class<? extends Enum<?>> enumClass = fieldEnumTypes.get(field.getName());
                         if (enumClass != null) {
                             Class<?> fieldType = field.getType();
+                            String fieldName = field.getName();
                             if (fieldType.isArray()) {
                                 // Handle array of enums
                                 JsonArray jsonArray = jsonValue.getAsJsonArray();
                                 Enum<?>[] enumArray = (Enum<?>[]) java.lang.reflect.Array.newInstance(enumClass, jsonArray.size());
                                 for (int i = 0; i < jsonArray.size(); i++) {
-                                    enumArray[i] = Enum.valueOf((Class)enumClass, jsonArray.get(i).getAsString());
+                                    enumArray[i] = validateAndGetEnum(enumClass, jsonArray.get(i).getAsString(), fieldName);
                                 }
                                 try { field.set(instance, enumArray); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
                             } else {
                                 // Handle single enum value
-                                Enum<?> enumValue = Enum.valueOf((Class)enumClass, jsonValue.getAsString());
+                                Enum<?> enumValue = validateAndGetEnum(enumClass, jsonValue.getAsString(), fieldName);
                                 try { field.set(instance, enumValue); } catch (IllegalAccessException e) { throw new RuntimeException(e); }
                             }
                         } else {
