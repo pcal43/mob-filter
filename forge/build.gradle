@@ -1,5 +1,6 @@
 plugins {
-	id 'net.neoforged.moddev' version '2.0.38-beta'
+	// https://plugins.gradle.org/plugin/net.neoforged.moddev
+	id 'net.neoforged.moddev' version '2.0.116'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -18,19 +19,17 @@ repositories {
 }
 
 neoForge {
-	version = project.neoforge_version
-
-	runs {
-		client {
+    version = project.neoforge_version
+    runs {
+        client {
             type = "client"
-			gameDirectory = file("${project.projectDir}/run")
-	
-		}
-		server {
-		type="server"
-			gameDirectory = file("${project.projectDir}/run")
-		}
-	}
+            gameDirectory = file("${project.projectDir}/run")
+        }
+        server {
+            type = "server"
+            gameDirectory = file("${project.projectDir}/run")
+        }
+    }
     mods {
         mobfilter_forge {
             sourceSet sourceSets.main
@@ -40,7 +39,7 @@ neoForge {
 
 dependencies {
 	implementation project(":common")
-	additionalRuntimeClasspath project(":common") // FIXME? this is needed for runs to work, don't understand why
+	//additionalRuntimeClasspath project(":common") // FIXME? this is needed for runs to work, don't understand why
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
 }
