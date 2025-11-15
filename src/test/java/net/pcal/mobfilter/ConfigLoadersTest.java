@@ -1,18 +1,22 @@
 package net.pcal.mobfilter;
 
+import java.io.InputStream;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import com.google.gson.JsonParseException;
+
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.Config.Builder;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
 import net.pcal.mobfilter.fabric.FabricPlatform;
-import org.junit.jupiter.api.Test;
-
-import java.io.InputStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigLoadersTest {
 
@@ -95,6 +99,24 @@ public class ConfigLoadersTest {
         final String configString = configToString(rules);
         System.out.println(configString);
         assertEquals("LogLevel: INFO\n", configString);
+    }
+
+    @Test
+    public void testBadEnums() throws Exception {
+        try (final InputStream in = requireNonNull(getClass().getClassLoader()
+                .getResourceAsStream("ConfigLoadersTest/testBadEnums/test-config.json5"))) {
+            final Platform p = FabricPlatform.get();
+            final JsonParseException exception = assertThrows(JsonParseException.class, () -> {
+                JsonConfigLoader.loadFromJson(in, p);
+            });
+            
+            // Verify the error message is helpful
+            final String message = exception.getMessage();
+            assertTrue(message.contains("Invalid"), "Error message should mention 'Invalid'");
+            assertTrue(message.contains("FOO"), "Error message should mention the invalid value 'FOO'");
+            assertTrue(message.contains("spawnReason"), "Error message should mention the field name 'spawnReason'");
+            assertTrue(message.contains("Valid values are"), "Error message should list valid values");
+        }
     }
 
     private static String configToString(Config config) {

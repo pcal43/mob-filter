@@ -164,13 +164,13 @@ public class JsonConfigLoader {
         final String rawJson = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
         final Map<String, Class<? extends Enum<?>>> enumFieldTypes = Map.of(
-                // all of the enum fields in JsonWhen have to be accounted for here
+                // Only generic Enum<?> fields need to be mapped here.
+                // Concrete enum types (like WeatherType) are detected automatically.
                 "spawnReason", patform.getSpawnReasonEnum(),
                 "category", patform.getMobCategoryEnum(),
                 "difficulty", patform.getDifficultyEnum(),
                 "spawnType", patform.getSpawnReasonEnum(),
-                "spawnGroup", patform.getMobCategoryEnum(),
-                "weatherType", WeatherType.class
+                "spawnGroup", patform.getMobCategoryEnum()
         );
 
         final Gson gson = new GsonBuilder().
@@ -278,6 +278,28 @@ public class JsonConfigLoader {
         }
 
         /**
+         * Extracts the enum class from a field type. Returns null if the field is not an enum type.
+         * Handles both single enum types and arrays of enums.
+         */
+        @SuppressWarnings("unchecked")
+        private Class<? extends Enum<?>> getEnumClassFromFieldType(Class<?> fieldType) {
+            if (fieldType.isArray()) {
+                // For arrays, get the component type
+                Class<?> componentType = fieldType.getComponentType();
+                if (Enum.class.isAssignableFrom(componentType) && componentType != Enum.class) {
+                    // It's a concrete enum type (not Enum<?>)
+                    return (Class<? extends Enum<?>>) componentType;
+                }
+            } else {
+                // For single values, check if it's a concrete enum type
+                if (Enum.class.isAssignableFrom(fieldType) && fieldType != Enum.class) {
+                    return (Class<? extends Enum<?>>) fieldType;
+                }
+            }
+            return null;
+        }
+
+        /**
          * Validates that a string value matches one of the enum constants and returns it.
          * Throws a helpful JsonParseException if the value is invalid.
          */
@@ -344,10 +366,18 @@ public class JsonConfigLoader {
                         JsonElement jsonValue = element.getAsJsonObject().get(field.getName());
                         if (jsonValue == null) continue;
 
-                        Class<? extends Enum<?>> enumClass = fieldEnumTypes.get(field.getName());
+                        Class<?> fieldType = field.getType();
+                        String fieldName = field.getName();
+                        
+                        // First check if it's a concrete enum type (like WeatherType[])
+                        Class<? extends Enum<?>> enumClass = getEnumClassFromFieldType(fieldType);
+                        
+                        // If not a concrete enum, check the map for generic Enum<?> types
+                        if (enumClass == null) {
+                            enumClass = fieldEnumTypes.get(field.getName());
+                        }
+                        
                         if (enumClass != null) {
-                            Class<?> fieldType = field.getType();
-                            String fieldName = field.getName();
                             if (fieldType.isArray()) {
                                 // Handle array of enums
                                 JsonArray jsonArray = jsonValue.getAsJsonArray();
