@@ -39,6 +39,7 @@ neoForge {
 
 dependencies {
 	implementation project(":common")
+    compileOnly "org.spongepowered:mixin:0.8.5"
 	//additionalRuntimeClasspath project(":common") // FIXME? this is needed for runs to work, don't understand why
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
