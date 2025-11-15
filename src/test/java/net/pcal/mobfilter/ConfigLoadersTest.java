@@ -1,22 +1,21 @@
 package net.pcal.mobfilter;
 
-import java.io.InputStream;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.requireNonNull;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Test;
-
 import com.google.gson.JsonParseException;
-
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.Config.Builder;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
 import net.pcal.mobfilter.fabric.FabricPlatform;
+import org.junit.jupiter.api.Test;
+
+import java.io.InputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConfigLoadersTest {
 
