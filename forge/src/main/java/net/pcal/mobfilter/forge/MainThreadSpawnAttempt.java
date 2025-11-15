@@ -6,9 +6,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -28,14 +28,14 @@ import static net.pcal.mobfilter.forge.ForgePlatform.id;
 public final class MainThreadSpawnAttempt implements SpawnAttempt {
 
     private final ServerLevel serverWorld;
-    private final EntitySpawnReason spawnReason;
+    private final MobSpawnType spawnReason;
     private final MobCategory category;
     private final EntityType<?> entityType;
     private final BlockPos blockPos;
     private final Logger logger;
 
     public MainThreadSpawnAttempt(final ServerLevel serverWorld,
-                                  final EntitySpawnReason spawnReason,
+                                  final MobSpawnType spawnReason,
                                   final MobCategory category,
                                   final EntityType<?> entityType,
                                   final BlockPos blockPos,
@@ -79,7 +79,7 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public EntitySpawnReason getSpawnReason() {
+    public MobSpawnType getSpawnReason() {
         return spawnReason;
     }
 
@@ -149,7 +149,7 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
             if (biome == null) {
                 getLogger().debug(() -> "[MobFilter] WeatherCheck: biome could not be determined");
                 return null;
-            } else if (biome.hasPrecipitation() && biome.coldEnoughToSnow(blockPos, blockPos.getY())) {
+            } else if (biome.hasPrecipitation() && biome.coldEnoughToSnow(blockPos)) {
                 return WeatherType.SNOW;
             } else {
                 return WeatherType.RAIN;

@@ -22,9 +22,11 @@ neoForge {
 	
 	runs {
 		client {
+		type = "client"
 			gameDirectory = file("${rootProject.projectDir}/run")
 		}
 		server {
+		type="server"
 			gameDirectory = file("${rootProject.projectDir}/run")
 		}
 	}
