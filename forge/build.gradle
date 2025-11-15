@@ -6,7 +6,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = project.archives_base_name
+archivesBaseName = "mobfilter-forge"
 version = project.mod_version
 group = project.maven_group
 
@@ -31,7 +31,7 @@ neoForge {
         }
     }
     mods {
-        mobfilter_forge {
+        mobfilter {
             sourceSet sourceSets.main
         }
     }
@@ -39,11 +39,8 @@ neoForge {
 
 dependencies {
 	implementation project(":common")
-    compileOnly "org.spongepowered:mixin:0.8.5"
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
-	//additionalRuntimeClasspath project(":common") // FIXME? this is needed for runs to work, don't understand why
-	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
+    compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
+    annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
 }
 
 test {
