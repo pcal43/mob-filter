@@ -3,7 +3,7 @@ package net.pcal.mobfilter.forge;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MinecraftId;
@@ -20,13 +20,13 @@ import static net.pcal.mobfilter.forge.ForgePlatform.id;
  */
 public final class WorldgenThreadSpawnAttempt implements SpawnAttempt {
 
-    private final MobSpawnType spawnReason;
+    private final EntitySpawnReason spawnReason;
     private final MobCategory category;
     private final EntityType<?> entityType;
     private final BlockPos blockPos;
     private final Logger logger;
 
-    public WorldgenThreadSpawnAttempt(final MobSpawnType spawnReason,
+    public WorldgenThreadSpawnAttempt(final EntitySpawnReason spawnReason,
                                       final MobCategory category,
                                       final EntityType<?> entityType,
                                       final BlockPos blockPos,
@@ -47,7 +47,7 @@ public final class WorldgenThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public MobSpawnType getSpawnReason() {
+    public EntitySpawnReason getSpawnReason() {
         return spawnReason;
     }
 

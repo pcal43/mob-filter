@@ -3,9 +3,9 @@ package net.pcal.mobfilter.forge;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
 import net.pcal.mobfilter.MobFilterService;
 import net.pcal.mobfilter.SpawnAttempt;
@@ -44,7 +44,7 @@ public class ForgeMixinHandlers {
      * Because the spawnReason is not available at out interception point in the minecraft code,
      * we track it in a ThreadLocal.  Basically best-effort but it seems to work.
      */
-    private final ThreadLocal<MobSpawnType> spawnReason = new ThreadLocal<>();
+    private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
 
     private final Logger logger = LogManager.getLogger(ForgeMixinHandlers.class);
 
@@ -79,7 +79,7 @@ public class ForgeMixinHandlers {
     /**
      * Intercept calls to EntityType.create so we can try to track EntitySpawnReason.
      */
-    public void EntityType_create(Level level, MobSpawnType reason, CallbackInfoReturnable<Entity> cir) {
+    public void EntityType_create(Level level, EntitySpawnReason reason, CallbackInfoReturnable<Entity> cir) {
         if (level.isClientSide()) return;
         if (!(cir.getReturnValue() instanceof Mob)) return;
         if (reason == null) {
@@ -100,7 +100,7 @@ public class ForgeMixinHandlers {
                                    final MinecraftThreadType threadTypeGuess) {
         if (serverLevel.isClientSide()) return true; // no filtering on client
         if (!(entity instanceof Mob)) return true; // we only care about mobs
-        final MobSpawnType reason = spawnReason.get();
+        final EntitySpawnReason reason = spawnReason.get();
         if (reason == null) {
             logger.debug(() -> "[MobFilter] No spawnReason was set for " + entity.getType());
         } else {

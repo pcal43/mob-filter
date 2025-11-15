@@ -18,4 +18,3 @@ public abstract class ServerLevelMixin {
         ForgeMixinHandlers.get().ServerLevel_addFreshEntity((ServerLevel)(Object)this, entity, cir);
     }
 }
-

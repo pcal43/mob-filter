@@ -17,4 +17,3 @@ public abstract class WorldGenRegionMixin {
         ForgeMixinHandlers.get().WorldGenRegion_addFreshEntity((WorldGenRegion)(Object)this, entity, cir);
     }
 }
-

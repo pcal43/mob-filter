@@ -2,8 +2,8 @@ package net.pcal.mobfilter.forge;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.MobSpawnType;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.Platform;
 
@@ -34,7 +34,7 @@ public class ForgePlatform implements Platform {
 
     @Override
     public Class<? extends Enum<?>> getSpawnReasonEnum() {
-        return MobSpawnType.class;
+        return EntitySpawnReason.class;
     }
 
     @Override

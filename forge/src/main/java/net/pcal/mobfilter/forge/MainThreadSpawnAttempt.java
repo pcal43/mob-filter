@@ -1,17 +1,13 @@
 package net.pcal.mobfilter.forge;
 
-import static java.util.Objects.requireNonNull;
-
-import org.apache.logging.log4j.Logger;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
@@ -20,6 +16,9 @@ import net.minecraft.world.level.storage.ServerLevelData;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.SpawnAttempt;
 import net.pcal.mobfilter.WeatherType;
+import org.apache.logging.log4j.Logger;
+
+import static java.util.Objects.requireNonNull;
 import static net.pcal.mobfilter.forge.ForgePlatform.id;
 
 /**
@@ -28,14 +27,14 @@ import static net.pcal.mobfilter.forge.ForgePlatform.id;
 public final class MainThreadSpawnAttempt implements SpawnAttempt {
 
     private final ServerLevel serverWorld;
-    private final MobSpawnType spawnReason;
+    private final EntitySpawnReason spawnReason;
     private final MobCategory category;
     private final EntityType<?> entityType;
     private final BlockPos blockPos;
     private final Logger logger;
 
     public MainThreadSpawnAttempt(final ServerLevel serverWorld,
-                                  final MobSpawnType spawnReason,
+                                  final EntitySpawnReason spawnReason,
                                   final MobCategory category,
                                   final EntityType<?> entityType,
                                   final BlockPos blockPos,
@@ -79,7 +78,7 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
     }
 
     @Override
-    public MobSpawnType getSpawnReason() {
+    public EntitySpawnReason getSpawnReason() {
         return spawnReason;
     }
 
@@ -150,7 +149,7 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
             if (biome == null) {
                 getLogger().debug(() -> "[MobFilter] WeatherCheck: biome could not be determined");
                 return null;
-            } else if (biome.hasPrecipitation() && biome.coldEnoughToSnow(blockPos)) {
+            } else if (biome.hasPrecipitation() && biome.coldEnoughToSnow(blockPos, blockPos.getY())) {
                 return WeatherType.SNOW;
             } else {
                 return WeatherType.RAIN;
