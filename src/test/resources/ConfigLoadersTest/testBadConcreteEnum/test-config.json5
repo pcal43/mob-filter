@@ -5,8 +5,8 @@
       "name": "Test Rule",
       "what": "DISALLOW_SPAWN",
       "when": {
-        "spawnReason": [
-          "FOO"
+        "weather": [
+          "INVALID_WEATHER"
         ]
       }
     }

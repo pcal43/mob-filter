@@ -102,9 +102,9 @@ public class ConfigLoadersTest {
     }
 
     @Test
-    public void testBadEnums() throws Exception {
+    public void testBadAbstractEnum() throws Exception {
         try (final InputStream in = requireNonNull(getClass().getClassLoader()
-                .getResourceAsStream("ConfigLoadersTest/testBadEnums/test-config.json5"))) {
+                .getResourceAsStream("ConfigLoadersTest/testBadAbstractEnum/test-config.json5"))) {
             final Platform p = FabricPlatform.get();
             final JsonParseException exception = assertThrows(JsonParseException.class, () -> {
                 JsonConfigLoader.loadFromJson(in, p);
@@ -113,8 +113,26 @@ public class ConfigLoadersTest {
             // Verify the error message is helpful
             final String message = exception.getMessage();
             assertTrue(message.contains("Invalid"), "Error message should mention 'Invalid'");
-            assertTrue(message.contains("FOO"), "Error message should mention the invalid value 'FOO'");
+            assertTrue(message.contains("INVALID_SPAWN_REASON"), "Error message should mention the invalid value 'INVALID_SPAWN_REASON'");
             assertTrue(message.contains("spawnReason"), "Error message should mention the field name 'spawnReason'");
+            assertTrue(message.contains("Valid values are"), "Error message should list valid values");
+        }
+    }
+
+    @Test
+    public void testBadConcreteEnum() throws Exception {
+        try (final InputStream in = requireNonNull(getClass().getClassLoader()
+                .getResourceAsStream("ConfigLoadersTest/testBadConcreteEnum/test-config.json5"))) {
+            final Platform p = FabricPlatform.get();
+            final JsonParseException exception = assertThrows(JsonParseException.class, () -> {
+                JsonConfigLoader.loadFromJson(in, p);
+            });
+            
+            // Verify the error message is helpful
+            final String message = exception.getMessage();
+            assertTrue(message.contains("Invalid"), "Error message should mention 'Invalid'");
+            assertTrue(message.contains("INVALID_WEATHER"), "Error message should mention the invalid value 'INVALID_WEATHER'");
+            assertTrue(message.contains("weather"), "Error message should mention the field name 'weather'");
             assertTrue(message.contains("Valid values are"), "Error message should list valid values");
         }
     }
