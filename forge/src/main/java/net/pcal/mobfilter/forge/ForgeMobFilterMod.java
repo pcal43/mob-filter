@@ -18,14 +18,12 @@ public class ForgeMobFilterMod {
 
     static {
         LOGGER.info("\n\n\n\n\n\n[MobFilter] ForgeMobFilterMod class loaded\n\n\n\n\n\n\n");
-        if (true) throw new IllegalArgumentException("!!!");
     }
 
     public ForgeMobFilterMod(IEventBus modBus) {
         LOGGER.info("[MobFilter] Mod constructor called");
         modBus.addListener(ForgeMobFilterMod::onCommonSetup);
         NeoForge.EVENT_BUS.addListener(ForgeMobFilterMod::onServerStarting);
-        throw new IllegalArgumentException("!!!");
     }
 
     private static void onCommonSetup(FMLCommonSetupEvent event) {

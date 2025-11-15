@@ -19,24 +19,28 @@ repositories {
 
 neoForge {
 	version = project.neoforge_version
-	/**
+
 	runs {
 		client {
-		type = "client"
+            type = "client"
 			gameDirectory = file("${project.projectDir}/run")
+	
 		}
 		server {
 		type="server"
 			gameDirectory = file("${project.projectDir}/run")
 		}
 	}
-	 */
+    mods {
+        mobfilter_forge {
+            sourceSet sourceSets.main
+        }
+    }
 }
 
 dependencies {
-	// Depend on the common module
 	implementation project(":common")
-	
+	additionalRuntimeClasspath project(":common") // FIXME? this is needed for runs to work, don't understand why
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
 }
