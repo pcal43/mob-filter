@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.pcal.mobfilter.forge.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "EntityTypeMixin",
+    "NaturalSpawnerSpawnStateMixin",
+    "ServerLevelMixin",
+    "WorldGenRegionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+
