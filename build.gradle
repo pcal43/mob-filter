@@ -43,8 +43,7 @@ tasks.register('validateRelease') {
 tasks.register('prepareReleaseVersion') {
 	group = 'release'
 	description = 'Removes -prerelease suffix from mod_version'
-	dependsOn validateRelease
-	
+
 	doLast {
 		def propsFile = file('gradle.properties')
 		def props = new Properties()
@@ -204,17 +203,6 @@ tasks.register('publishCurseForge') {
 	description = 'Publishes to CurseForge'
 	
 	doFirst {
-		// Validate environment
-		def gitStatus = 'git status --porcelain'.execute().text.trim()
-		if (!gitStatus.isEmpty()) {
-			throw new GradleException("Working directory not clean, cannot release")
-		}
-		
-		def currentBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-		if (currentBranch != 'main') {
-			throw new GradleException("Releases must be performed on main. Currently on '${currentBranch}'")
-		}
-		
 		def token = System.getenv("CURSEFORGE_TOKEN")
 		if (!token) {
 			throw new GradleException("CURSEFORGE_TOKEN environment variable not set")
@@ -225,8 +213,8 @@ tasks.register('publishCurseForge') {
 	
 	doLast {
 		// Call curseforge task on both modules
-		def fabricResult = project(':fabric').tasks.curseforge.execute()
-		def neoforgeResult = project(':neoforge').tasks.curseforge.execute()
+		project(':fabric').tasks.curseforge.execute()
+		project(':neoforge').tasks.curseforge.execute()
 		
 		println "✓ Published to CurseForge"
 	}
@@ -240,17 +228,6 @@ tasks.register('publishModrinth') {
 	description = 'Publishes to Modrinth'
 	
 	doFirst {
-		// Validate environment
-		def gitStatus = 'git status --porcelain'.execute().text.trim()
-		if (!gitStatus.isEmpty()) {
-			throw new GradleException("Working directory not clean, cannot release")
-		}
-		
-		def currentBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-		if (currentBranch != 'main') {
-			throw new GradleException("Releases must be performed on main. Currently on '${currentBranch}'")
-		}
-		
 		def token = System.getenv("MODRINTH_TOKEN")
 		if (!token) {
 			throw new GradleException("MODRINTH_TOKEN environment variable not set")
@@ -274,19 +251,6 @@ tasks.register('publishModrinth') {
 tasks.register('bumpVersion') {
 	group = 'release'
 	description = 'Increments version and adds -prerelease suffix'
-	
-	doFirst {
-		// Validate environment
-		def gitStatus = 'git status --porcelain'.execute().text.trim()
-		if (!gitStatus.isEmpty()) {
-			throw new GradleException("Working directory not clean, cannot bump version")
-		}
-		
-		def currentBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-		if (currentBranch != 'main') {
-			throw new GradleException("Version bumps must be performed on main. Currently on '${currentBranch}'")
-		}
-	}
 	
 	doLast {
 		def propsFile = file('gradle.properties')
@@ -349,6 +313,7 @@ tasks.register('bumpVersion') {
 tasks.register('release') {
 	group = 'release'
 	description = 'Complete release: GitHub, CurseForge, Modrinth, and version bump'
+	dependsOn validateRelease
 	
 	doLast {
 		println ""
