@@ -4,11 +4,16 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
+        maven {
+            name = 'NeoForge'
+            url = 'https://maven.neoforged.net/'
+        }
         mavenCentral()
         gradlePluginPortal()
     }
 }
 
-rootProject.name = 'mob-filter'
+rootProject.name = 'mobfilter'
 include 'common'
 include 'fabric'
+include 'neoforge'

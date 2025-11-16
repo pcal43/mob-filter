@@ -1,22 +1,25 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
-	id 'com.modrinth.minotaur' version '2.+'
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id 'fabric-loom'
+	id 'com.modrinth.minotaur'
+	id 'com.matthewprenger.cursegradle'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = project.archives_base_name
+archivesBaseName = "${project.archives_base_name}-fabric"
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven {
-		name = 'Fabric'
-		url = 'https://maven.fabricmc.net/'
-	}
+	maven { url = 'https://maven.fabricmc.net/' }
+	maven { url = "https://repo.spongepowered.org/maven/" }
 	mavenCentral()
+}
+
+configurations {
+	// Create a configuration for the common module that won't be included in dev
+	commonDev
 }
 
 dependencies {
@@ -26,15 +29,11 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Depend on the common module
+	// For compilation and dev runtime - uses dev jar with proper mappings
 	implementation project(":common")
-	include project(":common")
-
-	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
-}
-
-test {
-	useJUnitPlatform()
+	
+	// DON'T use include - we're merging the classes directly in the jar task instead
+	// This ensures they get remapped together with the fabric module classes
 }
 
 processResources {
@@ -45,12 +44,52 @@ processResources {
 	}
 }
 
-sourceSets.test {
-	resources.srcDirs = ["src/test/resources"]
+sourceSets {
+	main {
+		// Add common module sources to fabric's main sourceSet
+		// This ensures they're compiled and remapped together
+		java {
+			srcDir project(":common").file("src/main/java")
+		}
+		resources {
+			srcDir project(":common").file("src/main/resources")
+		}
+	}
+	test {
+		resources.srcDirs = ["src/test/resources"]
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+}
+
+loom {
+	runs {
+		client {
+			client()
+			setConfigName("Fabric Client")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+		server {
+			server()
+			setConfigName("Fabric Server")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+	}
+	
+	mixin {
+		defaultRefmapName = "mobfilter-refmap.json"
+	}
+	
+	// Common sources are now part of main sourceSet
+	mods {
+		"mobfilter" {
+			sourceSet sourceSets.main
+		}
+	}
 }
 
 java {
@@ -64,7 +103,11 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
+	// Common sources are now part of main sourceSet, so they're automatically included
 }
+
+
+
 
 // Publishing configuration
 modrinth {
@@ -103,4 +146,3 @@ curseforge {
 		forgeGradleIntegration = false
 	}
 }
-

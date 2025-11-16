@@ -4,9 +4,11 @@
   "version": "${version}",
   "name": "Mob Filter",
   "description": "Rules-based filtering of mob spawns.",
-  "authors": [ "pcal" ],
+  "authors": [
+    "pcal"
+  ],
   "contact": {
-    "homepage": "https://github.com/pcal43/",
+    "homepage": "https://github.com/pcal43/mob-filter",
     "sources": "https://github.com/pcal43/mob-filter"
   },
   "license": "MIT",
@@ -24,12 +26,11 @@
     "mobfilter.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.15.11",
-    "fabric": "*",
-    "minecraft": ">=1.21",
-    "java": ">=21"
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.21.10",
+    "java": ">=21",
+    "fabric-api": "*"
   },
-  "suggests": {
-    "another-mod": "*"
-  }
+  "jars": []
 }
+

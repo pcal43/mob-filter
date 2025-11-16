@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.fabric.mixins;
+package net.pcal.mobfilter.mixins;
 
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.NaturalSpawner;

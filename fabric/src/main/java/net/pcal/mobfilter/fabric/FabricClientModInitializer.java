@@ -3,7 +3,7 @@ package net.pcal.mobfilter.fabric;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.network.chat.Component;
-import net.pcal.mobfilter.MobFilterService;
+import net.pcal.mobfilter.ConfigService;
 
 import static net.minecraft.ChatFormatting.RED;
 
@@ -20,7 +20,7 @@ public class FabricClientModInitializer implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (client.player != null) {
-                String configError = MobFilterService.get().getConfigError();
+                String configError = ConfigService.get().getConfigError();
                 if (configError != null) {
                     client.player.displayClientMessage(Component.literal(
                             "Mob Filter has been disabled due to an error in config/mobfilter.json5:\n" +

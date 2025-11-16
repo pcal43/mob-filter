@@ -1,6 +1,9 @@
 //
 // mobfilter.json5
 //
+// THIS IS THE ADVANCED CONFIGURATION.  SEE mobfilter.simple FOR THE SIMPLER VERSION IF YOU
+// JUST WANT TO FILTER OUT A FEW MOBS.
+//
 // This file controls the spawn filtering rules for mob-filter.  For details, see the docs at:
 //   https://github.com/pcal43/mob-filter/blob/main/docs/advanced-configuration-landing.md
 //

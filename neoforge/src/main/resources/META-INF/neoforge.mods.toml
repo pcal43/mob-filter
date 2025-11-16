@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[4.0,)"
+license="MIT"
+
+[[mods]]
+modId="mobfilter"
+version="${version}"
+displayName="Mob Filter"
+description="Rules-based filtering of mob spawns."
+authors=["pcal"]
+logoFile="icon.png"
+
+[[dependencies.mobfilter]]
+modId="neoforge"
+mandatory=true
+versionRange="[21.1,)"
+
+[[mixins]]
+config = "mobfilter.mixins.json"
+

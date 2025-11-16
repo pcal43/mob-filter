@@ -1,11 +1,9 @@
 package net.pcal.mobfilter;
 
-import com.google.gson.JsonParseException;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
-import net.pcal.mobfilter.Config.Builder;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
-import net.pcal.mobfilter.fabric.FabricPlatform;
+import net.pcal.mobfilter.RuleCheck.WeatherType;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -14,8 +12,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConfigLoadersTest {
 
@@ -28,14 +24,13 @@ public class ConfigLoadersTest {
                      .getResourceAsStream("ConfigLoadersTest/testJson/config.expected"))) {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
 
-            final Platform p = FabricPlatform.get();
-            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in, p);
+            final JsonConfiguration jsonConfig = JsonConfigLoader.loadFromJson(in);
             assertEquals("TRACE", jsonConfig.logLevel);
             assertEquals(2, jsonConfig.rules.length);
             assertEquals(MobCategory.MONSTER, jsonConfig.rules[1].when.spawnGroup[0]);
             assertEquals(EntitySpawnReason.STRUCTURE, jsonConfig.rules[1].when.spawnReason[0]);
             assertEquals(EntitySpawnReason.JOCKEY, jsonConfig.rules[1].when.spawnType[0]);
-            assertArrayEquals(new WeatherType[]{WeatherType.RAIN, WeatherType.THUNDER},
+            assertArrayEquals(new WeatherType[]{RuleCheck.WeatherType.RAIN, RuleCheck.WeatherType.THUNDER},
                     jsonConfig.rules[1].when.weather);
             assertArrayEquals(new String[]{"5", "10",}, jsonConfig.rules[1].when.lightLevel);
             assertArrayEquals(new String[]{"10", "20",}, jsonConfig.rules[1].when.skylightLevel);
@@ -44,8 +39,8 @@ public class ConfigLoadersTest {
 
 
             // kick tires on rule building
-            final Builder configBuilder = Config.builder();
-            JsonConfigLoader.loadRules(jsonConfig, configBuilder, p);
+            final Config.Builder configBuilder = Config.builder();
+            JsonConfigLoader.loadRules(jsonConfig, configBuilder);
             final Config modConfig = configBuilder.build();
 
 
@@ -60,7 +55,7 @@ public class ConfigLoadersTest {
         final InputStream in = getClass().getClassLoader()
                 .getResourceAsStream("ConfigLoadersTest/testJsonEmpty/empty-config.json5");
         final Config.Builder configBuilder = new Config.Builder();
-        JsonConfigLoader.loadRules(in, configBuilder, getPlatform());
+        JsonConfigLoader.loadRules(in, configBuilder);
         final Config rules = configBuilder.build();
         final String configString = configToString(rules);
         System.out.println(configString);
@@ -76,7 +71,7 @@ public class ConfigLoadersTest {
             final String expectedConfig = new String(ex.readAllBytes(), UTF_8);
             // Build rules using SimpleConfigLoader
             Config.Builder configBuilder = new Config.Builder();
-            SimpleConfigLoader.loadRules(in, configBuilder, getPlatform());
+            SimpleConfigLoader.loadRules(in, configBuilder);
             Config rules = configBuilder.build();
 
             final String configString = configToString(rules);
@@ -92,48 +87,12 @@ public class ConfigLoadersTest {
                 .getResourceAsStream("ConfigLoadersTest/testSimpleEmpty/empty-config.simple");
         // Build rules using SimpleConfigLoader
         Config.Builder configBuilder = new Config.Builder();
-        SimpleConfigLoader.loadRules(in, configBuilder, getPlatform());
+        SimpleConfigLoader.loadRules(in, configBuilder);
         Config rules = configBuilder.build();
 
         final String configString = configToString(rules);
         System.out.println(configString);
         assertEquals("LogLevel: INFO\n", configString);
-    }
-
-    @Test
-    public void testBadAbstractEnum() throws Exception {
-        try (final InputStream in = requireNonNull(getClass().getClassLoader()
-                .getResourceAsStream("ConfigLoadersTest/testBadAbstractEnum/test-config.json5"))) {
-            final Platform p = FabricPlatform.get();
-            final JsonParseException exception = assertThrows(JsonParseException.class, () -> {
-                JsonConfigLoader.loadFromJson(in, p);
-            });
-            
-            // Verify the error message is helpful
-            final String message = exception.getMessage();
-            assertTrue(message.contains("Invalid"), "Error message should mention 'Invalid'");
-            assertTrue(message.contains("INVALID_SPAWN_REASON"), "Error message should mention the invalid value 'INVALID_SPAWN_REASON'");
-            assertTrue(message.contains("spawnReason"), "Error message should mention the field name 'spawnReason'");
-            assertTrue(message.contains("Valid values are"), "Error message should list valid values");
-        }
-    }
-
-    @Test
-    public void testBadConcreteEnum() throws Exception {
-        try (final InputStream in = requireNonNull(getClass().getClassLoader()
-                .getResourceAsStream("ConfigLoadersTest/testBadConcreteEnum/test-config.json5"))) {
-            final Platform p = FabricPlatform.get();
-            final JsonParseException exception = assertThrows(JsonParseException.class, () -> {
-                JsonConfigLoader.loadFromJson(in, p);
-            });
-            
-            // Verify the error message is helpful
-            final String message = exception.getMessage();
-            assertTrue(message.contains("Invalid"), "Error message should mention 'Invalid'");
-            assertTrue(message.contains("INVALID_WEATHER"), "Error message should mention the invalid value 'INVALID_WEATHER'");
-            assertTrue(message.contains("weather"), "Error message should mention the field name 'weather'");
-            assertTrue(message.contains("Valid values are"), "Error message should list valid values");
-        }
     }
 
     private static String configToString(Config config) {
@@ -143,9 +102,5 @@ public class ConfigLoadersTest {
         }
         sb.append("LogLevel: " + config.getLogLevel() + "\n");
         return sb.toString();
-    }
-
-    private Platform getPlatform() {
-        return FabricPlatform.get(); // FIXME make a mock
     }
 }

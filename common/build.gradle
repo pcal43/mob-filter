@@ -1,39 +1,62 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
-	id 'java-library'
+	id 'fabric-loom'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-group = project.maven_group
+archivesBaseName = "${project.archives_base_name}-common"
 version = project.mod_version
+group = project.maven_group
 
 repositories {
-	maven {
-		name = 'Fabric'
-		url = 'https://maven.fabricmc.net/'
-	}
+	maven { url = "https://maven.fabricmc.net/" }
+	maven { url = "https://repo.spongepowered.org/maven/" }
 	mavenCentral()
 }
 
 dependencies {
-	// Minecraft dependencies (for common code that references Minecraft classes)
+	// Minecraft classes with Mojang mappings - needed for compilation
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
+
+	// Mixin annotations - using version from gradle.properties for consistency
+	compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
+	annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
+
+	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
+}
+
+loom {
+	// Configure loom to not create run configurations for the common module
+	// since it's not meant to run standalone
+	runs {
+		// No run configurations needed for common module
+	}
+	
+	// Configure mixin refmap
+	mixin {
+		defaultRefmapName = "mobfilter-common-refmap.json"
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+	options.encoding = "UTF-8"
 }
 
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 	withSourcesJar()
 }
 
-// Configure loom to not remap the common module (it will be remapped when included in fabric)
-loom {
-	// Don't create a mod metadata file for the common module
-	// It will be included in the fabric module
+// Don't remap the common jar - the loader-specific modules will handle that
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
 }
 

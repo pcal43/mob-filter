@@ -25,7 +25,7 @@ class SimpleConfigLoader {
      * For other lines, an IdMatcher is created and used to create a rule with an EntityIdCheck based on that matcher.
      * If the line starts with '!', the rule action is ALLOW_SPAWN, otherwise it is DISALLOW_SPAWN.
      */
-    static void loadRules(final InputStream in, final Config.Builder configBuilder, final Platform platform) throws IOException {
+    static void loadRules(final InputStream in, final Config.Builder configBuilder) throws IOException {
         try (BufferedReader reader = new BufferedReader(
                 new java.io.InputStreamReader(requireNonNull(in), StandardCharsets.UTF_8))) {
             int i = 0;
@@ -47,7 +47,7 @@ class SimpleConfigLoader {
                 // If polarity changes, flush group
                 if (currentPolarity != groupPolarity) {
                     if (!groupIds.isEmpty()) {
-                        RuleCheck check = new EntityIdCheck(MinecraftIdMatcher.of(groupIds.toArray(new String[0]), platform));
+                        RuleCheck check = new EntityIdCheck(IdMatcher.of(groupIds.toArray(new String[0])));
                         configBuilder.addRule(new Rule("simple-" + i, ImmutableList.of(check),  currentPolarity ? ALLOW_SPAWN : DISALLOW_SPAWN));
                         i++;
                         groupIds.clear();
@@ -58,7 +58,7 @@ class SimpleConfigLoader {
             }
             // EOF, flush anything left
             if (groupIds != null && !groupIds.isEmpty()) {
-                RuleCheck check = new EntityIdCheck(MinecraftIdMatcher.of(groupIds.toArray(new String[0]), platform));
+                RuleCheck check = new EntityIdCheck(IdMatcher.of(groupIds.toArray(new String[0])));
                 configBuilder.addRule(new Rule("simple-" + i, ImmutableList.of(check),  currentPolarity ? ALLOW_SPAWN : DISALLOW_SPAWN));
             }
         }

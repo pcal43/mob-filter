@@ -1,8 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.pcal.mobfilter.fabric.mixins",
+  "package": "net.pcal.mobfilter.mixins",
   "compatibilityLevel": "JAVA_21",
+  "refmap": "mobfilter-refmap.json",
   "mixins": [
     "EntityTypeMixin",
     "NaturalSpawnerSpawnStateMixin",
