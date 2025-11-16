@@ -16,6 +16,7 @@ repositories {
 		name = 'Fabric'
 		url = 'https://maven.fabricmc.net/'
 	}
+	maven { url = "https://repo.spongepowered.org/maven/" }
 	mavenCentral()
 }
 
@@ -26,6 +27,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Depend on the common module
+	// Loom automatically uses the dev jar in dev and remapped jar in prod
 	implementation project(":common")
 	include project(":common")
 }
@@ -44,6 +46,23 @@ sourceSets.test {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+}
+
+loom {
+	runs {
+		client {
+			client()
+			setConfigName("Fabric Client")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+		server {
+			server()
+			setConfigName("Fabric Server")
+			ideConfigGenerated(true)
+			runDir("run")
+		}
+	}
 }
 
 java {
