@@ -18,7 +18,16 @@ group = project.maven_group
 tasks.register('validateRelease') {
 	group = 'release'
 	description = 'Validates that the environment is ready for a release'
-	
+
+    doFirst {
+        if (!System.getenv("CURSEFORGE_TOKEN")) {
+            throw new GradleException("CURSEFORGE_TOKEN environment variable not set")
+        }
+		if (!System.getenv("MODRINTH_TOKEN")) {
+			throw new GradleException("MODRINTH_TOKEN environment variable not set")
+		}
+    }
+
 	doLast {
 		// Check git status
 		def gitStatus = 'git status --porcelain'.execute().text.trim()
@@ -196,21 +205,16 @@ tasks.register('releaseGitHub') {
 tasks.register('publishCurseForge') {
 	group = 'release'
 	description = 'Publishes to CurseForge'
-	
+
 	doFirst {
-		def token = System.getenv("CURSEFORGE_TOKEN")
-		if (!token) {
-			throw new GradleException("CURSEFORGE_TOKEN environment variable not set")
-		}
-		
 		println "Publishing to CurseForge..."
 	}
-	
+
 	doLast {
 		// Call curseforge task on both modules
 		project(':fabric').tasks.curseforge.execute()
 		project(':neoforge').tasks.curseforge.execute()
-		
+
 		println "✓ Published to CurseForge"
 	}
 }
@@ -221,16 +225,11 @@ tasks.register('publishCurseForge') {
 tasks.register('publishModrinth') {
 	group = 'release'
 	description = 'Publishes to Modrinth'
-	
+
 	doFirst {
-		def token = System.getenv("MODRINTH_TOKEN")
-		if (!token) {
-			throw new GradleException("MODRINTH_TOKEN environment variable not set")
-		}
-		
 		println "Publishing to Modrinth..."
 	}
-	
+
 	doLast {
 		// Call modrinth task on both modules
 		project(':fabric').tasks.modrinth.execute()
