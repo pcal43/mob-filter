@@ -20,6 +20,11 @@ repositories {
 	mavenCentral()
 }
 
+configurations {
+	// Create a configuration for the common module that won't be included in dev
+	commonDev
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
@@ -27,9 +32,11 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Depend on the common module
-	// Loom automatically uses the dev jar in dev and remapped jar in prod
+	// For compilation and dev runtime - uses dev jar with proper mappings
 	implementation project(":common")
-	include project(":common")
+	
+	// DON'T use include - we're merging the classes directly in the jar task instead
+	// This ensures they get remapped together with the fabric module classes
 }
 
 processResources {
@@ -40,8 +47,20 @@ processResources {
 	}
 }
 
-sourceSets.test {
-	resources.srcDirs = ["src/test/resources"]
+sourceSets {
+	main {
+		// Add common module sources to fabric's main sourceSet
+		// This ensures they're compiled and remapped together
+		java {
+			srcDir project(":common").file("src/main/java")
+		}
+		resources {
+			srcDir project(":common").file("src/main/resources")
+		}
+	}
+	test {
+		resources.srcDirs = ["src/test/resources"]
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -63,6 +82,13 @@ loom {
 			runDir("run")
 		}
 	}
+	
+	// Common sources are now part of main sourceSet
+	mods {
+		"mobfilter" {
+			sourceSet sourceSets.main
+		}
+	}
 }
 
 java {
@@ -76,6 +102,7 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
+	// Common sources are now part of main sourceSet, so they're automatically included
 }
 
 // Publishing configuration
