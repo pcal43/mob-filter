@@ -100,16 +100,22 @@ tasks.register('commitReleaseVersion') {
 		def releaseVersion = project.ext.releaseVersion
 		
 		// Stage and commit
-		def addResult = "git add gradle.properties".execute()
+		def addResult = ["git", "add", "gradle.properties"].execute()
+		def addOutput = new StringBuilder()
+		def addError = new StringBuilder()
+		addResult.consumeProcessOutput(addOutput, addError)
 		addResult.waitFor()
 		if (addResult.exitValue() != 0) {
-			throw new GradleException("Failed to stage gradle.properties")
+			throw new GradleException("Failed to stage gradle.properties: ${addError}")
 		}
 		
-		def commitResult = "git commit -m \"Release ${releaseVersion}\"".execute()
+		def commitResult = ["git", "commit", "-m", "Release ${releaseVersion}"].execute()
+		def commitOutput = new StringBuilder()
+		def commitError = new StringBuilder()
+		commitResult.consumeProcessOutput(commitOutput, commitError)
 		commitResult.waitFor()
 		if (commitResult.exitValue() != 0) {
-			throw new GradleException("Failed to commit release version")
+			throw new GradleException("Failed to commit release version:\n${commitOutput}\n${commitError}")
 		}
 		
 		println "✓ Committed release version ${releaseVersion}"
@@ -144,7 +150,7 @@ tasks.register('publishGitHub') {
 		
 		// Push commits
 		println "Pushing to origin..."
-		def pushResult = "git push".execute()
+		def pushResult = ["git", "push"].execute()
 		pushResult.waitForProcessOutput(System.out, System.err)
 		if (pushResult.exitValue() != 0) {
 			throw new GradleException("Failed to push to git")
@@ -205,16 +211,14 @@ tasks.register('releaseGitHub') {
 tasks.register('publishCurseForge') {
 	group = 'release'
 	description = 'Publishes to CurseForge'
+	
+	dependsOn ':fabric:curseforge', ':neoforge:curseforge'
 
 	doFirst {
 		println "Publishing to CurseForge..."
 	}
 
 	doLast {
-		// Call curseforge task on both modules
-		project(':fabric').tasks.curseforge.execute()
-		project(':neoforge').tasks.curseforge.execute()
-
 		println "✓ Published to CurseForge"
 	}
 }
@@ -225,16 +229,14 @@ tasks.register('publishCurseForge') {
 tasks.register('publishModrinth') {
 	group = 'release'
 	description = 'Publishes to Modrinth'
+	
+	dependsOn ':fabric:modrinth', ':neoforge:modrinth'
 
 	doFirst {
 		println "Publishing to Modrinth..."
 	}
 
 	doLast {
-		// Call modrinth task on both modules
-		project(':fabric').tasks.modrinth.execute()
-		project(':neoforge').tasks.modrinth.execute()
-		
 		println "✓ Published to Modrinth"
 	}
 }
@@ -299,19 +301,25 @@ tasks.register('commitVersionBump') {
 		def nextVersion = project.ext.nextVersion
 		
 		// Commit and push
-		def addResult = "git add gradle.properties".execute()
+		def addResult = ["git", "add", "gradle.properties"].execute()
+		def addOutput = new StringBuilder()
+		def addError = new StringBuilder()
+		addResult.consumeProcessOutput(addOutput, addError)
 		addResult.waitFor()
 		if (addResult.exitValue() != 0) {
-			throw new GradleException("Failed to stage gradle.properties")
+			throw new GradleException("Failed to stage gradle.properties: ${addError}")
 		}
 		
-		def commitResult = "git commit -m \"Prepare for next version ${nextVersion}\"".execute()
+		def commitResult = ["git", "commit", "-m", "Prepare for next version ${nextVersion}"].execute()
+		def commitOutput = new StringBuilder()
+		def commitError = new StringBuilder()
+		commitResult.consumeProcessOutput(commitOutput, commitError)
 		commitResult.waitFor()
 		if (commitResult.exitValue() != 0) {
-			throw new GradleException("Failed to commit version bump")
+			throw new GradleException("Failed to commit version bump:\n${commitOutput}\n${commitError}")
 		}
 		
-		def pushResult = "git push".execute()
+		def pushResult = ["git", "push"].execute()
 		pushResult.waitForProcessOutput(System.out, System.err)
 		if (pushResult.exitValue() != 0) {
 			throw new GradleException("Failed to push version bump")
@@ -327,50 +335,25 @@ tasks.register('commitVersionBump') {
 tasks.register('release') {
 	group = 'release'
 	description = 'Complete release: GitHub, CurseForge, Modrinth, and version bump'
-	dependsOn validateRelease
 	
-	doLast {
+	// Set up dependencies - tasks run in this order
+	dependsOn validateRelease, releaseGitHub, publishCurseForge, publishModrinth, commitVersionBump
+	
+	// Ensure proper execution order
+	releaseGitHub.mustRunAfter validateRelease
+	publishCurseForge.mustRunAfter releaseGitHub
+	publishModrinth.mustRunAfter publishCurseForge
+	commitVersionBump.mustRunAfter publishModrinth
+	
+	doFirst {
 		println ""
 		println "╔════════════════════════════════════════════════════════════╗"
 		println "║                   Starting Release Process                 ║"
 		println "╚════════════════════════════════════════════════════════════╝"
 		println ""
-		
-		// Step 1: Release to GitHub
-		println "→ Step 1: Publishing to GitHub..."
-		try {
-			project.tasks.releaseGitHub.execute()
-		} catch (Exception e) {
-			throw new GradleException("Failed to publish to GitHub: ${e.message}", e)
-		}
-		
-		// Step 2: Publish to CurseForge
-		println ""
-		println "→ Step 2: Publishing to CurseForge..."
-		try {
-			project.tasks.publishCurseForge.execute()
-		} catch (Exception e) {
-			throw new GradleException("Failed to publish to CurseForge: ${e.message}", e)
-		}
-		
-		// Step 3: Publish to Modrinth
-		println ""
-		println "→ Step 3: Publishing to Modrinth..."
-		try {
-			project.tasks.publishModrinth.execute()
-		} catch (Exception e) {
-			throw new GradleException("Failed to publish to Modrinth: ${e.message}", e)
-		}
-		
-		// Step 4: Bump version for next release
-		println ""
-		println "→ Step 4: Bumping version for next development cycle..."
-		try {
-			project.tasks.commitVersionBump.execute()
-		} catch (Exception e) {
-			throw new GradleException("Failed to bump version: ${e.message}", e)
-		}
-		
+	}
+	
+	doLast {
 		println ""
 		println "╔════════════════════════════════════════════════════════════╗"
 		println "║                   Release Complete! 🎉                     ║"
