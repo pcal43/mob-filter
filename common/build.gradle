@@ -1,5 +1,17 @@
 plugins {
-	id 'java-library'
+	//id 'java-library'
+	id 'fabric-loom' version '1.7.+'
+	id 'java'
+}
+
+// You MUST set this so all modules use the same mappings version
+ext.minecraft_version = rootProject.minecraft_version
+ext.mappings_version  = rootProject.mappings_version
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -9,24 +21,37 @@ group = project.maven_group
 version = project.mod_version
 
 repositories {
+	// You need these two for the Mojang mappings + synthetic "Minecraft" dependency
+	maven { url = "https://maven.fabricmc.net/" }    // Loom artifacts / Mojang mappings
+	maven { url = "https://libraries.minecraft.net/" } // Vanilla libs
 	mavenCentral()
 }
 
 dependencies {
+
+	// Provide the Mojang-mapped Minecraft jar to compile against
+	// This is provided-by Loom, but we can use it stand-alone:
+//	compileOnly "com.mojang:minecraft:${minecraft_version}"
+//	compileOnly "com.mojang:mappings:${mappings_version}:txt"
+
+	// Mixin annotations only — NO loader here
+	compileOnly "org.spongepowered:mixin:0.8.6" // or whatever version NeoForge/Fabric use
+
 	// Gson - must match Minecraft's strict version (2.10.1)
 	// Note: Strictness was added in 2.11.0, but we'll need to work around this
-	api "com.google.code.gson:gson:2.10.1"
+//	api "com.google.code.gson:gson:2.10.1"
 	
 	// Guava - must match Minecraft's strict version (32.1.2-jre)
-	api "com.google.guava:guava:32.1.2-jre"
+//	api "com.google.guava:guava:32.1.2-jre"
 	
 	// Log4j API and Core - matches Minecraft's bundled version
-	api "org.apache.logging.log4j:log4j-api:2.22.1"
-	api "org.apache.logging.log4j:log4j-core:2.22.1"
+//	api "org.apache.logging.log4j:log4j-api:2.22.1"
+//	api "org.apache.logging.log4j:log4j-core:2.22.1"
 }
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+	options.encoding = "UTF-8"
 }
 
 java {

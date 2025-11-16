@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.forge;
+package net.pcal.mobfilter.neoforge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,7 +12,7 @@ import net.pcal.mobfilter.WeatherType;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.forge.ForgePlatform.id;
+import static net.pcal.mobfilter.neoforge.ForgePlatform.id;
 
 /**
  * Implementation of SpawnAttempt for the world generation thread.  Because we cannot safely access the world

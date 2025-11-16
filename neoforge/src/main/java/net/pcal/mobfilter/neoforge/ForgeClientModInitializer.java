@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.forge;
+package net.pcal.mobfilter.neoforge;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;

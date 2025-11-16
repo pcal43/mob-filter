@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.forge;
+package net.pcal.mobfilter.neoforge;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;

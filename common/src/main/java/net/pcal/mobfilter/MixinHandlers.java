@@ -1,8 +1,4 @@
-package net.pcal.mobfilter.forge;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+package net.pcal.mobfilter;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -11,29 +7,31 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
-import net.pcal.mobfilter.MobFilterService;
-import net.pcal.mobfilter.SpawnAttempt;
-import static net.pcal.mobfilter.forge.ForgeMixinHandlers.MinecraftThreadType.SERVER;
-import static net.pcal.mobfilter.forge.ForgeMixinHandlers.MinecraftThreadType.WORLDGEN;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import static net.pcal.mobfilter.MixinHandlers.MinecraftThreadType.SERVER;
+import static net.pcal.mobfilter.MixinHandlers.MinecraftThreadType.WORLDGEN;
 
 /**
  * Implementation code for the mixins.  Structured this way just so it can
  * be hot-swappable.
  */
-public class ForgeMixinHandlers {
+public class MixinHandlers {
 
     // ===================================================================================
     // Singleton
 
     private static final class SingletonHolder {
-        private static final ForgeMixinHandlers INSTANCE;
+        private static final MixinHandlers INSTANCE;
 
         static {
-            INSTANCE = new ForgeMixinHandlers();
+            INSTANCE = new MixinHandlers();
         }
     }
 
-    public static ForgeMixinHandlers get() {
+    public static MixinHandlers get() {
         return SingletonHolder.INSTANCE;
     }
 
@@ -46,7 +44,7 @@ public class ForgeMixinHandlers {
      */
     private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
 
-    private final Logger logger = LogManager.getLogger(ForgeMixinHandlers.class);
+    private final Logger logger = LogManager.getLogger(MixinHandlers.class);
 
 
     // ===================================================================================
@@ -60,6 +58,7 @@ public class ForgeMixinHandlers {
         SERVER,
         WORLDGEN
     }
+
 
     public void WorldGenRegion_addFreshEntity(WorldGenRegion worldGenRegion, Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (!this.isSpawnAllowed(worldGenRegion.getLevel(), entity, WORLDGEN)) {
@@ -143,4 +142,3 @@ public class ForgeMixinHandlers {
         }
     }
 }
-

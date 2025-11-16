@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.forge;
+package net.pcal.mobfilter.neoforge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -19,7 +19,7 @@ import net.pcal.mobfilter.WeatherType;
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.forge.ForgePlatform.id;
+import static net.pcal.mobfilter.neoforge.ForgePlatform.id;
 
 /**
  * Implementation of SpawnAttempt for the main game thread.  All attributes of the world are available.

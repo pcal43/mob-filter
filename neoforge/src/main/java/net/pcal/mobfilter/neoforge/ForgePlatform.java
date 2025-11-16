@@ -1,4 +1,4 @@
-package net.pcal.mobfilter.forge;
+package net.pcal.mobfilter.neoforge;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Difficulty;
@@ -7,7 +7,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.MinecraftId;
 import net.pcal.mobfilter.Platform;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
