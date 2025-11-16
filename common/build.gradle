@@ -22,6 +22,7 @@ dependencies {
 
 	// Mixin annotations - using version from gradle.properties for consistency
 	compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
+	annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
 
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
@@ -32,6 +33,11 @@ loom {
 	// since it's not meant to run standalone
 	runs {
 		// No run configurations needed for common module
+	}
+	
+	// Configure mixin refmap
+	mixin {
+		defaultRefmapName = "mobfilter-common-refmap.json"
 	}
 }
 
