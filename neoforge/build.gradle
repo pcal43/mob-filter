@@ -35,6 +35,8 @@ neoForge {
     mods {
         mobfilter {
             sourceSet sourceSets.main
+            // Also include common module for resources and classes
+            sourceSet project(":common").sourceSets.main
         }
     }
 }
