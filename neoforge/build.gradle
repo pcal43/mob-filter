@@ -6,7 +6,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = "mobfilter-forge"
+archivesBaseName = "${project.archives_base_name}-forge"
 version = project.mod_version
 group = project.maven_group
 

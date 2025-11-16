@@ -1,13 +1,11 @@
 plugins {
 	id 'fabric-loom' version '1.11-SNAPSHOT'
-	id 'com.modrinth.minotaur' version '2.+'
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = "mobfilter"
+archivesBaseName = "${project.archives_base_name}-fabric"
 version = project.mod_version
 group = project.maven_group
 
@@ -104,42 +102,3 @@ jar {
 	}
 	// Common sources are now part of main sourceSet, so they're automatically included
 }
-
-// Publishing configuration
-modrinth {
-	token = System.getenv("MODRINTH_TOKEN")
-	projectId = "${project.modrinth_projectId}"
-	versionNumber = project.mod_version
-	versionType = "release"
-	uploadFile = remapJar
-	changelog = "<p><a href='https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}'>https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}</a></p>"
-	gameVersions = ["${project.minecraft_version}"]
-	loaders = ["fabric"]
-	dependencies {
-		required.project "fabric-api"
-	}
-}
-
-curseforge {
-	apiKey = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
-
-	project {
-		id = "${project.curseforge_projectId}"
-		releaseType = "release"
-		changelog = "https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}"
-		changelogType = "markdown"
-		mod_version = project.mod_version
-		addGameVersion ((String) project.minecraft_version)
-		addGameVersion "Fabric"
-		mainArtifact(remapJar)
-
-		afterEvaluate {
-			uploadTask.dependsOn("remapJar")
-		}
-	}
-
-	options {
-		forgeGradleIntegration = false
-	}
-}
-

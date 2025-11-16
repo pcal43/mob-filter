@@ -1,11 +1,13 @@
 plugins {
     id 'java'
+	id 'com.modrinth.minotaur' version '2.+'
+	id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = "mobfilter"
+archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
@@ -17,13 +19,12 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
-    withSourcesJar()
 }
 
 // Create a release jar task that combines both loaders
-tasks.register('universalJar', Jar) {
+tasks.register('releaseJar', Jar) {
     archiveClassifier = ''
-    archiveBaseName = "mobfilter"
+    archiveBaseName = project.archives_base_name
     
     // Make sure the other modules are built first
     dependsOn(':fabric:build', ':neoforge:build', ':common:build')
@@ -34,7 +35,7 @@ tasks.register('universalJar', Jar) {
     
     // Include all classes from common module (this includes mixins and core logic)
     from(provider {
-        zipTree("${project(':common').buildDir}/libs/mobfilter-common-${project.mod_version}.jar")
+        zipTree("${project(':common').buildDir}/libs/${project.archives_base_name}-common-${project.mod_version}.jar")
     }) {
         exclude 'META-INF/MANIFEST.MF'
         exclude 'META-INF/*.SF'
@@ -44,7 +45,7 @@ tasks.register('universalJar', Jar) {
     
     // Include Fabric-specific classes and metadata
     from(provider {
-        zipTree("${project(':fabric').buildDir}/libs/mobfilter-${project.mod_version}.jar")
+        zipTree("${project(':fabric').buildDir}/libs/${project.archives_base_name}-fabric-${project.mod_version}.jar")
     }) {
         exclude 'META-INF/MANIFEST.MF'
         exclude 'META-INF/*.SF'
@@ -56,7 +57,7 @@ tasks.register('universalJar', Jar) {
     
     // Include NeoForge-specific classes and metadata
     from(provider {
-        zipTree("${project(':neoforge').buildDir}/libs/mobfilter-forge-${project.mod_version}.jar")
+        zipTree("${project(':neoforge').buildDir}/libs/${project.archives_base_name}-forge-${project.mod_version}.jar")
     }) {
         exclude 'META-INF/MANIFEST.MF'
         exclude 'META-INF/*.SF'
@@ -80,24 +81,54 @@ tasks.register('universalJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// Make the default jar task depend on universalJar
-jar.dependsOn(universalJar)
+// Make the default jar task depend on releaseJar
+jar.dependsOn(releaseJar)
 jar.enabled = false
 
-// Make build task use universalJar
-assemble.dependsOn(universalJar)
-
-// Create sources jar from all modules
-sourcesJar {
-	from project(':common').sourceSets.main.allSource
-	from project(':fabric').sourceSets.main.allJava
-	// NeoForge sources - manually specify since it uses a different plugin
-	from project(':neoforge').file('src/main/java')
-	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+// Make build task use releaseJar
+assemble.dependsOn(releaseJar)
 
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
     options.encoding = "UTF-8"
+}
+
+
+// Publishing configuration
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = "${project.modrinth_projectId}"
+	versionNumber = project.mod_version
+	versionType = "release"
+	uploadFile = releaseJar
+	changelog = "<p><a href='https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}'>https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}</a></p>"
+	gameVersions = ["${project.minecraft_version}"]
+	loaders = ["fabric"]
+	dependencies {
+		required.project "fabric-api"
+	}
+}
+
+curseforge {
+	apiKey = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
+
+	project {
+		id = "${project.curseforge_projectId}"
+		releaseType = "release"
+		changelog = "https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}"
+		changelogType = "markdown"
+		mod_version = project.mod_version
+		addGameVersion ((String) project.minecraft_version)
+		addGameVersion "Fabric"
+		mainArtifact(releaseJar)
+
+		afterEvaluate {
+			uploadTask.dependsOn("releaseJar")
+		}
+	}
+
+	options {
+		forgeGradleIntegration = false
+	}
 }
 
