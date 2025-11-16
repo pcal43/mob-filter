@@ -7,31 +7,33 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
+import net.pcal.mobfilter.SpawnAttempt.MainThreadSpawnAttempt;
+import net.pcal.mobfilter.SpawnAttempt.WorldgenThreadSpawnAttempt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.pcal.mobfilter.MixinHandlers.MinecraftThreadType.SERVER;
-import static net.pcal.mobfilter.MixinHandlers.MinecraftThreadType.WORLDGEN;
+import static net.pcal.mobfilter.MixinService.MinecraftThreadType.SERVER;
+import static net.pcal.mobfilter.MixinService.MinecraftThreadType.WORLDGEN;
 
 /**
  * Implementation code for the mixins.  Structured this way just so it can
  * be hot-swappable.
  */
-public class MixinHandlers {
+public class MixinService {
 
     // ===================================================================================
     // Singleton
 
     private static final class SingletonHolder {
-        private static final MixinHandlers INSTANCE;
+        private static final MixinService INSTANCE;
 
         static {
-            INSTANCE = new MixinHandlers();
+            INSTANCE = new MixinService();
         }
     }
 
-    public static MixinHandlers get() {
+    public static MixinService get() {
         return SingletonHolder.INSTANCE;
     }
 
@@ -44,7 +46,7 @@ public class MixinHandlers {
      */
     private final ThreadLocal<EntitySpawnReason> spawnReason = new ThreadLocal<>();
 
-    private final Logger logger = LogManager.getLogger(MixinHandlers.class);
+    private final Logger logger = LogManager.getLogger(MixinService.class);
 
 
     // ===================================================================================
@@ -93,6 +95,10 @@ public class MixinHandlers {
     // ===================================================================================
     // Private
 
+    /**
+     * Constructs an appropriate SpawnAttempt record, asks the ConfigService if the spawn is allowed, and returns
+     * the result.
+     */
     private boolean isSpawnAllowed(final ServerLevel serverLevel,
                                    final Entity entity,
                                    final MinecraftThreadType threadTypeGuess) {
@@ -111,7 +117,7 @@ public class MixinHandlers {
         } else {
             att = new WorldgenThreadSpawnAttempt(reason, entityType.getCategory(), entityType, entity.blockPosition(), logger);
         }
-        return MobFilterService.get().isSpawnAllowed(att);
+        return ConfigService.get().isSpawnAllowed(att);
     }
 
     /**
@@ -131,7 +137,7 @@ public class MixinHandlers {
         } else {
             // However, if we think we're in the MAIN thread, let's double check the name of the current thread.
             // It's difficult to be certain whether any of the mixin code is guaranteed to only run in the MAIN thread,
-            // so let's err on the side of caution and double-check the thrad name.  This is not very robust
+            // so let's err on the side of caution and double-check the thread name.  This is not very robust
             // but AFAICT the vanilla code gives us no better way to check.
             if (threadNameLooksLikeWorldgen) {
                 logger.debug(() -> "[MobFilter] Overriding guessed MAIN thread to WORLDGEN because current thread name is " + threadName);

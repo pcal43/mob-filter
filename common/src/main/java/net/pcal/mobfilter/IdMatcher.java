@@ -1,5 +1,7 @@
 package net.pcal.mobfilter;
 
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,31 +11,31 @@ import java.util.List;
  * - anything-in-a-namespace matching (e.g., "minecraft:*")
  * and nothing else.
  */
-public interface IdMatcher {
+interface IdMatcher {
 
-    boolean isMatch(final MinecraftId id);
+    boolean isMatch(final ResourceLocation id);
 
-    static IdMatcher of(final String[] patterns, final Platform platform) {
+    static IdMatcher of(final String[] patterns) {
 
         final List<String> namespaces = new ArrayList<>();
-        final List<MinecraftId> ids = new ArrayList<>();
+        final List<ResourceLocation> ids = new ArrayList<>();
 
         for (String pattern : patterns) {
             pattern = pattern.trim();
             if (pattern.endsWith(":*")) {
                 namespaces.add(pattern.substring(0, pattern.length() - 2));
             } else if (pattern.contains(":")) {
-                ids.add(platform.parseMinecraftId(pattern));
+                ids.add(ResourceLocation.parse(pattern));
             } else {
                 throw new IllegalArgumentException("Invalid id pattern: " + pattern);
             }
         }
         final Matcher<String> namespaceMatchers = Matcher.of(namespaces.toArray(new String[]{}));
-        final Matcher<MinecraftId> idMatchers = Matcher.of(ids.toArray(new MinecraftId[]{}));
+        final Matcher<ResourceLocation> idMatchers = Matcher.of(ids.toArray(new ResourceLocation[]{}));
 
         return new IdMatcher() {
             @Override
-            public boolean isMatch(final MinecraftId id) {
+            public boolean isMatch(final ResourceLocation id) {
                 return namespaceMatchers.isMatch(id.getNamespace()) || idMatchers.isMatch(id);
             }
 

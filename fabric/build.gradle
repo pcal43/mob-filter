@@ -28,13 +28,6 @@ dependencies {
 	// Depend on the common module
 	implementation project(":common")
 	include project(":common")
-
-	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
-}
-
-test {
-	useJUnitPlatform()
 }
 
 processResources {

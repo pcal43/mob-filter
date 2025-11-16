@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.entity.Entity;
-import net.pcal.mobfilter.MixinHandlers;
+import net.pcal.mobfilter.MixinService;
 
 @SuppressWarnings("ALL")
 @Mixin(WorldGenRegion.class)
@@ -15,6 +15,6 @@ public abstract class WorldGenRegionMixin {
 
     @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity")
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        MixinHandlers.get().WorldGenRegion_addFreshEntity((WorldGenRegion)(Object)this, entity, cir);
+        MixinService.get().WorldGenRegion_addFreshEntity((WorldGenRegion)(Object)this, entity, cir);
     }
 }

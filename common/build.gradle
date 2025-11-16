@@ -22,6 +22,9 @@ dependencies {
 
 	// Mixin annotations - using version from gradle.properties for consistency
 	compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
+
+	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
 }
 
 loom {

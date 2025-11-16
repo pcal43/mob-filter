@@ -3,8 +3,8 @@ package net.pcal.mobfilter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
-import static java.util.Objects.requireNonNull;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -13,22 +13,23 @@ import org.apache.logging.log4j.core.config.Configurator;
 
 
 /**
- * Singleton service that orchestrates the filtering logic.
+ * Singleton service that manages the mod configuration, including loading the files
+ * and answering whether mob spawns should be allowed.
  */
-public final class MobFilterService {
+public final class ConfigService {
 
     // ===================================================================================
     // Singleton
 
     private static final class SingletonHolder {
-        private static final MobFilterService INSTANCE;
+        private static final ConfigService INSTANCE;
 
         static {
-            INSTANCE = new MobFilterService();
+            INSTANCE = new ConfigService();
         }
     }
 
-    public static MobFilterService get() {
+    public static ConfigService get() {
         return SingletonHolder.INSTANCE;
     }
 
@@ -37,7 +38,7 @@ public final class MobFilterService {
 
     private static final String SIMPLE_FILENAME = "mobfilter.simple";
     private static final String JSON_FILENAME = "mobfilter.json5";
-    private final Logger logger = LogManager.getLogger(MobFilterService.class);
+    private final Logger logger = LogManager.getLogger(ConfigService.class);
     private Config config;
     private Level logLevel = Level.INFO;
     private String configError = null;
@@ -55,9 +56,9 @@ public final class MobFilterService {
         final boolean allowSpawn = isSpawnAllowed(att, this.config.getRules());
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
             if (allowSpawn) {
-                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
+                logger.debug(() -> "[MobFilter] ALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos() + "]");
             } else {
-                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPosition() + "]");
+                logger.debug(() -> "[MobFilter] DISALLOW " + att.getSpawnReason() + " " + att.getEntityId() + " at [" + att.getBlockPos() + "]");
             }
         }
         return allowSpawn;
@@ -66,10 +67,10 @@ public final class MobFilterService {
     /**
      * Write a default configuration file if none exists.
      */
-    public void ensureConfigFilesExists(Platform platform) {
+    public void ensureConfigFilesExists(final Path configDirPath) {
 
-        final File jsonConfigFile = platform.getConfigFilePath(JSON_FILENAME).toFile();
-        final File simpleConfigFile = platform.getConfigFilePath(SIMPLE_FILENAME).toFile();
+        final File jsonConfigFile = configDirPath.resolve(JSON_FILENAME).toFile();
+        final File simpleConfigFile = configDirPath.resolve(SIMPLE_FILENAME).toFile();
 
         if (!simpleConfigFile.exists()) {
             try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("default-mobfilter.simple")) {
@@ -120,19 +121,17 @@ public final class MobFilterService {
     /**
      * Re/loads mobfilter.json5 and initializes a new FilterRuleList.
      */
-    public void loadConfig(final Platform platform) {
+    public void loadConfig(final Path configDirPath) {
 
-        final File jsonConfigFile = platform.getConfigFilePath(JSON_FILENAME).toFile();
-        final File simpleConfigFile = platform.getConfigFilePath(SIMPLE_FILENAME).toFile();
-
-        requireNonNull(platform);
+        final File jsonConfigFile = configDirPath.resolve(JSON_FILENAME).toFile();
+        final File simpleConfigFile = configDirPath.resolve(SIMPLE_FILENAME).toFile();
         //
         // Clean the slate
         //
         this.configError = null;
         this.config = null;
         setLogLevel(Level.INFO);
-        ensureConfigFilesExists(platform);
+        ensureConfigFilesExists(configDirPath);
         final Config.Builder configBuilder = Config.builder();
         this.logger.info(()->"[MobFilter] Loading configuration");
 
@@ -142,7 +141,7 @@ public final class MobFilterService {
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + jsonConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(jsonConfigFile)) {
-                JsonConfigLoader.loadRules(in, configBuilder, platform);
+                JsonConfigLoader.loadRules(in, configBuilder);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();
@@ -155,7 +154,7 @@ public final class MobFilterService {
         try {
             this.logger.debug(()->"[MobFilter] Loading config from " + simpleConfigFile.getAbsolutePath());
             try (final InputStream in = new FileInputStream(simpleConfigFile)) {
-                SimpleConfigLoader.loadRules(in, configBuilder, platform);
+                SimpleConfigLoader.loadRules(in, configBuilder);
             }
         } catch (Exception e) {
             this.configError = e.getMessage();
@@ -176,10 +175,6 @@ public final class MobFilterService {
                 this.logger.info(()->"[MobFilter] - " + rule.toString());
             }
         }
-    }
-
-    public Logger getLogger() {
-        return this.logger;
     }
 
     // ===================================================================================
@@ -206,7 +201,7 @@ public final class MobFilterService {
      * Manually adjust our logger's level.  Because changing the log4j config is a PITA.
      */
     private void setLogLevel(Level logLevel) {
-        Configurator.setLevel(MobFilterService.class.getName(), logLevel);
+        Configurator.setLevel(ConfigService.class.getName(), logLevel);
         this.logLevel = logLevel;
     }
 }

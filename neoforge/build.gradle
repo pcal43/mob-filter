@@ -43,10 +43,6 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
 }
 
-test {
-	useJUnitPlatform()
-}
-
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }

@@ -1,6 +1,5 @@
 package net.pcal.mobfilter;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,7 +10,7 @@ public class MatcherTest {
     @Test
     public void testStringMatching() {
 
-        Assertions.assertFalse(Matcher.of(new String[] {}).isMatch("foo"));
+        assertFalse(Matcher.of(new String[] {}).isMatch("foo"));
 
         assertTrue(Matcher.of(new String[] { "foo" }).isMatch("foo"));
         assertFalse(Matcher.of(new String[] { "foo" }).isMatch("bop"));
