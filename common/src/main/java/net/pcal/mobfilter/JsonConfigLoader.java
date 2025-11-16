@@ -8,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import com.google.gson.Strictness;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -248,8 +249,7 @@ public class JsonConfigLoader {
     static class TypoCatchingJsonReader extends JsonReader {
         public TypoCatchingJsonReader(StringReader in) {
             super(in);
-            // Note: setStrictness() was added in Gson 2.11.0, but Minecraft uses 2.10.1
-            // In Gson 2.10.1, JsonReader is lenient by default, so this call isn't needed
+            super.setStrictness(Strictness.LENIENT);
         }
 
         @Override
