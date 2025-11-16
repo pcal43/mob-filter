@@ -283,17 +283,42 @@ tasks.register('bumpVersion') {
 		
 		println "✓ Updated gradle.properties to version ${nextVersion}"
 		
+		// Store for later tasks
+		project.ext.nextVersion = nextVersion
+	}
+}
+
+/**
+ * Commits and pushes the version bump
+ */
+tasks.register('commitVersionBump') {
+	group = 'release'
+	description = 'Commits and pushes the version bump'
+	dependsOn bumpVersion
+	
+	doLast {
+		def nextVersion = project.ext.nextVersion
+		
 		// Commit and push
 		def addResult = "git add gradle.properties".execute()
 		addResult.waitFor()
+		if (addResult.exitValue() != 0) {
+			throw new GradleException("Failed to stage gradle.properties")
+		}
 		
 		def commitResult = "git commit -m \"Prepare for next version ${nextVersion}\"".execute()
 		commitResult.waitFor()
+		if (commitResult.exitValue() != 0) {
+			throw new GradleException("Failed to commit version bump")
+		}
 		
 		def pushResult = "git push".execute()
 		pushResult.waitForProcessOutput(System.out, System.err)
+		if (pushResult.exitValue() != 0) {
+			throw new GradleException("Failed to push version bump")
+		}
 		
-		println "✓ Committed and pushed version bump"
+		println "✓ Committed and pushed version bump to ${nextVersion}"
 	}
 }
 
@@ -342,7 +367,7 @@ tasks.register('release') {
 		println ""
 		println "→ Step 4: Bumping version for next development cycle..."
 		try {
-			project.tasks.bumpVersion.execute()
+			project.tasks.commitVersionBump.execute()
 		} catch (Exception e) {
 			throw new GradleException("Failed to bump version: ${e.message}", e)
 		}
