@@ -1,4 +1,8 @@
-package net.pcal.mobfilter.neoforge;
+package net.pcal.mobfilter;
+
+import static java.util.Objects.requireNonNull;
+
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -6,13 +10,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.pcal.mobfilter.MinecraftId;
-import net.pcal.mobfilter.SpawnAttempt;
-import net.pcal.mobfilter.WeatherType;
-import org.apache.logging.log4j.Logger;
-
-import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.neoforge.ForgePlatform.id;
 
 /**
  * Implementation of SpawnAttempt for the world generation thread.  Because we cannot safely access the world
@@ -43,7 +40,7 @@ public final class WorldgenThreadSpawnAttempt implements SpawnAttempt {
      */
     @Override
     public MinecraftId getEntityId() {
-        return id(BuiltInRegistries.ENTITY_TYPE.getKey(entityType)); // FIXME is this right?
+        return CommonMinecraftId.of(BuiltInRegistries.ENTITY_TYPE.getKey(entityType));
     }
 
     @Override

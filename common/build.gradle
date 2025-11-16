@@ -1,52 +1,35 @@
 plugins {
-	//id 'java-library'
-	id 'fabric-loom' version '1.7.+'
-	id 'java'
-}
-
-// You MUST set this so all modules use the same mappings version
-ext.minecraft_version = rootProject.minecraft_version
-ext.mappings_version  = rootProject.mappings_version
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+	id 'fabric-loom' version '1.11-SNAPSHOT'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-group = project.maven_group
+archivesBaseName = "mobfilter-common"
 version = project.mod_version
+group = project.maven_group
 
 repositories {
-	// You need these two for the Mojang mappings + synthetic "Minecraft" dependency
-	maven { url = "https://maven.fabricmc.net/" }    // Loom artifacts / Mojang mappings
-	maven { url = "https://libraries.minecraft.net/" } // Vanilla libs
+	maven { url = "https://maven.fabricmc.net/" }
+	maven { url = "https://repo.spongepowered.org/maven/" }
 	mavenCentral()
 }
 
 dependencies {
+	// Minecraft classes with Mojang mappings - needed for compilation
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
 
-	// Provide the Mojang-mapped Minecraft jar to compile against
-	// This is provided-by Loom, but we can use it stand-alone:
-//	compileOnly "com.mojang:minecraft:${minecraft_version}"
-//	compileOnly "com.mojang:mappings:${mappings_version}:txt"
+	// Mixin annotations - using version from gradle.properties for consistency
+	compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
+}
 
-	// Mixin annotations only — NO loader here
-	compileOnly "org.spongepowered:mixin:0.8.6" // or whatever version NeoForge/Fabric use
-
-	// Gson - must match Minecraft's strict version (2.10.1)
-	// Note: Strictness was added in 2.11.0, but we'll need to work around this
-//	api "com.google.code.gson:gson:2.10.1"
-	
-	// Guava - must match Minecraft's strict version (32.1.2-jre)
-//	api "com.google.guava:guava:32.1.2-jre"
-	
-	// Log4j API and Core - matches Minecraft's bundled version
-//	api "org.apache.logging.log4j:log4j-api:2.22.1"
-//	api "org.apache.logging.log4j:log4j-core:2.22.1"
+loom {
+	// Configure loom to not create run configurations for the common module
+	// since it's not meant to run standalone
+	runs {
+		// No run configurations needed for common module
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -55,7 +38,16 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
 	withSourcesJar()
 }
 
+// Don't remap the common jar - the loader-specific modules will handle that
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
 

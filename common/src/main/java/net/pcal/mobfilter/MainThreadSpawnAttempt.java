@@ -1,8 +1,13 @@
-package net.pcal.mobfilter.neoforge;
+package net.pcal.mobfilter;
+
+import static java.util.Objects.requireNonNull;
+
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -13,13 +18,6 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ServerLevelData;
-import net.pcal.mobfilter.MinecraftId;
-import net.pcal.mobfilter.SpawnAttempt;
-import net.pcal.mobfilter.WeatherType;
-import org.apache.logging.log4j.Logger;
-
-import static java.util.Objects.requireNonNull;
-import static net.pcal.mobfilter.neoforge.ForgePlatform.id;
 
 /**
  * Implementation of SpawnAttempt for the main game thread.  All attributes of the world are available.
@@ -49,7 +47,7 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
 
     @Override
     public MinecraftId getEntityId() {
-        return id(BuiltInRegistries.ENTITY_TYPE.getKey(entityType)); // FIXME is this right?
+        return CommonMinecraftId.of(BuiltInRegistries.ENTITY_TYPE.getKey(entityType));
     }
 
     @Override
@@ -67,14 +65,14 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
 
     @Override
     public MinecraftId getDimensionId() {
-        return id(this.serverWorld.dimension().location());
+        return CommonMinecraftId.of(this.serverWorld.dimension().location());
     }
 
     @Override
     public MinecraftId getBlockId() {
         final BlockState bs = serverWorld.getBlockState(this.blockPos.below());
         final Block block = bs.getBlock();
-        return id(BuiltInRegistries.BLOCK.getKey(block));
+        return CommonMinecraftId.of(BuiltInRegistries.BLOCK.getKey(block));
     }
 
     @Override
@@ -131,9 +129,15 @@ public final class MainThreadSpawnAttempt implements SpawnAttempt {
     public MinecraftId getBiomeId() {
         final Holder<Biome> holder = serverWorld.getBiome(this.blockPos);
         if (holder == null) return null;
+        // Try unwrapKey first (NeoForge style), fallback to direct registry lookup (Fabric style)
         return holder.unwrapKey()
-                .map(key -> id(key.location()))
-                .orElse(null);
+                .map(key -> CommonMinecraftId.of(key.location()))
+                .orElseGet(() -> {
+                    // Fallback for Fabric-style
+                    Biome biome = holder.value();
+                    if (biome == null) return null;
+                    return CommonMinecraftId.of(serverWorld.registryAccess().lookupOrThrow(Registries.BIOME).getKey(biome));
+                });
     }
 
     @Override
