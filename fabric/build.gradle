@@ -1,7 +1,7 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
-	id 'com.modrinth.minotaur' version '2.+'
-	id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id 'fabric-loom'
+	id 'com.modrinth.minotaur'
+	id 'com.matthewprenger.cursegradle'
 }
 
 sourceCompatibility = JavaVersion.VERSION_21
@@ -12,10 +12,7 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-	maven {
-		name = 'Fabric'
-		url = 'https://maven.fabricmc.net/'
-	}
+	maven { url = 'https://maven.fabricmc.net/' }
 	maven { url = "https://repo.spongepowered.org/maven/" }
 	mavenCentral()
 }
