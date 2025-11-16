@@ -1,0 +1,102 @@
+plugins {
+    id 'java'
+}
+
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+archivesBaseName = "mobfilter"
+version = project.mod_version
+group = project.maven_group
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
+
+// Create a release jar task that combines both loaders
+tasks.register('universalJar', Jar) {
+    archiveClassifier = ''
+    archiveBaseName = "mobfilter"
+    
+    // Make sure the other modules are built first
+    dependsOn(':fabric:build', ':neoforge:build', ':common:build')
+    
+    from("../LICENSE") {
+        rename { "${it}_mobfilter"}
+    }
+    
+    // Include all classes from common module (this includes mixins and core logic)
+    from(provider {
+        zipTree("${project(':common').buildDir}/libs/mobfilter-common-${project.mod_version}.jar")
+    }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+    }
+    
+    // Include Fabric-specific classes and metadata
+    from(provider {
+        zipTree("${project(':fabric').buildDir}/libs/mobfilter-${project.mod_version}.jar")
+    }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+        // Exclude the nested common jar - we're including it directly above
+        exclude 'META-INF/jars/**'
+    }
+    
+    // Include NeoForge-specific classes and metadata
+    from(provider {
+        zipTree("${project(':neoforge').buildDir}/libs/mobfilter-forge-${project.mod_version}.jar")
+    }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+        // Keep META-INF/neoforge.mods.toml - we need both loader metadata!
+    }
+    
+    manifest {
+        attributes([
+            'Specification-Title': 'Mob Filter',
+            'Specification-Vendor': 'pcal',
+            'Specification-Version': '1',
+            'Implementation-Title': 'mobfilter',
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'pcal',
+            'MixinConfigs': 'mobfilter.mixins.json'
+        ])
+    }
+    
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Make the default jar task depend on universalJar
+jar.dependsOn(universalJar)
+jar.enabled = false
+
+// Make build task use universalJar
+assemble.dependsOn(universalJar)
+
+// Create sources jar from all modules
+sourcesJar {
+    from project(':common').sourceSets.main.allSource
+    from project(':fabric').sourceSets.main.allJava
+    // NeoForge sources - manually specify since it uses a different plugin
+    from project(':neoforge').file('src/main/java')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    options.encoding = "UTF-8"
+}
+
