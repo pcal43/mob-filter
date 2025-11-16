@@ -7,7 +7,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = "${project.archives_base_name}-fabric"
+archivesBaseName = project.archives_base_name_fabric
 version = project.mod_version
 group = project.maven_group
 
@@ -115,7 +115,7 @@ modrinth {
 	projectId = "${project.modrinth_projectId}"
 	versionNumber = project.mod_version
 	versionType = "release"
-	uploadFile = remapJar
+	uploadFile = file("${project.buildDir}/libs/${project.archivesBaseName}-${project.mod_version}.jar")
 	changelog = "<p><a href='https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}'>https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}</a></p>"
 	gameVersions = ["${project.minecraft_version}"]
 	loaders = ["fabric"]

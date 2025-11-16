@@ -7,7 +7,7 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
-archivesBaseName = "${project.archives_base_name}-forge"
+archivesBaseName = project.archives_base_name_neoforge
 version = project.mod_version
 group = project.maven_group
 
@@ -89,7 +89,7 @@ modrinth {
 	uploadFile = jar
 	changelog = "<p><a href='https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}'>https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}</a></p>"
 	gameVersions = ["${project.minecraft_version}"]
-	loaders = ["neofrge"]
+	loaders = ["neoforge"]
 }
 
 curseforge {
