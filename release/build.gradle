@@ -89,10 +89,11 @@ assemble.dependsOn(universalJar)
 
 // Create sources jar from all modules
 sourcesJar {
-    from project(':common').sourceSets.main.allSource
-    from project(':fabric').sourceSets.main.allJava
-    // NeoForge sources - manually specify since it uses a different plugin
-    from project(':neoforge').file('src/main/java')
+	from project(':common').sourceSets.main.allSource
+	from project(':fabric').sourceSets.main.allJava
+	// NeoForge sources - manually specify since it uses a different plugin
+	from project(':neoforge').file('src/main/java')
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType(JavaCompile).configureEach {

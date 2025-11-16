@@ -16,10 +16,12 @@ repositories {
 		name = 'NeoForge'
 		url = 'https://maven.neoforged.net/releases'
 	}
+	maven { url = "https://repo.spongepowered.org/maven/" }
 }
 
 neoForge {
     version = project.neoforge_version
+    
     runs {
         client {
             type = "client"
@@ -38,6 +40,7 @@ neoForge {
 }
 
 dependencies {
+	// Use the compiled common jar - it has proper Mojang mappings from Loom
 	implementation project(":common")
     compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
     annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
@@ -67,6 +70,11 @@ java {
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
+	}
+	
+	// Include common classes directly in the jar
+	from(project(":common").sourceSets.main.output) {
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	}
 }
 
