@@ -46,10 +46,15 @@ tasks.register('prepareReleaseVersion') {
 
 	doLast {
 		def propsFile = file('gradle.properties')
-		def props = new Properties()
-		propsFile.withInputStream { props.load(it) }
+		def content = propsFile.text
 		
-		def currentVersion = props.getProperty('mod_version')
+		// Extract current version using regex
+		def matcher = content =~ /(?m)^mod_version\s*=\s*(.+)$/
+		if (!matcher.find()) {
+			throw new GradleException("Could not find mod_version in gradle.properties")
+		}
+		
+		def currentVersion = matcher.group(1).trim()
 		println "Current version: ${currentVersion}"
 		
 		if (!currentVersion.contains('-prerelease')) {
@@ -59,23 +64,13 @@ tasks.register('prepareReleaseVersion') {
 		def releaseVersion = currentVersion.replace('-prerelease', '')
 		println "Release version: ${releaseVersion}"
 		
-		// Update the property
-		props.setProperty('mod_version', releaseVersion)
+		// Replace the line in the file, preserving everything else
+		def updatedContent = content.replaceAll(
+			/(?m)^mod_version\s*=\s*.+$/,
+			"mod_version = ${releaseVersion}"
+		)
 		
-		// Write back to file
-		propsFile.withWriter { writer ->
-			props.store(writer, null)
-		}
-		
-		// Clean up the timestamp comment that Properties.store() adds
-		def lines = propsFile.readLines()
-		propsFile.withWriter { writer ->
-			lines.each { line ->
-				if (!line.startsWith('#')) {
-					writer.println(line)
-				}
-			}
-		}
+		propsFile.text = updatedContent
 		
 		println "✓ Updated gradle.properties to version ${releaseVersion}"
 		
@@ -254,10 +249,15 @@ tasks.register('bumpVersion') {
 	
 	doLast {
 		def propsFile = file('gradle.properties')
-		def props = new Properties()
-		propsFile.withInputStream { props.load(it) }
+		def content = propsFile.text
 		
-		def releaseVersion = props.getProperty('mod_version')
+		// Extract current version using regex
+		def matcher = content =~ /(?m)^mod_version\s*=\s*(.+)$/
+		if (!matcher.find()) {
+			throw new GradleException("Could not find mod_version in gradle.properties")
+		}
+		
+		def releaseVersion = matcher.group(1).trim()
 		println "Previous release version: ${releaseVersion}"
 		
 		// Parse the version: "0.23.0+1.21.10" -> major.minor.patch + buildMetadata
@@ -273,23 +273,13 @@ tasks.register('bumpVersion') {
 		def nextVersion = "${major}.${minor}.${patch}+${buildMetadata}-prerelease"
 		println "Next version: ${nextVersion}"
 		
-		// Update the property
-		props.setProperty('mod_version', nextVersion)
+		// Replace the line in the file, preserving everything else
+		def updatedContent = content.replaceAll(
+			/(?m)^mod_version\s*=\s*.+$/,
+			"mod_version = ${nextVersion}"
+		)
 		
-		// Write back to file
-		propsFile.withWriter { writer ->
-			props.store(writer, null)
-		}
-		
-		// Clean up the timestamp comment that Properties.store() adds
-		def lines = propsFile.readLines()
-		propsFile.withWriter { writer ->
-			lines.each { line ->
-				if (!line.startsWith('#')) {
-					writer.println(line)
-				}
-			}
-		}
+		propsFile.text = updatedContent
 		
 		println "✓ Updated gradle.properties to version ${nextVersion}"
 		
