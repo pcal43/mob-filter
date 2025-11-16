@@ -14,17 +14,17 @@ public class MinecraftIdMatcherTest {
 
         final Platform p = FabricPlatform.get(); // FIXME should make a mock Platform instead
 
-        Assertions.assertFalse(MinecraftIdMatcher.of(new String[] {}, p).isMatch(r("minecraft:cobblestone")));
+        Assertions.assertFalse(IdMatcher.of(new String[] {}, p).isMatch(r("minecraft:cobblestone")));
 
-        assertTrue(MinecraftIdMatcher.of(new String[] { "minecraft:cobblestone" }, p).isMatch(r("minecraft:cobblestone")));
-        assertFalse(MinecraftIdMatcher.of(new String[] { "minecraft:cobblestone" }, p).isMatch(r("minecraft:stone")));
+        assertTrue(IdMatcher.of(new String[] { "minecraft:cobblestone" }, p).isMatch(r("minecraft:cobblestone")));
+        assertFalse(IdMatcher.of(new String[] { "minecraft:cobblestone" }, p).isMatch(r("minecraft:stone")));
 
-        assertTrue(MinecraftIdMatcher.of(new String[] { "minecraft:*" }, p).isMatch(r("minecraft:cobblestone")));
-        assertTrue(MinecraftIdMatcher.of(new String[] { "minecraft:*" }, p).isMatch(r("minecraft:stone")));
+        assertTrue(IdMatcher.of(new String[] { "minecraft:*" }, p).isMatch(r("minecraft:cobblestone")));
+        assertTrue(IdMatcher.of(new String[] { "minecraft:*" }, p).isMatch(r("minecraft:stone")));
 
-        assertTrue(MinecraftIdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }, p).isMatch(r("minecraft:cobblestone")));
-        assertTrue(MinecraftIdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }, p).isMatch(r("mymod:magicblock")));
-        assertFalse(MinecraftIdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }, p).isMatch(r("minecraft:redstone")));
+        assertTrue(IdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }, p).isMatch(r("minecraft:cobblestone")));
+        assertTrue(IdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }, p).isMatch(r("mymod:magicblock")));
+        assertFalse(IdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }, p).isMatch(r("minecraft:redstone")));
     }
 
     private static MinecraftId r(String val) {

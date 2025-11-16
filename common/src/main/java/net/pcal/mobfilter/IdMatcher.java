@@ -9,11 +9,11 @@ import java.util.List;
  * - anything-in-a-namespace matching (e.g., "minecraft:*")
  * and nothing else.
  */
-public interface MinecraftIdMatcher {
+public interface IdMatcher {
 
     boolean isMatch(final MinecraftId id);
 
-    static MinecraftIdMatcher of(final String[] patterns, final Platform platform) {
+    static IdMatcher of(final String[] patterns, final Platform platform) {
 
         final List<String> namespaces = new ArrayList<>();
         final List<MinecraftId> ids = new ArrayList<>();
@@ -31,7 +31,7 @@ public interface MinecraftIdMatcher {
         final Matcher<String> namespaceMatchers = Matcher.of(namespaces.toArray(new String[]{}));
         final Matcher<MinecraftId> idMatchers = Matcher.of(ids.toArray(new MinecraftId[]{}));
 
-        return new MinecraftIdMatcher() {
+        return new IdMatcher() {
             @Override
             public boolean isMatch(final MinecraftId id) {
                 return namespaceMatchers.isMatch(id.getNamespace()) || idMatchers.isMatch(id);
