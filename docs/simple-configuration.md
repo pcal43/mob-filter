@@ -1,5 +1,7 @@
 # Simple Configuration (`mobfilter.simple`)
 
+**IMPORTANT: `mobfilter.simple` is only available in mob-filter `0.19.0+1.21.7` and higher.**
+
 The simple configuration file is located here:
 
 ```
