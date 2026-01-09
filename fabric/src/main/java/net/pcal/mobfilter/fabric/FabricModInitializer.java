@@ -21,6 +21,7 @@ public class FabricModInitializer implements ModInitializer {
     @Override
     public void onInitialize() {
         ConfigService.get().ensureConfigFilesExists(CONFIG_DIR_PATH);
+        MobFilterCommands.register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             try {
                 ConfigService.get().loadConfig(CONFIG_DIR_PATH);
