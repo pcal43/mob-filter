@@ -42,6 +42,7 @@ public final class ConfigService {
     private Config config;
     private Level logLevel = Level.INFO;
     private String configError = null;
+    private boolean enabled = true;
 
     // ===================================================================================
     // Public methods
@@ -52,6 +53,8 @@ public final class ConfigService {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isSpawnAllowed(final SpawnAttempt att) {
+        // If mod is disabled, bypass all rules
+        if (!this.enabled) return true;
         if (this.config == null) return true;
         final boolean allowSpawn = isSpawnAllowed(att, this.config.getRules());
         if (this.logLevel.isLessSpecificThan(Level.DEBUG)) { // redundant but this gets called a lot
@@ -175,6 +178,17 @@ public final class ConfigService {
                 this.logger.info(()->"[MobFilter] - " + rule.toString());
             }
         }
+    }
+    //
+    // Initialise the isEnabled boolean for use in turning on and off the mod in-game
+    //
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        logger.info("[MobFilter] Mod enabled status = {}", enabled);
     }
 
     // ===================================================================================
