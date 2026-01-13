@@ -1,6 +1,6 @@
 package net.pcal.mobfilter;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,29 +13,29 @@ import java.util.List;
  */
 interface IdMatcher {
 
-    boolean isMatch(final ResourceLocation id);
+    boolean isMatch(final Identifier id);
 
     static IdMatcher of(final String[] patterns) {
 
         final List<String> namespaces = new ArrayList<>();
-        final List<ResourceLocation> ids = new ArrayList<>();
+        final List<Identifier> ids = new ArrayList<>();
 
         for (String pattern : patterns) {
             pattern = pattern.trim();
             if (pattern.endsWith(":*")) {
                 namespaces.add(pattern.substring(0, pattern.length() - 2));
             } else if (pattern.contains(":")) {
-                ids.add(ResourceLocation.parse(pattern));
+                ids.add(Identifier.parse(pattern));
             } else {
                 throw new IllegalArgumentException("Invalid id pattern: " + pattern);
             }
         }
         final Matcher<String> namespaceMatchers = Matcher.of(namespaces.toArray(new String[]{}));
-        final Matcher<ResourceLocation> idMatchers = Matcher.of(ids.toArray(new ResourceLocation[]{}));
+        final Matcher<Identifier> idMatchers = Matcher.of(ids.toArray(new Identifier[]{}));
 
         return new IdMatcher() {
             @Override
-            public boolean isMatch(final ResourceLocation id) {
+            public boolean isMatch(final Identifier id) {
                 return namespaceMatchers.isMatch(id.getNamespace()) || idMatchers.isMatch(id);
             }
 

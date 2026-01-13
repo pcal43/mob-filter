@@ -1,8 +1,8 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT' apply false
+	id 'fabric-loom' version '1.14-SNAPSHOT' apply false
 	id 'net.neoforged.moddev' version '2.0.116' apply false
 	id 'com.modrinth.minotaur' version '2.+' apply false
-	id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+	id 'net.darkhax.curseforgegradle' version '1.1.25'
 }
 
 version = project.mod_version
@@ -207,34 +207,25 @@ tasks.register('publishGitHub') {
 	}
 }
 
-/**
- * Publishes to CurseForge for both Fabric and NeoForge
- * Runs as separate Gradle invocation to use updated gradle.properties
- */
-tasks.register('publishCurseForge') {
-	group = 'release'
-	description = 'Publishes to CurseForge'
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
 
-	doLast {
-		println "Publishing to CurseForge..."
-		
-		def releaseVersion = project.ext.releaseVersion
-		def gradleCmd = [
-			'./gradlew',
-			':fabric:curseforge',
-			':neoforge:curseforge',
-			'--console=plain'
-		]
-		
-		def publishProcess = gradleCmd.execute()
-		publishProcess.waitForProcessOutput(System.out, System.err)
-		
-		if (publishProcess.exitValue() != 0) {
-			throw new GradleException("Failed to publish to CurseForge")
-		}
-		
-		println "✓ Published to CurseForge"
-	}
+tasks.register('publishCurseForge', TaskPublishCurseForge) {
+	// API Key from environment or fallback
+	apiToken = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
+
+	// Configure the main artifact
+	// The plugin automatically detects Fabric & Java version from your Loom setup
+	def mainFile = upload(project.curseforge_projectId, remapJar)
+
+	mainFile.releaseType = "release"
+	mainFile.changelog = "${project.github_projectUrl}/releases/tag/${project.mod_version}"
+	mainFile.changelogType = "markdown"
+
+	mainFile.addGameVersion(project.minecraft_version)
+	mainFile.addModLoader("Fabric")
+
+	// Ensure remapJar is finished before this runs
+	dependsOn(remapJar)
 }
 
 /**

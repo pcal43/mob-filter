@@ -1,13 +1,9 @@
 plugins {
 	id 'fabric-loom'
 	id 'com.modrinth.minotaur'
-	id 'com.matthewprenger.cursegradle'
+	id 'net.darkhax.curseforgegradle' version '1.1.25'
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
-
-archivesBaseName = project.archives_base_name_fabric
 version = project.mod_version
 group = project.maven_group
 
@@ -115,8 +111,8 @@ modrinth {
 	projectId = "${project.modrinth_projectId}"
 	versionNumber = project.mod_version
 	versionType = "release"
-	uploadFile = file("${project.buildDir}/libs/${project.archivesBaseName}-${project.mod_version}.jar")
-	changelog = "<p><a href='https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}'>https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}</a></p>"
+	uploadFile = file("${project.buildDir}/libs/${project.archives_base_name}-${project.mod_version}.jar")
+	changelog = "<p><a href='${project.github_projectUrl}/releases/tag/${project.mod_version}'>${project.github_projectUrl}/releases/tag/${project.mod_version}</a></p>"
 	gameVersions = ["${project.minecraft_version}"]
 	loaders = ["fabric"]
 	dependencies {
@@ -124,25 +120,23 @@ modrinth {
 	}
 }
 
-curseforge {
-	apiKey = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
 
-	project {
-		id = "${project.curseforge_projectId}"
-		releaseType = "release"
-		changelog = "https://github.com/pcal43/${project.github_projectId}/releases/tag/${project.mod_version}"
-		changelogType = "markdown"
-		mod_version = project.mod_version
-		addGameVersion ((String) project.minecraft_version)
-		addGameVersion "Fabric"
-		mainArtifact(remapJar)
+tasks.register('publishCurseForge', TaskPublishCurseForge) {
+	// API Key from environment or fallback
+	apiToken = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
 
-		afterEvaluate {
-			uploadTask.dependsOn("remapJar")
-		}
-	}
+	// Configure the main artifact
+	// The plugin automatically detects Fabric & Java version from your Loom setup
+	def mainFile = upload(project.curseforge_projectId, remapJar)
 
-	options {
-		forgeGradleIntegration = false
-	}
+	mainFile.releaseType = "release"
+	mainFile.changelog = "${project.github_projectUrl}/releases/tag/${project.mod_version}"
+	mainFile.changelogType = "markdown"
+
+	mainFile.addGameVersion(project.minecraft_version)
+	mainFile.addModLoader("Fabric")
+
+	// Ensure remapJar is finished before this runs
+	dependsOn(remapJar)
 }

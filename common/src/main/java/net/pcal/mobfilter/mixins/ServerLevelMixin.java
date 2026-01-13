@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity", remap = false)
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         MixinService.get().ServerLevel_addFreshEntity((ServerLevel)(Object)this, entity, cir);
     }

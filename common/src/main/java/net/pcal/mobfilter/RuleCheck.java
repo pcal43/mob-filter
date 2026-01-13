@@ -2,7 +2,7 @@ package net.pcal.mobfilter;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
@@ -27,7 +27,7 @@ interface RuleCheck {
     record DimensionCheck(IdMatcher dimensionMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation dimensionId = att.getDimensionId();
+            final Identifier dimensionId = att.getDimensionId();
             if (dimensionId == null) {
                 att.getLogger().debug(() -> "[MobFilter] DimensionCheck: dimension ID could not be determined for " + att.getEntityType() + ", assuming match");
                 return true;
@@ -42,7 +42,7 @@ interface RuleCheck {
     record BiomeCheck(IdMatcher biomeMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation biomeId = att.getBiomeId();
+            final Identifier biomeId = att.getBiomeId();
             if (biomeId == null) {
                 att.getLogger().debug(() -> "[MobFilter] BiomeCheck: biome ID could not be determined for " + att.getEntityType() + ", assuming match");
                 return true;
@@ -89,7 +89,7 @@ interface RuleCheck {
     record EntityIdCheck(IdMatcher entityMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation entityId = att.getEntityId();
+            final Identifier entityId = att.getEntityId();
             final boolean isMatch;
             if (entityId == null) {
                 att.getLogger().debug(() -> "[MobFilter] EntityIdCheck: entity ID could not be determined for " + att.getEntityType() + ", assuming match");
@@ -105,7 +105,7 @@ interface RuleCheck {
     record BlockIdCheck(IdMatcher blockMatcher) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
-            final ResourceLocation blockId = att.getBlockId();
+            final Identifier blockId = att.getBlockId();
             final boolean isMatch;
             if (blockId == null) {
                 att.getLogger().debug(() -> "[MobFilter] BlockIdCheck: block ID could not be determined for " + att.getEntityType() + ", assuming match");

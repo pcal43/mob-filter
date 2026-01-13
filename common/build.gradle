@@ -2,10 +2,6 @@ plugins {
 	id 'fabric-loom'
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
-
-archivesBaseName = project.archives_base_name_common
 version = project.mod_version
 group = project.maven_group
 
@@ -56,7 +52,7 @@ java {
 // Don't remap the common jar - the loader-specific modules will handle that
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.archives_base_name_common}"}
 	}
 }
 
