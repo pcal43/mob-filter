@@ -7,10 +7,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.MoonPhase;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -169,7 +171,7 @@ interface SpawnAttempt {
 
         @Override
         public Identifier getDimensionId() {
-            return this.serverWorld.dimension().location();
+            return this.serverWorld.dimension().identifier();
         }
 
         @Override
@@ -201,7 +203,8 @@ interface SpawnAttempt {
 
         @Override
         public Integer getMoonPhase() {
-            return serverWorld.getMoonPhase();
+            MoonPhase moonPhase = serverWorld.environmentAttributes().getValue(EnvironmentAttributes.MOON_PHASE, blockPos);
+            return moonPhase.index();
         }
 
         @Override

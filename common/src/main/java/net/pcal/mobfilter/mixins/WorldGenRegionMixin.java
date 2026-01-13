@@ -13,7 +13,7 @@ import net.pcal.mobfilter.MixinService;
 @Mixin(WorldGenRegion.class)
 public abstract class WorldGenRegionMixin {
 
-    @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity")
+    @Inject(at = @At("HEAD"), cancellable = true, method = "addFreshEntity", remap = false)
     private void mf_addFreshEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         MixinService.get().WorldGenRegion_addFreshEntity((WorldGenRegion)(Object)this, entity, cir);
     }

@@ -16,7 +16,7 @@ public class NaturalSpawnerSpawnStateMixin {
      * Ensures that filtered mobs don't count against mob caps or trigger
      * other finalization work.
      */
-    @Inject(method = "afterSpawn", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "afterSpawn", at = @At("HEAD"), cancellable = true, remap = false)
     private void mf_afterSpawn(Mob mob, ChunkAccess chunkAccess, CallbackInfo ci) {
         if (mob.isRemoved()) ci.cancel();
     }

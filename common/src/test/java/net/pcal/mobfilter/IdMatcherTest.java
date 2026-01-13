@@ -1,6 +1,6 @@
 package net.pcal.mobfilter;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -24,8 +24,8 @@ public class IdMatcherTest {
         assertFalse(IdMatcher.of(new String[] { "minecraft:cobblestone", "mymod:*" }).isMatch(r("minecraft:redstone")));
     }
 
-    private static ResourceLocation r(String val) {
-        return ResourceLocation.parse(val);
+    private static Identifier r(String val) {
+        return Identifier.parse(val);
     }
 
 
