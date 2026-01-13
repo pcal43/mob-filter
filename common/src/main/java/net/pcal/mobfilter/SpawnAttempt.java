@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -27,7 +27,7 @@ interface SpawnAttempt {
     /**
      * Returns the entity's resource location ID.
      */
-    ResourceLocation getEntityId();
+    Identifier getEntityId();
 
     /**
      * Returns the entity type.
@@ -42,12 +42,12 @@ interface SpawnAttempt {
     /**
      * Returns the dimension's resource location ID.
      */
-    ResourceLocation getDimensionId();
+    Identifier getDimensionId();
 
     /**
      * Returns the block's resource location ID.
      */
-    ResourceLocation getBlockId();
+    Identifier getBlockId();
 
     /**
      * Returns the reason for the entity spawn.
@@ -102,7 +102,7 @@ interface SpawnAttempt {
     /**
      * Returns the biome's resource location ID.
      */
-    ResourceLocation getBiomeId();
+    Identifier getBiomeId();
 
     /**
      * Returns the current day time.
@@ -145,7 +145,7 @@ interface SpawnAttempt {
         }
 
         @Override
-        public ResourceLocation getEntityId() {
+        public Identifier getEntityId() {
             return BuiltInRegistries.ENTITY_TYPE.getKey(entityType); // FIXME is this right?
         }
 
@@ -168,12 +168,12 @@ interface SpawnAttempt {
         }
 
         @Override
-        public ResourceLocation getDimensionId() {
+        public Identifier getDimensionId() {
             return this.serverWorld.dimension().location();
         }
 
         @Override
-        public ResourceLocation getBlockId() {
+        public Identifier getBlockId() {
             final BlockState bs = serverWorld.getBlockState(this.blockPos.below());
             final Block block = bs.getBlock();
             return BuiltInRegistries.BLOCK.getKey(block);
@@ -242,7 +242,7 @@ interface SpawnAttempt {
         }
 
         @Override
-        public ResourceLocation getBiomeId() {
+        public Identifier getBiomeId() {
             final Biome biome = this.getBiome(blockPos);
             if (biome == null) return null;
             // FIXME? I'm not entirely sure this is correct
@@ -283,7 +283,7 @@ interface SpawnAttempt {
          * Return the entity id of the mob that is going to spawn.
          */
         @Override
-        public ResourceLocation getEntityId() {
+        public Identifier getEntityId() {
             return BuiltInRegistries.ENTITY_TYPE.getKey(entityType); // FIXME is this right?
         }
 
@@ -325,13 +325,13 @@ interface SpawnAttempt {
         }
 
         @Override
-        public ResourceLocation getDimensionId() {
+        public Identifier getDimensionId() {
             this.logger.debug(()->"[MobFilter] dimensionId cannot be evaluated during world generation");
             return null;
         }
 
         @Override
-        public ResourceLocation getBlockId() {
+        public Identifier getBlockId() {
             this.logger.debug(()->"[MobFilter] blockId cannot be evaluated during world generation");
             return null;
         }
@@ -373,7 +373,7 @@ interface SpawnAttempt {
         }
 
         @Override
-        public ResourceLocation getBiomeId() {
+        public Identifier getBiomeId() {
             this.logger.debug("[MobFilter] biomeId cannot be evaluated during world generation");
             return null;
         }
