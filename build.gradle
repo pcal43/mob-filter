@@ -181,11 +181,10 @@ tasks.register('publishGitHub') {
 		
 		def fabricJar = file("fabric/build/libs/${project.archives_base_name_fabric}-${releaseVersion}.jar")
 		def neoforgeJar = file("neoforge/build/libs/${project.archives_base_name_neoforge}-${releaseVersion}.jar")
-		
-		if (!fabricJar.exists() || !neoforgeJar.exists()) {
-			throw new GradleException("Release jars not found!")
-		}
-		
+
+		if (!fabricJar.exists()) throw new GradleException("Fabric release jar not found at ${fabricJar}")
+		if (!neoforgeJar.exists()) throw new GradleException("NeoForge release jar not found at ${neoforgeJar}")
+
 		def ghCmd = [
 			'gh', 'release', 'create',
 			'--target', currentBranch,
@@ -207,25 +206,34 @@ tasks.register('publishGitHub') {
 	}
 }
 
-import net.darkhax.curseforgegradle.TaskPublishCurseForge
+/**
+ * Publishes to CurseForge for both Fabric and NeoForge
+ * Runs as separate Gradle invocation to use updated gradle.properties
+ */
+tasks.register('publishCurseForge') {
+	group = 'release'
+	description = 'Publishes to CurseForge'
 
-tasks.register('publishCurseForge', TaskPublishCurseForge) {
-	// API Key from environment or fallback
-	apiToken = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
+	doLast {
+		println "Publishing to CurseForge..."
 
-	// Configure the main artifact
-	// The plugin automatically detects Fabric & Java version from your Loom setup
-	def mainFile = upload(project.curseforge_projectId, remapJar)
+		def releaseVersion = project.ext.releaseVersion
+		def gradleCmd = [
+			'./gradlew',
+			':fabric:publishCurseforge',
+			':neoforge:publishCurseforge',
+			'--console=plain'
+		]
 
-	mainFile.releaseType = "release"
-	mainFile.changelog = "${project.github_projectUrl}/releases/tag/${project.mod_version}"
-	mainFile.changelogType = "markdown"
+		def publishProcess = gradleCmd.execute()
+		publishProcess.waitForProcessOutput(System.out, System.err)
 
-	mainFile.addGameVersion(project.minecraft_version)
-	mainFile.addModLoader("Fabric")
+		if (publishProcess.exitValue() != 0) {
+			throw new GradleException("Failed to publish to CurseForge")
+		}
 
-	// Ensure remapJar is finished before this runs
-	dependsOn(remapJar)
+		println "✓ Published to CurseForge"
+	}
 }
 
 /**
@@ -238,22 +246,22 @@ tasks.register('publishModrinth') {
 
 	doLast {
 		println "Publishing to Modrinth..."
-		
+
 		def releaseVersion = project.ext.releaseVersion
 		def gradleCmd = [
-			'./gradlew',
-			':fabric:modrinth',
-			':neoforge:modrinth',
-			'--console=plain'
+				'./gradlew',
+				':fabric:modrinth',
+				':neoforge:modrinth',
+				'--console=plain'
 		]
-		
+
 		def publishProcess = gradleCmd.execute()
 		publishProcess.waitForProcessOutput(System.out, System.err)
-		
+
 		if (publishProcess.exitValue() != 0) {
 			throw new GradleException("Failed to publish to Modrinth")
 		}
-		
+
 		println "✓ Published to Modrinth"
 	}
 }

@@ -4,6 +4,10 @@ plugins {
 	id 'net.darkhax.curseforgegradle' version '1.1.25'
 }
 
+base {
+	archivesName = project.archives_base_name_neoforge
+}
+
 version = project.mod_version
 group = project.maven_group
 
@@ -65,7 +69,7 @@ java {
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archives_base_name}"}
+		rename { "${it}_${project.archives_base_name_neoforge}"}
 	}
 	
 	// Include common classes directly in the jar
@@ -94,18 +98,13 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
 	// API Key from environment or fallback
 	apiToken = System.getenv("CURSEFORGE_TOKEN") ?: 'CURSEFORGE_TOKEN NOT_SET'
 
-	// Configure the main artifact
-	// The plugin automatically detects Fabric & Java version from your Loom setup
-	def mainFile = upload(project.curseforge_projectId, remapJar)
-
+	def mainFile = upload(project.curseforge_projectId, jar)
 	mainFile.releaseType = "release"
 	mainFile.changelog = "${project.github_projectUrl}/releases/tag/${project.mod_version}"
 	mainFile.changelogType = "markdown"
-
 	mainFile.addGameVersion(project.minecraft_version)
-	mainFile.addModLoader("Fabric")
-
+	mainFile.addModLoader("NeoForge")
 	// Ensure remapJar is finished before this runs
-	dependsOn(remapJar)
+	dependsOn(jar)
 }
 

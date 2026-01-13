@@ -4,6 +4,10 @@ plugins {
 	id 'net.darkhax.curseforgegradle' version '1.1.25'
 }
 
+base {
+	archivesName = project.archives_base_name_fabric
+}
+
 version = project.mod_version
 group = project.maven_group
 
@@ -97,7 +101,7 @@ java {
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.archives_base_name_fabric}"}
 	}
 	// Common sources are now part of main sourceSet, so they're automatically included
 }
@@ -111,7 +115,7 @@ modrinth {
 	projectId = "${project.modrinth_projectId}"
 	versionNumber = project.mod_version
 	versionType = "release"
-	uploadFile = file("${project.buildDir}/libs/${project.archives_base_name}-${project.mod_version}.jar")
+	uploadFile = remapJar
 	changelog = "<p><a href='${project.github_projectUrl}/releases/tag/${project.mod_version}'>${project.github_projectUrl}/releases/tag/${project.mod_version}</a></p>"
 	gameVersions = ["${project.minecraft_version}"]
 	loaders = ["fabric"]
