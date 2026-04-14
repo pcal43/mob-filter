@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "mobfilter",
-  "version": "${version}",
+  "version": "${mod_version}",
   "name": "Mob Filter",
   "description": "Rules-based filtering of mob spawns.",
   "authors": [
@@ -27,9 +27,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.0",
-    "minecraft": "~1.21.10",
-    "java": ">=21",
-    "fabric-api": "*"
+    "minecraft": ">=26.0",
+    "java": ">=25"
   },
   "jars": []
 }
