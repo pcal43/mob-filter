@@ -1,15 +1,12 @@
 plugins {
 	id 'net.neoforged.moddev'
 	id 'com.modrinth.minotaur'
-	id 'net.darkhax.curseforgegradle' version '1.1.25'
+	id 'net.darkhax.curseforgegradle'
 }
 
 base {
 	archivesName = project.archives_base_name_neoforge
 }
-
-version = project.mod_version
-group = project.maven_group
 
 repositories {
 	mavenCentral()
@@ -18,77 +15,59 @@ repositories {
 }
 
 neoForge {
-    version = project.neoforge_version
-    
-    runs {
-        client {
-            type = "client"
-            gameDirectory = file("${project.projectDir}/run")
-        }
-        server {
-            type = "server"
-            gameDirectory = file("${project.projectDir}/run")
-        }
-    }
-    mods {
-        mobfilter {
-            sourceSet sourceSets.main
-            // Also include common module for resources and classes
-            sourceSet project(":common").sourceSets.main
-        }
-    }
+	version = project.neoforge_version
+
+	runs {
+		client {
+			type = "client"
+			gameDirectory = file("${project.projectDir}/run")
+		}
+		server {
+			type = "server"
+			gameDirectory = file("${project.projectDir}/run")
+		}
+	}
+
+	mods {
+		mobfilter {
+			sourceSet sourceSets.main
+			sourceSet project(":common").sourceSets.main
+		}
+	}
 }
 
 dependencies {
 	// Use the compiled common jar - it has proper Mojang mappings from Loom
 	implementation project(":common")
-    compileOnly "org.spongepowered:mixin:${project.spongepowered_version}"
-    annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
-}
-
-tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
 }
 
 processResources {
-	inputs.property "version", project.version
-
+	// Insert the current version into the neoforge metadata
+	inputs.property "project.version", project.version
 	filesMatching("META-INF/neoforge.mods.toml") {
 		filter { line ->
-			line.replace('${version}', project.version.toString())
+			line.replace('${mod_version}', project.mod_version.toString())
 		}
 	}
-}
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-	withSourcesJar()
 }
 
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archives_base_name_neoforge}"}
 	}
-	
-	// Include common classes directly in the jar
-	from(project(":common").sourceSets.main.output) {
-		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	}
+	from(project(":common").sourceSets.main.output)
 }
-
-
 
 // Publishing configuration
 modrinth {
 	token = System.getenv("MODRINTH_TOKEN")
-	projectId = "${project.modrinth_projectId}"
+	projectId = project.modrinth_projectId
 	versionNumber = project.mod_version
+	versionName = "${project.mod_version} (neoforge)"
 	versionType = "release"
 	uploadFile = jar
 	changelog = "<p><a href='${project.github_projectUrl}/releases/tag/${project.mod_version}'>${project.github_projectUrl}/releases/tag/${project.mod_version}</a></p>"
-	gameVersions = ["${project.minecraft_version}"]
+	gameVersions = [ project.minecraft_version ]
 	loaders = ["neoforge"]
 }
 
@@ -104,7 +83,6 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
 	mainFile.changelogType = "markdown"
 	mainFile.addGameVersion(project.minecraft_version)
 	mainFile.addModLoader("NeoForge")
-	// Ensure remapJar is finished before this runs
+	// Ensure jar is finished before this runs
 	dependsOn(jar)
 }
-
