@@ -254,7 +254,7 @@ interface SpawnAttempt {
 
         @Override
         public Long getDayTime() {
-            return serverWorld.getDayTime();
+            return serverWorld.getOverworldClockTime();
         }
     }
 

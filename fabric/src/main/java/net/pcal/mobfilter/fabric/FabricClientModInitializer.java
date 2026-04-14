@@ -22,10 +22,10 @@ public class FabricClientModInitializer implements ClientModInitializer {
             if (client.player != null) {
                 String configError = ConfigService.get().getConfigError();
                 if (configError != null) {
-                    client.player.displayClientMessage(Component.literal(
+                    client.player.sendSystemMessage(Component.literal(
                             "Mob Filter has been disabled due to an error in config/mobfilter.json5:\n" +
                                     configError + "\n" +
-                                    "See log for details.").withStyle(RED), false);
+                                    "See log for details.").withStyle(RED));
                 }
             }
         });
