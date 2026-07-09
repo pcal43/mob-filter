@@ -14,10 +14,15 @@ dependencies {
 	annotationProcessor "org.spongepowered:mixin:${project.spongepowered_version}:processor"
 	testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junit_version}"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${project.junit_version}"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.8.2"
 }
 
 loom {
 	runs {
 		// No run configurations needed for common module
 	}
+}
+
+test {
+	useJUnitPlatform()
 }
