@@ -17,6 +17,10 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.world.scores.ReadOnlyScoreInfo;
+import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.Scoreboard;
+
 import org.apache.logging.log4j.Logger;
 
 import static java.util.Objects.requireNonNull;
@@ -116,6 +120,10 @@ interface SpawnAttempt {
      */
     Logger getLogger();
 
+    /**
+     * Returns the current value of a given scoreboard objective.
+     */
+    Integer getScoreboardValue(String holder, String objective);
 
     // ======================================================================
     // Implementation classes
@@ -256,6 +264,16 @@ interface SpawnAttempt {
         public Long getDayTime() {
             return serverWorld.getOverworldClockTime();
         }
+
+    		@Override
+    		public Integer getScoreboardValue(String holder, String objective) {
+    		    final ReadOnlyScoreInfo score = serverWorld.getScoreboard().getPlayerScoreInfo(ScoreHolder.forNameOnly(holder), serverWorld.getScoreboard().getObjective(objective));
+    		    if (score != null) {
+        		    return score.value();
+    		    }
+    		    return null;
+    		}
+
     }
 
     /**
@@ -390,6 +408,12 @@ interface SpawnAttempt {
         @Override
         public Long getDayTime() {
             this.logger.debug(()->"[MobFilter] dayTime cannot be evaluated during world generation");
+            return null;
+        }
+
+        @Override
+        public Integer getScoreboardValue(String holder, String objective) {
+            this.logger.debug(()->"[MobFilter] scoreboard cannot be evaluated during world generation");
             return null;
         }
     }
