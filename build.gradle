@@ -11,19 +11,17 @@ subprojects {
 	version = project.mod_version
 	group = project.maven_group
 
-	def javaVersionInt = Integer.parseInt(project.java_version)
-
-	pluginManager.withPlugin('java') {
+	plugins.withId('java') {
 		java {
 			toolchain {
-				languageVersion = JavaLanguageVersion.of(javaVersionInt)
+				languageVersion = JavaLanguageVersion.of(project.java_version as Integer)
 			}
 			withSourcesJar()
 		}
 	}
 
 	tasks.withType(JavaCompile).configureEach {
-		it.options.release = javaVersionInt
+		it.options.release = project.java_version as Integer
 		it.options.encoding = "UTF-8"
 	}
 }
@@ -429,4 +427,3 @@ tasks.register('release') {
 		println ""
 	}
 }
-
