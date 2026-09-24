@@ -21,10 +21,16 @@ dependencies {
 }
 
 processResources {
-	// Insert the current version into the neoforge metadata
+	// Insert current project versions into the Fabric metadata
 	inputs.property "project.version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "java_version", project.java_version
 	filesMatching("fabric.mod.json") {
-		expand "mod_version": project.version
+		expand(
+			"mod_version": project.version,
+			"minecraft_version": project.minecraft_version,
+			"java_version": project.java_version
+		)
 	}
 }
 
@@ -91,6 +97,7 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
 
 	mainFile.addGameVersion(project.minecraft_version)
 	mainFile.addModLoader("Fabric")
+	mainFile.addEnvironment("Server")
 
 	// Ensure jar is finished before this runs
 	dependsOn(jar)
