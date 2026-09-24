@@ -161,7 +161,7 @@ list of net.minecraft.entity.EntitySpawnReason values.  The condition is true
 when the mob is being spawned due to one of the listed reasons.
 
 #### `scoreboard`
-*Only available in version `0.28.2+26.2` and greater.*
+*Only available in version `0.28.1+26.2` and greater.*
 A dictionary containing the following values:
 
 |value    |description                                                                  |examples    |
