@@ -124,6 +124,16 @@
                 "items": { "type": "number", "minimum": 0, "maximum": 1 },
                 "description": "Probability values for applying this rule (0–1)"
               }
+              "matchScoreboard": {
+                "type": "object",
+                "properties": {
+                  "holder": { "type": "string" },
+                  "objective": { "type": "string" },
+                  "operator": { "type": "string", "enum": ["eq", "=", "==", "ne", "!=", "lt", "<", "gt", ">", "le", "<=", "ge", ">="] },
+                  "value": { "type": "integer" }
+                },
+                "description": "A scoreboard objective to check against for this rule to apply"
+              }
             }
           }
         }

@@ -4,6 +4,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
 import net.pcal.mobfilter.RuleCheck.WeatherType;
+import net.pcal.mobfilter.RuleCheck.MatchScoreboard;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -36,7 +37,7 @@ public class ConfigLoadersTest {
             assertArrayEquals(new String[]{"10", "20",}, jsonConfig.rules[1].when.skylightLevel);
             assertArrayEquals(new Integer[]{3, 4, 5}, jsonConfig.rules[1].when.moonPhase);
             assertEquals(0.45d, jsonConfig.rules[1].when.random);
-
+            assertEquals(new MatchScoreboard("dummy", "obj", ">", 0), jsonConfig.rules[1].when.matchScoreboard);
 
             // kick tires on rule building
             final Config.Builder configBuilder = Config.builder();
