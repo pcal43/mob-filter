@@ -42,12 +42,16 @@ dependencies {
 }
 
 processResources {
-	// Insert the current version into the neoforge metadata
+	// Insert current project versions into the NeoForge metadata
 	inputs.property "project.version", project.version
+	inputs.property "minecraft_version", project.minecraft_version
+	inputs.property "neoforge_version", project.neoforge_version
 	filesMatching("META-INF/neoforge.mods.toml") {
-		filter { line ->
-			line.replace('${mod_version}', project.mod_version.toString())
-		}
+		expand(
+			"mod_version": project.version,
+			"minecraft_version": project.minecraft_version,
+			"neoforge_version": project.neoforge_version
+		)
 	}
 }
 
