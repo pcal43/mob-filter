@@ -4,15 +4,17 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MobCategory;
 import net.pcal.mobfilter.JsonConfigLoader.JsonConfiguration;
 import net.pcal.mobfilter.RuleCheck.WeatherType;
-import net.pcal.mobfilter.RuleCheck.MatchScoreboard;
+import net.pcal.mobfilter.RuleCheck.ScoreboardCheckConfig;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ConfigLoadersTest {
 
@@ -37,7 +39,7 @@ public class ConfigLoadersTest {
             assertArrayEquals(new String[]{"10", "20",}, jsonConfig.rules[1].when.skylightLevel);
             assertArrayEquals(new Integer[]{3, 4, 5}, jsonConfig.rules[1].when.moonPhase);
             assertEquals(0.45d, jsonConfig.rules[1].when.random);
-            assertEquals(new MatchScoreboard("dummy", "obj", ">", 0), jsonConfig.rules[1].when.matchScoreboard);
+            assertEquals(new ScoreboardCheckConfig("Steve", "mob_kills", ">", 0), jsonConfig.rules[1].when.scoreboard);
 
             // kick tires on rule building
             final Config.Builder configBuilder = Config.builder();
@@ -61,6 +63,32 @@ public class ConfigLoadersTest {
         final String configString = configToString(rules);
         System.out.println(configString);
         assertEquals("LogLevel: INFO\n", configString);
+    }
+
+    @Test
+    public void testScoreboardRequiresAllFields() throws Exception {
+        final String json = """
+                {
+                  rules: [
+                    {
+                      what: 'ALLOW_SPAWN',
+                      when: {
+                        scoreboard: {
+                          holder: 'Steve',
+                          objective: 'mob_kills',
+                          value: 1
+                        }
+                      }
+                    }
+                  ]
+                }
+                """;
+
+        final JsonConfiguration config = JsonConfigLoader.loadFromJson(
+                new ByteArrayInputStream(json.getBytes(UTF_8)));
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> JsonConfigLoader.loadRules(config, Config.builder()));
+        assertEquals("'scoreboard.operator' must be specified on rule0", exception.getMessage());
     }
 
     @Test
