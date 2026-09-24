@@ -97,6 +97,7 @@ tasks.register('publishCurseForge', TaskPublishCurseForge) {
 
 	mainFile.addGameVersion(project.minecraft_version)
 	mainFile.addModLoader("Fabric")
+	mainFile.addEnvironment("Server")
 
 	// Ensure jar is finished before this runs
 	dependsOn(jar)
