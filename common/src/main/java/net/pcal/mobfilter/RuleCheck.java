@@ -307,14 +307,14 @@ interface RuleCheck {
         }
     }
 
-    record MatchScoreboard(
+    record ScoreboardCheckConfig(
         String holder,
         String objective,
         String operator,
         Integer value) {
     }
 
-    record ScoreboardCheck(MatchScoreboard match) implements RuleCheck {
+    record ScoreboardCheck(ScoreboardCheckConfig match) implements RuleCheck {
         @Override
         public boolean isMatch(final SpawnAttempt att) {
             String holder = match.holder;
@@ -323,29 +323,23 @@ interface RuleCheck {
             Integer testValue = match.value;
             Integer value = att.getScoreboardValue(holder, objective);
             if (value == null) {
-                att.getLogger().debug(() -> "[MobFilter] ScoreboardCheck: no value returned for holder " + holder + " objective " + objective);
-                return false;
+                att.getLogger().debug(() -> "[MobFilter] ScoreboardCheck: no value returned for holder " + holder + " objective " + objective + ", assuming match");
+                return ConfigService.get().getDefaultRuleCheckResult();
             }
             boolean isMatch;
-            if (operator.toLowerCase().equals("eq") || operator.equals("=") || operator.equals("==")) {
+            if (operator.equals("=")) {
                 isMatch = value.equals(testValue);
-            }
-            else if (operator.toLowerCase().equals("ne") || operator.equals("!=")) {
+            } else if (operator.equals("!=")) {
                 isMatch = !value.equals(testValue);
-            }
-            else if (operator.toLowerCase().equals("lt") || operator.equals("<")) {
+            } else if (operator.equals("<")) {
                 isMatch = value < testValue;
-            }
-            else if (operator.toLowerCase().equals("gt") || operator.equals(">")) {
+            } else if (operator.equals(">")) {
                 isMatch = value > testValue;
-            }
-            else if (operator.toLowerCase().equals("le") || operator.equals("<=")) {
+            } else if (operator.equals("<=")) {
                 isMatch = value <= testValue;
-            }
-            else if (operator.toLowerCase().equals("ge") || operator.equals(">=")) {
+            } else if (operator.equals(">=")) {
                 isMatch = value >= testValue;
-            }
-            else {
+            } else {
                 att.getLogger().debug(() -> "[MobFilter] ScoreboardCheck: unknown operator \"" + operator + "\"");
                 isMatch = false;
             }

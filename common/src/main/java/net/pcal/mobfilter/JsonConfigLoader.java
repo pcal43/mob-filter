@@ -25,7 +25,7 @@ import net.pcal.mobfilter.RuleCheck.DifficultyCheck;
 import net.pcal.mobfilter.RuleCheck.DimensionCheck;
 import net.pcal.mobfilter.RuleCheck.EntityIdCheck;
 import net.pcal.mobfilter.RuleCheck.LightLevelCheck;
-import net.pcal.mobfilter.RuleCheck.MatchScoreboard;
+import net.pcal.mobfilter.RuleCheck.ScoreboardCheckConfig;
 import net.pcal.mobfilter.RuleCheck.MoonPhaseCheck;
 import net.pcal.mobfilter.RuleCheck.RandomCheck;
 import net.pcal.mobfilter.RuleCheck.ScoreboardCheck;
@@ -43,6 +43,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Parse mobfilter.json5 and build a config object from it.
@@ -142,8 +143,9 @@ class JsonConfigLoader {
             if (when.random != null) {
                 checks.add(new RandomCheck(when.random));
             }
-            if (when.matchScoreboard != null) {
-                checks.add(new ScoreboardCheck(when.matchScoreboard));
+            if (when.scoreboard != null) {
+                validateScoreboardCheck(when.scoreboard, ruleName);
+                checks.add(new ScoreboardCheck(when.scoreboard));
             }
             configBuilder.addRule(new net.pcal.mobfilter.Rule(ruleName, checks.build(), configRule.what));
         }
@@ -153,6 +155,25 @@ class JsonConfigLoader {
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid logLevel value: " + fromConfig.logLevel, e);
             }
+        }
+    }
+
+    private static void validateScoreboardCheck(final ScoreboardCheckConfig check, final String ruleName) {
+        if (check.holder() == null || check.holder().isBlank()) {
+            throw new IllegalArgumentException("'scoreboard.holder' must be specified on " + ruleName);
+        }
+        if (check.objective() == null || check.objective().isBlank()) {
+            throw new IllegalArgumentException("'scoreboard.objective' must be specified on " + ruleName);
+        }
+        if (check.operator() == null || check.operator().isBlank()) {
+            throw new IllegalArgumentException("'scoreboard.operator' must be specified on " + ruleName);
+        }
+        if (check.value() == null) {
+            throw new IllegalArgumentException("'scoreboard.value' must be specified on " + ruleName);
+        }
+        final String operator = check.operator().strip();
+        if (!Set.of("=", "!=", "<", "<=", ">", ">=").contains(operator)) {
+            throw new IllegalArgumentException("Invalid scoreboard.operator on " + ruleName + ": " + check.operator());
         }
     }
 
@@ -278,7 +299,7 @@ class JsonConfigLoader {
         public WeatherType[] weather;
         public Difficulty[] difficulty;
         public Double random;
-        public MatchScoreboard matchScoreboard;
+        public ScoreboardCheckConfig scoreboard;
 
         // for backwards compatibility:
         @Deprecated // use spawnReason instead

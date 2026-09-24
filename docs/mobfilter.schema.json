@@ -123,15 +123,16 @@
                 "type": "array",
                 "items": { "type": "number", "minimum": 0, "maximum": 1 },
                 "description": "Probability values for applying this rule (0–1)"
-              }
-              "matchScoreboard": {
+              },
+              "scoreboard": {
                 "type": "object",
                 "properties": {
                   "holder": { "type": "string" },
                   "objective": { "type": "string" },
-                  "operator": { "type": "string", "enum": ["eq", "=", "==", "ne", "!=", "lt", "<", "gt", ">", "le", "<=", "ge", ">="] },
+                  "operator": { "type": "string", "enum": ["=", "!=", "<", "<=", ">", ">="] },
                   "value": { "type": "integer" }
                 },
+                "required": ["holder", "objective", "operator", "value"],
                 "description": "A scoreboard objective to check against for this rule to apply"
               }
             }

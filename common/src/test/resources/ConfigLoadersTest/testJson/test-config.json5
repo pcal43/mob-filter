@@ -65,9 +65,9 @@
         moonPhase: [ 3, 4, 5],
         weather: [ 'RAIN', 'THUNDER'],
         random: .45,
-        matchScoreboard: {
-          holder: "dummy",
-          objective: "obj",
+        scoreboard: {
+          holder: "Steve",
+          objective: "mob_kills",
           operator: ">",
           value: 0
         }
