@@ -25,8 +25,10 @@ import net.pcal.mobfilter.RuleCheck.DifficultyCheck;
 import net.pcal.mobfilter.RuleCheck.DimensionCheck;
 import net.pcal.mobfilter.RuleCheck.EntityIdCheck;
 import net.pcal.mobfilter.RuleCheck.LightLevelCheck;
+import net.pcal.mobfilter.RuleCheck.MatchScoreboard;
 import net.pcal.mobfilter.RuleCheck.MoonPhaseCheck;
 import net.pcal.mobfilter.RuleCheck.RandomCheck;
+import net.pcal.mobfilter.RuleCheck.ScoreboardCheck;
 import net.pcal.mobfilter.RuleCheck.SkylightLevelCheck;
 import net.pcal.mobfilter.RuleCheck.SpawnReasonCheck;
 import net.pcal.mobfilter.RuleCheck.TimeOfDayCheck;
@@ -139,6 +141,9 @@ class JsonConfigLoader {
             }
             if (when.random != null) {
                 checks.add(new RandomCheck(when.random));
+            }
+            if (when.matchScoreboard != null) {
+                checks.add(new ScoreboardCheck(when.matchScoreboard));
             }
             configBuilder.addRule(new net.pcal.mobfilter.Rule(ruleName, checks.build(), configRule.what));
         }
@@ -273,6 +278,7 @@ class JsonConfigLoader {
         public WeatherType[] weather;
         public Difficulty[] difficulty;
         public Double random;
+        public MatchScoreboard matchScoreboard;
 
         // for backwards compatibility:
         @Deprecated // use spawnReason instead

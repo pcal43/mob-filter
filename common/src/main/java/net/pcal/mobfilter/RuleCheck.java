@@ -306,4 +306,51 @@ interface RuleCheck {
             return isMatch;
         }
     }
+
+    record MatchScoreboard(
+        String holder,
+        String objective,
+        String operator,
+        Integer value) {
+    }
+
+    record ScoreboardCheck(MatchScoreboard match) implements RuleCheck {
+        @Override
+        public boolean isMatch(final SpawnAttempt att) {
+            String holder = match.holder;
+            String objective = match.objective;
+            String operator = match.operator.strip();
+            Integer testValue = match.value;
+            Integer value = att.getScoreboardValue(holder, objective);
+            if (value == null) {
+                att.getLogger().debug(() -> "[MobFilter] ScoreboardCheck: no value returned for holder " + holder + " objective " + objective);
+                return false;
+            }
+            boolean isMatch;
+            if (operator.toLowerCase().equals("eq") || operator.equals("=") || operator.equals("==")) {
+                isMatch = value.equals(testValue);
+            }
+            else if (operator.toLowerCase().equals("ne") || operator.equals("!=")) {
+                isMatch = !value.equals(testValue);
+            }
+            else if (operator.toLowerCase().equals("lt") || operator.equals("<")) {
+                isMatch = value < testValue;
+            }
+            else if (operator.toLowerCase().equals("gt") || operator.equals(">")) {
+                isMatch = value > testValue;
+            }
+            else if (operator.toLowerCase().equals("le") || operator.equals("<=")) {
+                isMatch = value <= testValue;
+            }
+            else if (operator.toLowerCase().equals("ge") || operator.equals(">=")) {
+                isMatch = value >= testValue;
+            }
+            else {
+                att.getLogger().debug(() -> "[MobFilter] ScoreboardCheck: unknown operator \"" + operator + "\"");
+                isMatch = false;
+            }
+            att.getLogger().trace(() -> "[MobFilter] ScoreboardCheck: holder " + holder + " objective " + objective + " value " + value + " is " + operator + " test value " + testValue + "? " + isMatch);
+            return isMatch;
+        }
+    }
 }
